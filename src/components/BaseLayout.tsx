@@ -1,45 +1,91 @@
 import * as React from 'react'
-import { styled, useTheme } from '@mui/material/styles'
+import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles'
 import Box from '@mui/material/Box'
-import Drawer from '@mui/material/Drawer'
-import CssBaseline from '@mui/material/CssBaseline'
+import MuiDrawer from '@mui/material/Drawer'
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import List from '@mui/material/List'
+import CssBaseline from '@mui/material/CssBaseline'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
-import InboxIcon from '@mui/icons-material/MoveToInbox'
-// import MailIcon from '@mui/icons-material/Mail'
-import Collapse from '@mui/material/Collapse'
-import { ExpandLess, ExpandMore } from '@mui/icons-material'
+import SchoolIcon from '@mui/icons-material/School'
+import SourceIcon from '@mui/icons-material/Source'
+import GroupIcon from '@mui/icons-material/Group'
+import { Button } from '@mui/material'
+import ToggleTheme from './ToggleTheme'
+import { useNavigate } from 'react-router-dom'
+
+interface SidebarElement {
+  id: number
+  title: string
+  icon: JSX.Element
+  href: string
+}
+
+const sidebarElements: SidebarElement[] = [
+  {
+    id: 1,
+    title: 'Tutorials',
+    icon: <SchoolIcon />,
+    href: '/tutorials',
+  },
+  {
+    id: 2,
+    title: 'Tutorials Content',
+    icon: <SourceIcon />,
+    href: '/tutorial-content',
+  },
+  {
+    id: 3,
+    title: 'Categories',
+    icon: <SchoolIcon />,
+    href: '/Categories',
+  },
+  {
+    id: 4,
+    title: 'Admin Users',
+    icon: <GroupIcon />,
+    href: '/admin-users',
+  },
+]
 
 const drawerWidth = 240
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-  open?: boolean
-}>(({ theme, open }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
+const openedMixin = (theme: Theme): CSSObject => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+})
+
+const closedMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  marginLeft: `-${drawerWidth}px`,
-  ...(open && {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  }),
+  overflowX: 'hidden',
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up('sm')]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+})
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
 }))
 
 interface AppBarProps extends MuiAppBarProps {
@@ -49,34 +95,44 @@ interface AppBarProps extends MuiAppBarProps {
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })<AppBarProps>(({ theme, open }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
   ...(open && {
+    marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
 }))
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
+  ...(open && {
+    ...openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
+  }),
 }))
 
-export const  BaseLayout: React.FC<{children : React.ReactNode; tittle: string;}> =() => {
+export const BaseLayout: React.FC<{
+  children: React.ReactNode
+  title: string
+}> = ({ ...props }) => {
   const theme = useTheme()
   const [open, setOpen] = React.useState(true)
-  const [tutorialsOpen, setTutorialsOpen] = React.useState(false)
-  const [categoriesOpen, setCategoriesOpen] = React.useState(false)
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -85,14 +141,7 @@ export const  BaseLayout: React.FC<{children : React.ReactNode; tittle: string;}
   const handleDrawerClose = () => {
     setOpen(false)
   }
-
-  const handleTutorialsToggle = () => {
-    setTutorialsOpen(!tutorialsOpen)
-  }
-
-  const handleCategoriesToggle = () => {
-    setCategoriesOpen(!categoriesOpen)
-  }
+  const navigate = useNavigate()
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -104,132 +153,114 @@ export const  BaseLayout: React.FC<{children : React.ReactNode; tittle: string;}
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
-            sx={{ mr: 2, ...(open && { display: 'none' }) }}
+            sx={{
+              marginRight: 5,
+              ...(open && { display: 'none' }),
+            }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Euron tutorial Admin
-          </Typography>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            <div>
+              <Typography variant="h6" noWrap component="div">
+                Euron Admin
+              </Typography>
+            </div>
+
+            <ToggleTheme />
+          </div>
         </Toolbar>
       </AppBar>
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={open}
-      >
+      <Drawer variant="permanent" open={open}>
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
-          </IconButton>
+          <div style={{ display: 'flex' }}>
+            <h3 style={{ marginRight: 50, color: 'purple' }}>Euron</h3>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === 'rtl' ? (
+                <ChevronRightIcon />
+              ) : (
+                <ChevronLeftIcon />
+              )}
+            </IconButton>
+          </div>
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleTutorialsToggle}>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Tutorials" />
-              {tutorialsOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-          </ListItem>
-          <Collapse in={tutorialsOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {['Tutorial 1', 'Tutorial 2', 'Tutorial 3'].map((text) => (
-                <ListItem key={text} disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>{/* <InboxIcon /> */}</ListItemIcon>
-                    <ListItemText primary={text} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Collapse>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleCategoriesToggle}>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Categories" />
-              {categoriesOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-          </ListItem>
-          <Collapse in={categoriesOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {['Category 1', 'Category 2', 'Category 3'].map((text) => (
-                <ListItem key={text} disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>{/* <InboxIcon />s */}</ListItemIcon>
-                    <ListItemText primary={text} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Collapse>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Tutorial content" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Users" />
-            </ListItemButton>
-          </ListItem>
+          {/* {['Tutorials', 'Tutorial Content', 'Categories', 'Admin Users'].map(
+            (text, index) => (
+              <ListItem key={text} disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {React.createElement(icons[index], {})}
+                  </ListItemIcon>
+                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            ),
+          )} */}
+          {sidebarElements.map((items) => {
+            return (
+              <>
+                <ListItemButton
+                  onClick={() => {
+                    navigate(items.href)
+                  }}
+                  key={items.id}
+                >
+                  <ListItemIcon>{items.icon}</ListItemIcon>
+                  <ListItemText primary={items.title} />
+                </ListItemButton>
+              </>
+            )
+          })}
         </List>
         <Divider />
+        <List>
+          <ListItemButton
+            sx={{
+              minWidth: 0,
+              mr: open ? 0 : 'auto',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              marginTop: 20,
+            }}
+          >
+            <Button
+              variant="text"
+              color="primary"
+              style={{ color: 'red' }}
+              onClick={() => {
+                // LocalStorage.clear()
+                window.location.reload()
+              }}
+            >
+              LOGOUT
+            </Button>
+          </ListItemButton>
+        </List>
       </Drawer>
-      <Main open={open}>
-        <DrawerHeader />
-        <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus
-          dolor purus non enim praesent elementum facilisis leo vel. Risus at
-          ultrices mi tempus imperdiet. Semper risus in hendrerit gravida rutrum
-          quisque non tellus. Convallis convallis tellus id interdum velit
-          laoreet id donec ultrices. Odio morbi quis commodo odio aenean sed
-          adipiscing. Amet nisl suscipit adipiscing bibendum est ultricies
-          integer quis. Cursus euismod quis viverra nibh cras. Metus vulputate
-          eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo
-          quis imperdiet massa tincidunt. Cras tincidunt lobortis feugiat
-          vivamus at augue. At augue eget arcu dictum varius duis at consectetur
-          lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa sapien
-          faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est
-          ullamcorper eget nulla facilisi etiam dignissim diam. Pulvinar
-          elementum integer enim neque volutpat ac tincidunt. Ornare suspendisse
-          sed nisi lacus sed viverra tellus. Purus sit amet volutpat consequat
-          mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis
-          risus sed vulputate odio. Morbi tincidunt ornare massa eget egestas
-          purus viverra accumsan in. In hendrerit gravida rutrum quisque non
-          tellus orci ac. Pellentesque nec nam aliquam sem et tortor. Habitant
-          morbi tristique senectus et. Adipiscing elit duis tristique
-          sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
-      </Main>
+      <Box component="main" maxWidth="2xl" sx={{ m: "auto", mt :15}}>
+        {props.children}
+      </Box>
     </Box>
   )
 }

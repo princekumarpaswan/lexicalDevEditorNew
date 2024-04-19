@@ -1,24 +1,25 @@
-// import { Route } from '../interfaces/route'
-// import Categories from '../pages/Categories/Categories'
-// import TutorialContent from '../pages/TutorialContent/TutorialContent'
-// import Tutorials from '../pages/Tutorials/Tutorials'
-// import Users from '../pages/Users/Users'
+import { Route } from '../interfaces/route'
+import AdminUsers from '../pages/AdminUsers'
 
-// export const routes: Route[] = [
-//   {
-//     path: '/tutorials',
-//     page: <Tutorials />,
-//   },
-//   {
-//     path: '/categories',
-//     page: <Categories />,
-//   },
-//   {
-//     path: '/tutorial-content',
-//     page: <TutorialContent />,
-//   },
-//   {
-//     path: '/users',
-//     page: <Users />,
-//   },
-// ]
+import Categories from '../pages/Categories'
+import Tutorials from '../pages/Tutorials'
+import TutorialsContent from '../pages/TutorialsContent'
+
+export const routes: Route[] = [
+  {
+    path: '/tutorials',
+    page: <Tutorials />,
+  },
+  {
+    path: '/categories',
+    page: <Categories />,
+  },
+  {
+    path: '/tutorial-content',
+    page: <TutorialsContent />,
+  },
+  {
+    path: '/admin-users',
+    page: <AdminUsers />,
+  },
+]
