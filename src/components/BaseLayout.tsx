@@ -18,9 +18,11 @@ import ListItemText from '@mui/material/ListItemText'
 import SchoolIcon from '@mui/icons-material/School'
 import SourceIcon from '@mui/icons-material/Source'
 import GroupIcon from '@mui/icons-material/Group'
-import { Button } from '@mui/material'
+import { Button, Container } from '@mui/material'
 import ToggleTheme from './ToggleTheme'
 import { useNavigate } from 'react-router-dom'
+import ExitToAppIcon from '@mui/icons-material/ExitToApp'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 interface SidebarElement {
   id: number
@@ -130,7 +132,7 @@ const Drawer = styled(MuiDrawer, {
 export const BaseLayout: React.FC<{
   children: React.ReactNode
   title: string
-}> = ({ ...props }) => {
+}> = ({ title, ...props }) => {
   const theme = useTheme()
   const [open, setOpen] = React.useState(true)
 
@@ -168,12 +170,22 @@ export const BaseLayout: React.FC<{
               width: '100%',
             }}
           >
-            <div>
-              <Typography variant="h6" noWrap component="div">
-                Euron Admin
-              </Typography>
-            </div>
-
+            <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              noWrap
+              sx={{ flexGrow: 1 }}
+            >
+              <IconButton
+                onClick={() => navigate(-1)}
+                color="inherit"
+                size="large"
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              {title}
+            </Typography>
             <ToggleTheme />
           </div>
         </Toolbar>
@@ -241,25 +253,47 @@ export const BaseLayout: React.FC<{
               mr: open ? 0 : 'auto',
               justifyContent: 'center',
               flexDirection: 'column',
-              marginTop: 20,
+              marginTop: 70,
             }}
           >
-            <Button
-              variant="text"
-              color="primary"
-              style={{ color: 'red' }}
-              onClick={() => {
-                // LocalStorage.clear()
-                window.location.reload()
-              }}
-            >
-              LOGOUT
+            {open && (
+              <Button
+                variant="text"
+                color="primary"
+                style={{ color: 'red' }}
+                onClick={() => {
+                  // LocalStorage.clear()
+                  window.location.reload()
+                }}
+              >
+                LOGOUT
+              </Button>
+            )}
+            <Button style={{ color: 'red' }}>
+              {open == false && <ExitToAppIcon />}
             </Button>
           </ListItemButton>
         </List>
       </Drawer>
-      <Box component="main" maxWidth="2xl" sx={{ m: "auto", mt :15}}>
+      {/* <Box component="main" maxWidth="xl" sx={{ m: 'auto', mt: 15 }}>
         {props.children}
+      </Box> */}
+      <Box
+        component="main"
+        sx={{
+          // backgroundColor: (theme) =>
+          //   theme.palette.mode === 'light'
+          //     ? theme.palette.grey[100]
+          //     : theme.palette.grey[900],
+          flexGrow: 1,
+          height: '100vh',
+          overflow: 'auto',
+        }}
+      >
+        <Toolbar />
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+          {props.children}
+        </Container>
       </Box>
     </Box>
   )

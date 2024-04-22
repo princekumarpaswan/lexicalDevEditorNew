@@ -1,9 +1,11 @@
 import { Route } from '../interfaces/route'
-import AdminUsers from '../pages/AdminUsers'
+import AdminUsers from '../pages/adminUsers/AdminUsers'
 
-import Categories from '../pages/Categories'
-import Tutorials from '../pages/Tutorials'
-import TutorialsContent from '../pages/TutorialsContent'
+import Categories from '../pages/categories/Categories'
+import Tutorials from '../pages/tutorials/Tutorials'
+import AddTutorials from '../pages/tutorials/AddTutorials'
+import EditTutorials from '../pages/tutorials/EditTutorials'
+import TutorialsContent from '../pages/tutorial-content/TutorialsContent'
 
 export const routes: Route[] = [
   {
@@ -21,5 +23,13 @@ export const routes: Route[] = [
   {
     path: '/admin-users',
     page: <AdminUsers />,
+  },
+  {
+    path: '/add-tutorial',
+    page: <AddTutorials />,
+  },
+  {
+    path: '/edit-tutorial',
+    page: <EditTutorials />,
   },
 ]
