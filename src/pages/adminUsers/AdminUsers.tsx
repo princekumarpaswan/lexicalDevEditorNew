@@ -17,6 +17,9 @@ import {
   FormControl,
   IconButton,
   InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from '@mui/material'
@@ -222,6 +225,20 @@ const AdminUsers = () => {
                 })
               }}
             />
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Role</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                // value={age}
+                label="Age"
+                // onChange={handleChange}
+              >
+                <MenuItem value={10}>Admin</MenuItem>
+                <MenuItem value={20}>Content Writer</MenuItem>
+                <MenuItem value={30}>Content Reviewer</MenuItem>
+              </Select>
+            </FormControl>
 
             <FormControl fullWidth variant="outlined">
               <TextField
