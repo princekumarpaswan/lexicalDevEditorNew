@@ -1,6 +1,14 @@
-import { Box, Button, Typography } from '@mui/material'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
+} from '@mui/material'
+import React, { useState } from 'react'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -88,9 +96,22 @@ const rowsData: rowDataProp[] = [
 
 function Categoriess() {
   // const [searchQuery, setSearchQuery] = useState('')
-  const navigate = useNavigate()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+
+  const [showModal, setShowModal] = React.useState(false)
+
+  const [Categories, setCategories] = React.useState({
+    _id: '',
+    categoryName: '',
+  })
+  const [isEditing, setIsEditing] = React.useState(false)
+
+  const handleEditCategories = (CategoriesData: any) => {
+    setCategories(CategoriesData)
+    setIsEditing(true)
+    setShowModal(true)
+  }
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage)
@@ -134,7 +155,10 @@ function Categoriess() {
               <Button
                 variant="contained"
                 sx={{ marginRight: 2 }}
-                onClick={() => navigate('/add-categories')}
+                onClick={() => {
+                  setShowModal(true)
+                  setIsEditing(false)
+                }}
               >
                 Add Categories
               </Button>
@@ -160,41 +184,30 @@ function Categoriess() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rowsData
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.ID}>
-                      <TableCell align="left">{row.SNo}</TableCell>
-                      <TableCell align="left">{row.ID}</TableCell>
-                      <TableCell align="center">
-                        {row.tutorialsMapped}
-                      </TableCell>
-
-                      {/* <TableCell
-                        align="center"
-                        onClick={() => navigate(`/edit-categories/`)}
+                {rowsData.map((row) => (
+                  <TableRow key={row.ID}>
+                    <TableCell align="left">{row.SNo}</TableCell>
+                    <TableCell align="left">{row.ID}</TableCell>
+                    <TableCell align="center">{row.tutorialsMapped}</TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="contained"
+                        startIcon={<EditOutlined />}
+                        style={{ marginRight: '12px' }}
+                        onClick={() => handleEditCategories(row)}
                       >
-                        <EditIcon sx={{ cursor: 'pointer', color: 'blue' }} />
-                      </TableCell> */}
-                      <TableCell align="center">
-                        <Button
-                          variant="contained"
-                          startIcon={<EditOutlined />}
-                          style={{ marginRight: '12px' }}
-                          onClick={() => navigate('/edit-categories')}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          startIcon={<DeleteOutline />}
-                          variant="contained"
-                          color="error"
-                        >
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        Edit
+                      </Button>
+                      <Button
+                        startIcon={<DeleteOutline />}
+                        variant="contained"
+                        color="error"
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
@@ -209,6 +222,64 @@ function Categoriess() {
           />
         </Paper>
       </Box>
+      <Dialog
+        open={showModal}
+        onClose={() => {
+          setShowModal(false)
+        }}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          {isEditing ? 'Edit Category' : 'Add Category'}
+        </DialogTitle>
+        <DialogContent
+          style={{
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            padding: '10px 24px',
+          }}
+        >
+          <TextField
+            fullWidth
+            label="Category Name"
+            variant="outlined"
+            type="text"
+            value={Categories.categoryName}
+            onChange={(e) => {
+              setCategories({
+                ...Categories,
+                categoryName: e.target.value,
+              })
+            }}
+          />
+        </DialogContent>
+        <DialogActions
+          style={{
+            padding: '24px',
+          }}
+        >
+          <Button
+            color="error"
+            onClick={() => {
+              setShowModal(false)
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setShowModal(false)
+              setIsEditing(false)
+            }}
+          >
+            {isEditing ? 'Update Category' : 'Add Category'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </BaseLayout>
   )
 }

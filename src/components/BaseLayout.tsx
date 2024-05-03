@@ -193,7 +193,16 @@ export const BaseLayout: React.FC<{
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           <div style={{ display: 'flex' }}>
-            <h3 style={{ marginRight: 50, color: 'purple' }}>Euron</h3>
+            <img
+              src={
+                theme.palette.mode === 'light'
+                  ? '../../public/images/euronlogo.png'
+                  : '../../public/images/Euron-darkmode-logo.png'
+              }
+              style={{ width: 140 }}
+              alt="Logo"
+            />
+
             <IconButton onClick={handleDrawerClose}>
               {theme.direction === 'rtl' ? (
                 <ChevronRightIcon />
