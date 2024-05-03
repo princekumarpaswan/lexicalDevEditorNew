@@ -12,7 +12,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/programs" />} />
+        <Route path="/" element={<Navigate to="/tutorials" />} />
         {routes.map((route) => {
           return (
             <Route key={route.path} path={route.path} element={route.page} />
