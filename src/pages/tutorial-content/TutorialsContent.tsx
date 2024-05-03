@@ -1,4 +1,11 @@
-import { Autocomplete, Box, TextField, Typography } from '@mui/material'
+import {
+  Autocomplete,
+  Box,
+  Button,
+  // Switch,
+  TextField,
+  Typography,
+} from '@mui/material'
 import { useState } from 'react'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -10,7 +17,9 @@ import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 // import EditIcon from '@mui/icons-material/Edit'
 import { BaseLayout } from '../../components/BaseLayout'
-import Switch from '@mui/material/Switch'
+// import Switch from '@mui/material/Switch'
+import { useNavigate } from 'react-router-dom'
+import { EditNotifications } from '@mui/icons-material'
 
 interface ColumnData {
   id: string
@@ -84,54 +93,54 @@ const rowsData: rowDataProp[] = [
     ReviewerAssigneeName: 'Rohan',
     AssignTo: 'Not assigned',
   },
-  {
-    SNo: 2,
-    ID: ' Javascript',
-    title: 'Demo Tutorial 2',
-    contentAssigneeName: 'Lokesh',
-    ReviewerAssigneeName: 'Rohan',
-    AssignTo: 'Not assigned',
-  },
-  {
-    SNo: 3,
-    ID: 'Javascript ',
-    title: 'Demo Tutorial 3',
-    contentAssigneeName: 'Lokesh',
-    ReviewerAssigneeName: 'Rohan',
-    AssignTo: 'Not assigned',
-  },
-  {
-    SNo: 4,
-    ID: ' Javascript',
-    title: 'Demo Tutorial 4',
-    contentAssigneeName: 'Lokesh',
-    ReviewerAssigneeName: 'Rohan',
-    AssignTo: 'Not assigned',
-  },
-  {
-    SNo: 5,
-    ID: ' Javascript',
-    title: 'Demo Tutorial 5',
-    contentAssigneeName: 'Lokesh',
-    ReviewerAssigneeName: 'Rohan',
-    AssignTo: 'Not assigned',
-  },
-  {
-    SNo: 6,
-    ID: ' React',
-    title: 'Demo Tutorial 6',
-    contentAssigneeName: 'Lokesh',
-    ReviewerAssigneeName: 'Rohan',
-    AssignTo: 'Not assigned',
-  },
-  {
-    SNo: 7,
-    ID: ' Javascript',
-    title: 'Demo Tutorial 7',
-    contentAssigneeName: 'Lokesh',
-    ReviewerAssigneeName: 'Rohan',
-    AssignTo: 'Not assigned',
-  },
+  // {
+  //   SNo: 2,
+  //   ID: ' Javascript',
+  //   title: 'Demo Tutorial 2',
+  //   contentAssigneeName: 'Lokesh',
+  //   ReviewerAssigneeName: 'Rohan',
+  //   AssignTo: 'Not assigned',
+  // },
+  // {
+  //   SNo: 3,
+  //   ID: 'Javascript ',
+  //   title: 'Demo Tutorial 3',
+  //   contentAssigneeName: 'Lokesh',
+  //   ReviewerAssigneeName: 'Rohan',
+  //   AssignTo: 'Not assigned',
+  // },
+  // {
+  //   SNo: 4,
+  //   ID: ' Javascript',
+  //   title: 'Demo Tutorial 4',
+  //   contentAssigneeName: 'Lokesh',
+  //   ReviewerAssigneeName: 'Rohan',
+  //   AssignTo: 'Not assigned',
+  // },
+  // {
+  //   SNo: 5,
+  //   ID: ' Javascript',
+  //   title: 'Demo Tutorial 5',
+  //   contentAssigneeName: 'Lokesh',
+  //   ReviewerAssigneeName: 'Rohan',
+  //   AssignTo: 'Not assigned',
+  // },
+  // {
+  //   SNo: 6,
+  //   ID: ' React',
+  //   title: 'Demo Tutorial 6',
+  //   contentAssigneeName: 'Lokesh',
+  //   ReviewerAssigneeName: 'Rohan',
+  //   AssignTo: 'Not assigned',
+  // },
+  // {
+  //   SNo: 7,
+  //   ID: ' Javascript',
+  //   title: 'Demo Tutorial 7',
+  //   contentAssigneeName: 'Lokesh',
+  //   ReviewerAssigneeName: 'Rohan',
+  //   AssignTo: 'Not assigned',
+  // },
 ]
 
 const top100Films = [
@@ -146,6 +155,8 @@ const top100Films = [
 
 function Tutorials() {
   // const [searchQuery, setSearchQuery] = useState('')
+
+  const navigate = useNavigate()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
 
@@ -160,10 +171,10 @@ function Tutorials() {
     setPage(0)
   }
 
-  const label = { inputProps: { 'aria-label': 'Switch demo' } }
+  // const label = { inputProps: { 'aria-label': 'Switch demo' } }
 
   return (
-    <BaseLayout title="Tutorials">
+    <BaseLayout title="Tutorial Content">
       <Box>
         <Box
           sx={{
@@ -188,8 +199,15 @@ function Tutorials() {
             <div
               style={{
                 display: 'flex',
+                gap: 20,
               }}
             >
+              <Button
+                variant="contained"
+                onClick={() => navigate('/add-tutorial-content')}
+              >
+                Add Tutorial Content
+              </Button>
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
@@ -236,15 +254,17 @@ function Tutorials() {
                       </TableCell>
                       <TableCell align="center">{row.AssignTo}</TableCell>
 
-                      {/* <TableCell
+                      <TableCell
                         align="center"
                         onClick={() => navigate(`/edit-tutorial/`)}
                       >
-                        <EditIcon sx={{ cursor: 'pointer', color: 'blue' }} />
-                      </TableCell> */}
-                      <TableCell align="center">
-                        {<Switch {...label} />}
+                        <EditNotifications
+                          sx={{ cursor: 'pointer', color: 'blue' }}
+                        />
                       </TableCell>
+                      {/* <TableCell align="center">
+                        {<Switch {...label} />}
+                      </TableCell> */}
                     </TableRow>
                   ))}
               </TableBody>

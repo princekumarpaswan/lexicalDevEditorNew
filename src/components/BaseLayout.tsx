@@ -214,30 +214,6 @@ export const BaseLayout: React.FC<{
         </DrawerHeader>
         <Divider />
         <List>
-          {/* {['Tutorials', 'Tutorial Content', 'Categories', 'Admin Users'].map(
-            (text, index) => (
-              <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {React.createElement(icons[index], {})}
-                  </ListItemIcon>
-                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-                </ListItemButton>
-              </ListItem>
-            ),
-          )} */}
           {sidebarElements.map((items) => {
             return (
               <>
@@ -284,16 +260,10 @@ export const BaseLayout: React.FC<{
           </ListItemButton>
         </List>
       </Drawer>
-      {/* <Box component="main" maxWidth="xl" sx={{ m: 'auto', mt: 15 }}>
-        {props.children}
-      </Box> */}
+
       <Box
         component="main"
         sx={{
-          // backgroundColor: (theme) =>
-          //   theme.palette.mode === 'light'
-          //     ? theme.palette.grey[100]
-          //     : theme.palette.grey[900],
           flexGrow: 1,
           height: '100vh',
           overflow: 'auto',

@@ -62,7 +62,8 @@ function AddTutorials() {
   }
 
   return (
-    <BaseLayout title={params.get('edit') ? 'Edit Tutorials' : 'Add Tutorials'}>
+    // <BaseLayout title={params.get('/edit') ? 'Edit Tutorials' : 'Add Tutorials'}>
+    <BaseLayout title="Add Tutorial">
       <Box
         component="form"
         sx={{
@@ -127,7 +128,7 @@ function AddTutorials() {
           </FormControl>
         </Box>
 
-        <Box
+        {/* <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -146,7 +147,7 @@ function AddTutorials() {
             value={rowData?.title}
             fullWidth
           />
-        </Box>
+        </Box> */}
         <Button variant="contained" sx={{}} onClick={() => {}}>
           Generate Topic using AI
         </Button>

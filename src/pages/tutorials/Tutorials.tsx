@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from '@mui/material'
+import { Autocomplete, Box, Button, TextField, Typography } from '@mui/material'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
@@ -100,6 +100,16 @@ const rowsData: rowDataProp[] = [
   },
 ]
 
+const top100Films = [
+  { label: 'The Shawshank Redemption', year: 1994 },
+  { label: 'The Godfather', year: 1972 },
+  { label: 'The Godfather: Part II', year: 1974 },
+  { label: 'The Dark Knight', year: 2008 },
+  { label: '12 Angry Men', year: 1957 },
+  { label: "Schindler's List", year: 1993 },
+  { label: 'Pulp Fiction', year: 1994 },
+]
+
 function Tutorials() {
   // const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
@@ -133,6 +143,7 @@ function Tutorials() {
           <Typography variant="h5" component="h5" mb={2}>
             Tutorials
           </Typography>
+
           <div
             style={{
               display: 'flex',
@@ -142,21 +153,21 @@ function Tutorials() {
               width: '50%',
             }}
           >
-            {/* <TextField
-              style={{ width: '50%', minWidth: '200px' }}
-              label="Search Programs by Name"
-              variant="outlined"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value)
-              }}
-            /> */}
             <div
               style={{
                 display: 'flex',
+                gap: 20,
               }}
             >
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={top100Films}
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Filter Content" />
+                )}
+              />
               <Button
                 variant="contained"
                 sx={{ marginRight: 2 }}

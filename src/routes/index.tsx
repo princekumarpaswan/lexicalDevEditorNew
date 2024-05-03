@@ -6,6 +6,7 @@ import Tutorials from '../pages/tutorials/Tutorials'
 import AddTutorials from '../pages/tutorials/AddTutorials'
 import EditTutorials from '../pages/tutorials/EditTutorials'
 import TutorialsContent from '../pages/tutorial-content/TutorialsContent'
+import AddTutorialContent from '../pages/tutorial-content/AddTutorialContent'
 
 export const routes: Route[] = [
   {
@@ -31,5 +32,9 @@ export const routes: Route[] = [
   {
     path: '/edit-tutorial',
     page: <EditTutorials />,
+  },
+  {
+    path: '/add-tutorial-content',
+    page: <AddTutorialContent />,
   },
 ]

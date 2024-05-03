@@ -1,5 +1,5 @@
 import { BaseLayout } from '../../components/BaseLayout'
-import { useSearchParams } from 'react-router-dom'
+// import { useSearchParams } from 'react-router-dom'
 import { Box, Button, TextField, Typography } from '@mui/material'
 import { useLocation } from 'react-router-dom'
 import { Theme, useTheme } from '@mui/material/styles'
@@ -44,7 +44,7 @@ function getStyles(name: string, personName: readonly string[], theme: Theme) {
 
 function AddTutorials() {
   // const navigate = useNavigate()
-  const [params] = useSearchParams()
+  // const [params] = useSearchParams()
   const location = useLocation()
   const rowData = location.state?.rowData
 
@@ -62,7 +62,8 @@ function AddTutorials() {
   }
 
   return (
-    <BaseLayout title={params.get('') ? 'Edit Tutorials' : 'Add Tutorials'}>
+    // <BaseLayout title={params.get('') ? 'Edit Tutorials' : 'Add Tutorials'}>
+    <BaseLayout title= "Edit Tutorial">
       <Box
         component="form"
         sx={{
@@ -75,7 +76,8 @@ function AddTutorials() {
         autoComplete="off"
       >
         <Typography variant="h5" component="h5" pb={1}>
-          {params.get('edit') ? 'Edit Tutorials' : 'Add Tutorials'}
+          {/* {params.get('edit') ? 'Edit Tutorials' : 'Add Tutorials'} */}
+          Edit Tutorial
         </Typography>
         <TextField label="Tutorial Title" required value={rowData?.title} />
 
@@ -127,7 +129,7 @@ function AddTutorials() {
           </FormControl>
         </Box>
 
-        <Box
+        {/* <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -146,7 +148,7 @@ function AddTutorials() {
             value={rowData?.title}
             fullWidth
           />
-        </Box>
+        </Box> */}
         <Button variant="contained" sx={{}} onClick={() => {}}>
           Generate Topic using AI
         </Button>
