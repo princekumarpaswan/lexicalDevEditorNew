@@ -17,7 +17,7 @@ const AddTopicAndSubTopic: React.FC = () => {
   // State variables for modal
   const [openModal, setOpenModal] = useState(false)
   const [textInput, setTextInput] = useState('')
-  const [fileInput, setFileInput] = useState<File | null>(null)
+  // const [fileInput, setFileInput] = useState<File | null>(null)
 
   // Functions to handle modal open/close and input changes
   const handleOpenModal = () => {
@@ -35,7 +35,7 @@ const AddTopicAndSubTopic: React.FC = () => {
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files && files.length > 0) {
-      setFileInput(files[0])
+      // setFileInput(files[0])
     }
   }
   const handleGenerate = () => {
@@ -157,7 +157,7 @@ const AddTopicAndSubTopic: React.FC = () => {
 
             {/* File input */}
             <Input
-              sx={{ marginTop: 5}}
+              sx={{ marginTop: 5 }}
               type="file"
               onChange={handleFileInputChange}
             />
@@ -278,3 +278,6 @@ const AddTopicAndSubTopic: React.FC = () => {
 }
 
 export default AddTopicAndSubTopic
+// function setFileInput(arg0: File) {
+//   throw new Error('Function not implemented.')
+// }

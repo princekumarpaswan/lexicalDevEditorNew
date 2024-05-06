@@ -109,30 +109,30 @@ const EditTutorial: React.FC = () => {
     // Logic to save edited tutorial data
   }
 
-  const handleAddTopic = () => {
-    setTutorialData((prevState) => ({
-      ...prevState,
-      topics: [
-        ...prevState.topics,
-        {
-          topicName: '',
-          topicDescription: '',
-          subTopics: [{ subTopicName: '', subTopicDescription: '' }],
-        },
-      ],
-    }))
-  }
+  // const handleAddTopic = () => {
+  //   setTutorialData((prevState) => ({
+  //     ...prevState,
+  //     topics: [
+  //       ...prevState.topics,
+  //       {
+  //         topicName: '',
+  //         topicDescription: '',
+  //         subTopics: [{ subTopicName: '', subTopicDescription: '' }],
+  //       },
+  //     ],
+  //   }))
+  // }
 
-  const handleAddSubTopic = (index: number) => {
-    setTutorialData((prevState) => {
-      const updatedTopics = [...prevState.topics]
-      updatedTopics[index].subTopics.push({
-        subTopicName: '',
-        subTopicDescription: '',
-      })
-      return { ...prevState, topics: updatedTopics }
-    })
-  }
+  // const handleAddSubTopic = (index: number) => {
+  //   setTutorialData((prevState) => {
+  //     const updatedTopics = [...prevState.topics]
+  //     updatedTopics[index].subTopics.push({
+  //       subTopicName: '',
+  //       subTopicDescription: '',
+  //     })
+  //     return { ...prevState, topics: updatedTopics }
+  //   })
+  // }
 
   const handleTopicChange = (
     index: number,
