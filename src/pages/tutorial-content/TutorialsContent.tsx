@@ -2,6 +2,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  Switch,
   // Switch,
   TextField,
   Typography,
@@ -18,8 +19,8 @@ import TableRow from '@mui/material/TableRow'
 // import EditIcon from '@mui/icons-material/Edit'
 import { BaseLayout } from '../../components/BaseLayout'
 // import Switch from '@mui/material/Switch'
-import { useNavigate } from 'react-router-dom'
-import { EditNotifications } from '@mui/icons-material'
+import { Link, useNavigate } from 'react-router-dom'
+// import { EditNotifications } from '@mui/icons-material'
 
 interface ColumnData {
   id: string
@@ -75,23 +76,27 @@ const Columndata: ColumnData[] = [
 ]
 
 interface rowDataProp {
+  Id: string
   SNo: number
-  ID: string
-  title: string
+  subTopicName: string
+  tutorialName: string
   contentAssigneeName: string
   ReviewerAssigneeName: string
-  AssignTo: string
+  status: string
+  // publish_Unpublish: ToggleEvent
 }
 
 // Create an array of objects
 const rowsData: rowDataProp[] = [
   {
+    Id: '2348923918579874389',
     SNo: 1,
-    ID: 'React ',
-    title: 'Web Dev',
+    subTopicName: 'React ',
+    tutorialName: 'Web Dev',
     contentAssigneeName: 'Lokesh',
     ReviewerAssigneeName: 'Rohan',
-    AssignTo: 'Not assigned',
+    status: 'Not assigned',
+    // publish_Unpublish:  ,
   },
   // {
   //   SNo: 2,
@@ -171,7 +176,7 @@ function Tutorials() {
     setPage(0)
   }
 
-  // const label = { inputProps: { 'aria-label': 'Switch demo' } }
+  const label = { inputProps: { 'aria-label': 'Switch demo' } }
 
   return (
     <BaseLayout title="Tutorial Content">
@@ -204,9 +209,11 @@ function Tutorials() {
             >
               <Button
                 variant="contained"
-                onClick={() => navigate('/add-tutorial-content')}
+                onClick={() =>
+                  navigate('/tutorial-content/assign-tutorial-content')
+                }
               >
-                Add Tutorial Content
+                Assign Tutorial Content
               </Button>
               <Autocomplete
                 disablePortal
@@ -242,28 +249,31 @@ function Tutorials() {
                 {rowsData
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.ID}>
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.Id}>
                       <TableCell align="left">{row.SNo}</TableCell>
-                      <TableCell align="left">{row.ID}</TableCell>
-                      <TableCell align="center">{row.title}</TableCell>
+                      <TableCell align="left">
+                        <Link to={'{row.subTopicName}'}>
+                          {row.subTopicName}
+                        </Link>
+                      </TableCell>
+                      <TableCell align="center">{row.tutorialName}</TableCell>
                       <TableCell align="center">
                         {row.contentAssigneeName}
                       </TableCell>
                       <TableCell align="center">
                         {row.ReviewerAssigneeName}
                       </TableCell>
-                      <TableCell align="center">{row.AssignTo}</TableCell>
-
-                      <TableCell
+                      <TableCell align="center">{row.status}</TableCell>
+                      <TableCell align="center">
+                        {<Switch {...label} />}
+                      </TableCell>
+                      {/* <TableCell
                         align="center"
                         onClick={() => navigate(`/edit-tutorial/`)}
                       >
                         <EditNotifications
                           sx={{ cursor: 'pointer', color: 'blue' }}
                         />
-                      </TableCell>
-                      {/* <TableCell align="center">
-                        {<Switch {...label} />}
                       </TableCell> */}
                     </TableRow>
                   ))}

@@ -6,9 +6,15 @@ import Tutorials from '../pages/tutorials/Tutorials'
 import AddTutorials from '../pages/tutorials/AddTutorials'
 import EditTutorials from '../pages/tutorials/EditTutorials'
 import TutorialsContent from '../pages/tutorial-content/TutorialsContent'
-import AddTutorialContent from '../pages/tutorial-content/AddTutorialContent'
+import AddTopicAndSubTopic from '../pages/tutorials/AddTopicAndSubTopic'
+import AssignTutorialContent from '../pages/tutorial-content/AssignTutorialContent'
+// import Login from '../pages/Login'
 
 export const routes: Route[] = [
+  // {
+  //   path: '/login',
+  //   page: <Login />,
+  // },
   {
     path: '/tutorials',
     page: <Tutorials />,
@@ -22,6 +28,10 @@ export const routes: Route[] = [
     page: <TutorialsContent />,
   },
   {
+    path: '/tutorial-content/assign-tutorial-content',
+    page: <AssignTutorialContent />,
+  },
+  {
     path: '/admin-users',
     page: <AdminUsers />,
   },
@@ -30,11 +40,11 @@ export const routes: Route[] = [
     page: <AddTutorials />,
   },
   {
-    path: '/edit-tutorial',
-    page: <EditTutorials />,
+    path: '/add-tutorial/topic-and-subtopic',
+    page: <AddTopicAndSubTopic />,
   },
   {
-    path: '/add-tutorial-content',
-    page: <AddTutorialContent />,
+    path: '/edit-tutorial',
+    page: <EditTutorials />,
   },
 ]

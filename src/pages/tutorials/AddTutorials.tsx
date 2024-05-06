@@ -1,7 +1,7 @@
 import { BaseLayout } from '../../components/BaseLayout'
-import { useSearchParams } from 'react-router-dom'
+// import { useSearchParams } from 'react-router-dom'
 import { Box, Button, TextField, Typography } from '@mui/material'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Theme, useTheme } from '@mui/material/styles'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import MenuItem from '@mui/material/MenuItem'
@@ -43,8 +43,8 @@ function getStyles(name: string, personName: readonly string[], theme: Theme) {
 }
 
 function AddTutorials() {
-  // const navigate = useNavigate()
-  const [params] = useSearchParams()
+  const navigate = useNavigate()
+  // const [params] = useSearchParams()
   const location = useLocation()
   const rowData = location.state?.rowData
 
@@ -67,7 +67,7 @@ function AddTutorials() {
       <Box
         component="form"
         sx={{
-          '& > :not(style)': { width: '50%', my: 1 },
+          '& > :not(style)': { width: '60%', my: 1 },
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -75,9 +75,21 @@ function AddTutorials() {
         }}
         autoComplete="off"
       >
-        <Typography variant="h5" component="h5" pb={1}>
-          {params.get('edit') ? 'Edit Tutorials' : 'Add Tutorials'}
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography variant="h5" component="h5" pb={1}>
+            {/* {params.get('edit') ? 'Edit Tutorials' : 'Add Tutorials'} */}
+            Add Tutorial
+          </Typography>
+          {/* <Button variant="contained" sx={{}} onClick={() => {}}>
+            Generate Using AI
+          </Button> */}
+        </Box>
+
         <TextField label="Tutorial Title" required value={rowData?.title} />
 
         <TextField
@@ -97,7 +109,6 @@ function AddTutorials() {
         >
           <FormControl sx={{ width: '100%' }}>
             <Select
-              multiple
               displayEmpty
               value={personName}
               onChange={handleChange}
@@ -148,8 +159,23 @@ function AddTutorials() {
             fullWidth
           />
         </Box> */}
-        <Button variant="contained" sx={{}} onClick={() => {}}>
-          Generate Topic using AI
+      </Box>
+      <Box
+        sx={{
+          width: 100,
+          margin: 'auto',
+        }}
+      >
+        <Button
+          variant="contained"
+          sx={{
+            width: 150,
+          }}
+          onClick={() => {
+            navigate('/add-tutorial/topic-and-subtopic')
+          }}
+        >
+          Save Tutorial
         </Button>
       </Box>
     </BaseLayout>

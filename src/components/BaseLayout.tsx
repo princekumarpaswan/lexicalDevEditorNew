@@ -196,8 +196,8 @@ export const BaseLayout: React.FC<{
             <img
               src={
                 theme.palette.mode === 'light'
-                  ? '../../public/images/euronlogo.png'
-                  : '../../public/images/Euron-darkmode-logo.png'
+                  ? '../../images/euronlogo.png'
+                  : '../../images/Euron-darkmode-logo.png'
               }
               style={{ width: 140 }}
               alt="Logo"
