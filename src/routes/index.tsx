@@ -8,13 +8,13 @@ import EditTutorials from '../pages/tutorials/EditTutorials'
 import TutorialsContent from '../pages/tutorial-content/TutorialsContent'
 import AddTopicAndSubTopic from '../pages/tutorials/AddTopicAndSubTopic'
 import AssignTutorialContent from '../pages/tutorial-content/AssignTutorialContent'
-// import Login from '../pages/Login'
+import Login from '../pages/Login'
 
 export const routes: Route[] = [
-  // {
-  //   path: '/login',
-  //   page: <Login />,
-  // },
+  {
+    path: '/login',
+    page: <Login />,
+  },
   {
     path: '/tutorials',
     page: <Tutorials />,
