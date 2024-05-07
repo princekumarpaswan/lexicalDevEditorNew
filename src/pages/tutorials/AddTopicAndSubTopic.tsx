@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { BaseLayout } from '../../components/BaseLayout'
 import { Box, Button, Typography, TextField, Modal, Input } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import IconButton from '@mui/material/IconButton'
 
 export interface SubTopic {
   subTopicName: string
@@ -105,6 +107,22 @@ const AddTopicAndSubTopic: React.FC = () => {
     })
   }
 
+  const handleDeleteTopic = (topicIndex: number) => {
+    setTopics((prevTopics) => {
+      const updatedTopics = [...prevTopics]
+      updatedTopics.splice(topicIndex, 1)
+      return updatedTopics
+    })
+  }
+
+  const handleDeleteSubTopic = (topicIndex: number, subTopicIndex: number) => {
+    setTopics((prevTopics) => {
+      const updatedTopics = [...prevTopics]
+      updatedTopics[topicIndex].subTopics.splice(subTopicIndex, 1)
+      return updatedTopics
+    })
+  }
+
   return (
     <BaseLayout title="Add Topics and Sub-Topics">
       <Box
@@ -186,9 +204,25 @@ const AddTopicAndSubTopic: React.FC = () => {
               boxSizing: 'border-box',
             }}
           >
-            <Typography variant="h5" component="h5" pb={1}>
-              Topic {topicIndex + 1}
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Typography variant="h5" component="h5" pb={1}>
+                Topic {topicIndex + 1}
+              </Typography>
+              {topicIndex !== 0 && (
+                <IconButton
+                  aria-label="delete"
+                  onClick={() => handleDeleteTopic(topicIndex)}
+                >
+                  <Button variant="contained">Delete Topic</Button>
+                </IconButton>
+              )}
+            </Box>
             <TextField
               label="Topic Name"
               value={topic.topicName}
@@ -255,12 +289,20 @@ const AddTopicAndSubTopic: React.FC = () => {
                     fullWidth
                   />
                 </Box>
+                <IconButton
+                  aria-label="delete"
+                  onClick={() =>
+                    handleDeleteSubTopic(topicIndex, subTopicIndex)
+                  }
+                >
+                  <DeleteIcon sx={{ color: 'red' }} />
+                </IconButton>
               </Box>
             ))}
             <Button
-              variant="outlined"
+              variant="contained"
               onClick={() => handleAddSubTopic(topicIndex)}
-              sx={{ float: 'right' }}
+              sx={{ float: 'right', marginTop: 2 }}
             >
               Add Sub-Topic
             </Button>

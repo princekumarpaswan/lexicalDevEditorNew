@@ -20,6 +20,18 @@ export const routes: Route[] = [
     page: <Tutorials />,
   },
   {
+    path: '/add-tutorial',
+    page: <AddTutorials />,
+  },
+  {
+    path: '/add-tutorial/topic-and-subtopic',
+    page: <AddTopicAndSubTopic />,
+  },
+  {
+    path: '/edit-tutorial',
+    page: <EditTutorials />,
+  },
+  {
     path: '/categories',
     page: <Categories />,
   },
@@ -34,17 +46,5 @@ export const routes: Route[] = [
   {
     path: '/admin-users',
     page: <AdminUsers />,
-  },
-  {
-    path: '/add-tutorial',
-    page: <AddTutorials />,
-  },
-  {
-    path: '/add-tutorial/topic-and-subtopic',
-    page: <AddTopicAndSubTopic />,
-  },
-  {
-    path: '/edit-tutorial',
-    page: <EditTutorials />,
   },
 ]

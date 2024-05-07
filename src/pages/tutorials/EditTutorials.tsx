@@ -123,16 +123,16 @@ const EditTutorial: React.FC = () => {
   //   }))
   // }
 
-  // const handleAddSubTopic = (index: number) => {
-  //   setTutorialData((prevState) => {
-  //     const updatedTopics = [...prevState.topics]
-  //     updatedTopics[index].subTopics.push({
-  //       subTopicName: '',
-  //       subTopicDescription: '',
-  //     })
-  //     return { ...prevState, topics: updatedTopics }
-  //   })
-  // }
+  const handleAddSubTopic = (index: number) => {
+    setTutorialData((prevState) => {
+      const updatedTopics = [...prevState.topics]
+      updatedTopics[index].subTopics.push({
+        subTopicName: '',
+        subTopicDescription: '',
+      })
+      return { ...prevState, topics: updatedTopics }
+    })
+  }
 
   const handleTopicChange = (
     index: number,
@@ -239,6 +239,11 @@ const EditTutorial: React.FC = () => {
               ))}
             </Select>
           </FormControl>
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}>
+            <Button variant="contained" onClick={handleSave}>
+              Save Tutorial
+            </Button>
+          </Box>
         </Box>
 
         <Divider />
@@ -331,12 +336,15 @@ const EditTutorial: React.FC = () => {
                 </Box>
               </Box>
             ))}
+            <Box
+              sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}
+            >
+              <Button variant="contained" onClick={handleSave}>
+                Save Topic
+              </Button>
+            </Box>
           </Box>
         ))}
-
-        <Button variant="contained" onClick={handleSave}>
-          Update Tutorial
-        </Button>
       </Box>
     </BaseLayout>
   )

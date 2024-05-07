@@ -96,7 +96,7 @@ function AddTutorials() {
           required
           label="Tutorial Description"
           multiline
-          rows={4}
+          rows={3}
           value={rowData?.description}
         />
 
