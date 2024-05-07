@@ -12,8 +12,10 @@ import {
   OutlinedInput,
   MenuItem,
   SelectChangeEvent,
+  IconButton,
 } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 interface SubTopic {
   subTopicName: string
@@ -74,7 +76,7 @@ const EditTutorial: React.FC = () => {
         subTopics: [{ subTopicName: '', subTopicDescription: '' }],
       },
     ],
-  })
+  },)
 
   const [personName, setPersonName] = React.useState<string[]>([])
   const theme = useTheme()
@@ -123,16 +125,16 @@ const EditTutorial: React.FC = () => {
   //   }))
   // }
 
-  const handleAddSubTopic = (index: number) => {
-    setTutorialData((prevState) => {
-      const updatedTopics = [...prevState.topics]
-      updatedTopics[index].subTopics.push({
-        subTopicName: '',
-        subTopicDescription: '',
-      })
-      return { ...prevState, topics: updatedTopics }
-    })
-  }
+  // const handleAddSubTopic = (index: number) => {
+  //   setTutorialData((prevState) => {
+  //     const updatedTopics = [...prevState.topics]
+  //     updatedTopics[index].subTopics.push({
+  //       subTopicName: '',
+  //       subTopicDescription: '',
+  //     })
+  //     return { ...prevState, topics: updatedTopics }
+  //   })
+  // }
 
   const handleTopicChange = (
     index: number,
@@ -158,6 +160,22 @@ const EditTutorial: React.FC = () => {
         ...updatedTopics[topicIndex].subTopics[subTopicIndex],
         [field]: value,
       }
+      return { ...prevState, topics: updatedTopics }
+    })
+  }
+
+  const handleDeleteTopic = (topicIndex: number) => {
+    setTutorialData((prevState) => {
+      const updatedTopics = [...prevState.topics]
+      updatedTopics.splice(topicIndex, 1)
+      return { ...prevState, topics: updatedTopics }
+    })
+  }
+
+  const handleDeleteSubTopic = (topicIndex: number, subTopicIndex: number) => {
+    setTutorialData((prevState) => {
+      const updatedTopics = [...prevState.topics]
+      updatedTopics[topicIndex].subTopics.splice(subTopicIndex, 1)
       return { ...prevState, topics: updatedTopics }
     })
   }
@@ -261,9 +279,20 @@ const EditTutorial: React.FC = () => {
               boxShadow: 0.7,
             }}
           >
-            <Typography variant="h6" component="h6" pb={1}>
-              Edit Topic {topicIndex + 1}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography variant="h6" component="h6" pb={1}>
+                Edit Topic {topicIndex + 1}
+              </Typography>
+              {topicIndex !== 0 && (
+                <IconButton
+                  aria-label="delete"
+                  onClick={() => handleDeleteTopic(topicIndex)}
+                  sx={{ marginLeft: 'auto' }}
+                >
+                  <DeleteIcon sx={{ color: 'red' }} />
+                </IconButton>
+              )}
+            </Box>
             <TextField
               label="Topic Name"
               value={topic.topicName}
@@ -334,6 +363,14 @@ const EditTutorial: React.FC = () => {
                     }
                   />
                 </Box>
+                <IconButton
+                  aria-label="delete"
+                  onClick={() =>
+                    handleDeleteSubTopic(topicIndex, subTopicIndex)
+                  }
+                >
+                  <DeleteIcon sx={{ color: 'red' }} />
+                </IconButton>
               </Box>
             ))}
             <Box
