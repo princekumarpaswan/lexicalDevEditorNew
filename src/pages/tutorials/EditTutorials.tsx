@@ -76,7 +76,7 @@ const EditTutorial: React.FC = () => {
         subTopics: [{ subTopicName: '', subTopicDescription: '' }],
       },
     ],
-  },)
+  })
 
   const [personName, setPersonName] = React.useState<string[]>([])
   const theme = useTheme()
@@ -259,7 +259,7 @@ const EditTutorial: React.FC = () => {
           </FormControl>
           <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}>
             <Button variant="contained" onClick={handleSave}>
-              Save Tutorial
+              Save Tutorial Information
             </Button>
           </Box>
         </Box>
@@ -313,6 +313,9 @@ const EditTutorial: React.FC = () => {
                 )
               }
             />
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginY: 2 }}>
+              <Button variant="contained"> Save Topic Information</Button>
+            </Box>
             {/* Render subtopics */}
             {topic.subTopics.map((subTopic, subTopicIndex) => (
               <Box
@@ -374,10 +377,10 @@ const EditTutorial: React.FC = () => {
               </Box>
             ))}
             <Box
-              sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}
+              sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}
             >
               <Button variant="contained" onClick={handleSave}>
-                Save Topic
+                Save Sub-Topic Information
               </Button>
             </Box>
           </Box>

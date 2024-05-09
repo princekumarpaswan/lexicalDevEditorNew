@@ -110,11 +110,18 @@ const AddTopicAndSubTopic: React.FC = () => {
   const handleDeleteTopic = (topicIndex: number) => {
     setTopics((prevTopics) => {
       const updatedTopics = [...prevTopics]
-      updatedTopics.splice(topicIndex, 1)
+      const topicToDelete = updatedTopics[topicIndex]
+
+      // Check if the topic has no sub-topics
+      if (topicToDelete.subTopics.length === 0) {
+        updatedTopics.splice(topicIndex, 1)
+      } else {
+        alert('Please delete all sub-topics before deleting the topic.')
+      }
+
       return updatedTopics
     })
   }
-
   const handleDeleteSubTopic = (topicIndex: number, subTopicIndex: number) => {
     setTopics((prevTopics) => {
       const updatedTopics = [...prevTopics]

@@ -25,51 +25,57 @@ import { Link, useNavigate } from 'react-router-dom'
 interface ColumnData {
   id: string
   label: string
-  minWidth?: number
   maxWidth?: number
   align?: 'center'
   format?: (value: number) => string
 }
 
 const Columndata: ColumnData[] = [
-  { id: 'S.No', label: 'S.No', maxWidth: 200 },
+  { id: 'S.No', label: 'S.No', maxWidth: 20 },
   {
     id: 'Sub Topic Name',
-    label: 'Sub Topic Name',
-    minWidth: 100,
+    label: 'SubTopic Name',
+    maxWidth: 20,
+  },
+  {
+    id: 'Topic Name',
+    label: 'Topic Name',
+    maxWidth: 50,
+    align: 'center',
+    format: (value: number) => value.toLocaleString('en-US'),
   },
   {
     id: 'Tutorial Name',
     label: 'Tutorial Name',
-    minWidth: 300,
+    maxWidth: 50,
     align: 'center',
     format: (value: number) => value.toLocaleString('en-US'),
   },
   {
     id: 'Content Assignee Name',
     label: 'Content Assignee Name',
-    minWidth: 300,
+    maxWidth: 50,
     align: 'center',
     format: (value: number) => value.toLocaleString('en-US'),
   },
   {
     id: 'Content Reviewer Name',
     label: 'Content Reviewer Name',
-    minWidth: 300,
+    maxWidth: 20,
     align: 'center',
     format: (value: number) => value.toLocaleString('en-US'),
   },
   {
     id: 'Status',
     label: 'Status',
-    minWidth: 200,
+    maxWidth: 20,
     align: 'center',
     format: (value: number) => value.toLocaleString('en-US'),
   },
   {
     id: 'Publish/Unpublish',
     label: 'Publish / Unpublish',
-    minWidth: 200,
+    maxWidth: 20,
     align: 'center',
     format: (value: number) => value.toLocaleString('en-US'),
   },
@@ -79,6 +85,7 @@ interface rowDataProp {
   Id: string
   SNo: number
   subTopicName: string
+  TopicName: string
   tutorialName: string
   contentAssigneeName: string
   ReviewerAssigneeName: string
@@ -91,7 +98,8 @@ const rowsData: rowDataProp[] = [
   {
     Id: '2348923918579874389',
     SNo: 1,
-    subTopicName: 'React ',
+    subTopicName: 'Hooks ',
+    TopicName: 'React',
     tutorialName: 'Web Dev',
     contentAssigneeName: 'Lokesh',
     ReviewerAssigneeName: 'Rohan',
@@ -238,7 +246,7 @@ function Tutorials() {
                     <TableCell
                       key={column.id}
                       align={column.align}
-                      style={{ minWidth: column.minWidth }}
+                      style={{ maxWidth: column.maxWidth }}
                     >
                       {column.label}
                     </TableCell>
@@ -256,6 +264,7 @@ function Tutorials() {
                           {row.subTopicName}
                         </Link>
                       </TableCell>
+                      <TableCell align="center">{row.TopicName}</TableCell>
                       <TableCell align="center">{row.tutorialName}</TableCell>
                       <TableCell align="center">
                         {row.contentAssigneeName}

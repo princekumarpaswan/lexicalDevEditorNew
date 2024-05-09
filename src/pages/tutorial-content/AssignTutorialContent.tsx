@@ -4,11 +4,13 @@ import {
   Button,
   FormControl,
   InputLabel,
+  ListSubheader,
   MenuItem,
   Select,
   SelectChangeEvent,
   Typography,
 } from '@mui/material'
+import React from 'react'
 import { useState } from 'react'
 
 function AssignTutorialContent() {
@@ -75,27 +77,27 @@ function AssignTutorialContent() {
           </Select>
         </FormControl>
 
-        {/* Grouping Select for Topic and Sub-topic */}
         <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel htmlFor="grouped-native-select">Select Topic</InputLabel>
+          <InputLabel htmlFor="grouped-select">Grouping</InputLabel>
           <Select
-            native
+            defaultValue=""
+            id="grouped-select"
+            label="Grouping"
             value={selectedTopic}
             onChange={handleTopicChange}
-            inputProps={{
-              name: 'topic',
-              id: 'topic-native-select',
-            }}
           >
-            <option aria-label="None" value="" />
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
             {topics.map((topic, index) => (
-              <optgroup key={index} label={topic}>
+              <React.Fragment key={index}>
+                <ListSubheader>{topic}</ListSubheader>
                 {subTopics[topic].map((subTopic, subIndex) => (
-                  <option key={subIndex} value={subTopic}>
+                  <MenuItem key={`${topic}-${subIndex}`} value={subTopic}>
                     {subTopic}
-                  </option>
+                  </MenuItem>
                 ))}
-              </optgroup>
+              </React.Fragment>
             ))}
           </Select>
         </FormControl>
