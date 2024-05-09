@@ -19,7 +19,7 @@ export function ClearEditorPlugin({ onClear }: Props): JSX.Element | null {
   useLayoutEffect(() => {
     return editor.registerCommand(
       CLEAR_EDITOR_COMMAND,
-      (payload) => {
+      () => {
         editor.update(() => {
           if (onClear == null) {
             const root = $getRoot()

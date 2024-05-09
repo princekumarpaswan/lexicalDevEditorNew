@@ -24,7 +24,6 @@ export default function ModalWrapper({
   onClose,
   children,
   title,
-  closeOnClickOutside = false,
 }: ModalProps) {
   return (
     <div>

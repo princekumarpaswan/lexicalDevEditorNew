@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react'
 import {
   SELECTION_CHANGE_COMMAND,
@@ -16,12 +17,12 @@ import {
   FloatingDivLink,
   FloatingDivLinkInput,
 } from './styles'
-import { Button, Grid, IconButton, TextField } from '@mui/material'
+import { Grid, IconButton } from '@mui/material'
 
 const LowPriority = 1
 
 interface FloatingLinkEditorProps {
-  editor: any // Replace 'any' with your editor's type
+  editor: any
 }
 
 function FloatingLinkEditor({ editor }: FloatingLinkEditorProps) {
@@ -100,8 +101,8 @@ function FloatingLinkEditor({ editor }: FloatingLinkEditorProps) {
           updateLinkEditor()
           return true
         },
-        LowPriority
-      )
+        LowPriority,
+      ),
     )
   }, [editor, updateLinkEditor])
 

@@ -7,15 +7,15 @@ import type {
 
 import './ImageNode.css'
 
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
-import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext'
-import { CollaborationPlugin } from '@lexical/react/LexicalCollaborationPlugin'
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary'
-import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin'
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
-import { LexicalNestedComposer } from '@lexical/react/LexicalNestedComposer'
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
+// import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
+// import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext'
+// import { CollaborationPlugin } from '@lexical/react/LexicalCollaborationPlugin'
+// import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
+// import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary'
+// import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin'
+// import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
+// import { LexicalNestedComposer } from '@lexical/react/LexicalNestedComposer'
+// import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { mergeRegister } from '@lexical/utils'
 import {
@@ -34,11 +34,11 @@ import {
   KEY_ESCAPE_COMMAND,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical'
-import * as React from 'react'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 
 import ImageResizer from '../../../ui/ImageResizer'
 import { $isImageNode } from '.'
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 
 const imageCache = new Set()
 
@@ -120,7 +120,7 @@ export default function ImageComponent({
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey)
   const [isResizing, setIsResizing] = useState<boolean>(false)
-  const { isCollabActive } = useCollaborationContext()
+  // const { isCollabActive } = useCollaborationContext()
   const [editor] = useLexicalComposerContext()
   const [selection, setSelection] = useState<BaseSelection | null>(null)
   const activeEditorRef = useRef<LexicalEditor | null>(null)
@@ -138,7 +138,7 @@ export default function ImageComponent({
       }
       return false
     },
-    [isSelected, nodeKey]
+    [isSelected, nodeKey],
   )
 
   const onEnter = useCallback(
@@ -167,7 +167,7 @@ export default function ImageComponent({
       }
       return false
     },
-    [caption, isSelected, showCaption]
+    [caption, isSelected, showCaption],
   )
 
   const onEscape = useCallback(
@@ -188,7 +188,7 @@ export default function ImageComponent({
       }
       return false
     },
-    [caption, editor, setSelected]
+    [caption, editor, setSelected],
   )
 
   const onClick = useCallback(
@@ -210,7 +210,7 @@ export default function ImageComponent({
 
       return false
     },
-    [isResizing, isSelected, setSelected, clearSelection]
+    [isResizing, isSelected, setSelected, clearSelection],
   )
 
   const onRightClick = useCallback(
@@ -227,7 +227,7 @@ export default function ImageComponent({
         }
       })
     },
-    [editor]
+    [editor],
   )
 
   useEffect(() => {
@@ -245,17 +245,17 @@ export default function ImageComponent({
           activeEditorRef.current = activeEditor
           return false
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand<MouseEvent>(
         CLICK_COMMAND,
         onClick,
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand<MouseEvent>(
         RIGHT_CLICK_IMAGE_COMMAND,
         onClick,
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand(
         DRAGSTART_COMMAND,
@@ -268,20 +268,24 @@ export default function ImageComponent({
           }
           return false
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand(
         KEY_DELETE_COMMAND,
         onDelete,
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand(
         KEY_BACKSPACE_COMMAND,
         onDelete,
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand(KEY_ENTER_COMMAND, onEnter, COMMAND_PRIORITY_LOW),
-      editor.registerCommand(KEY_ESCAPE_COMMAND, onEscape, COMMAND_PRIORITY_LOW)
+      editor.registerCommand(
+        KEY_ESCAPE_COMMAND,
+        onEscape,
+        COMMAND_PRIORITY_LOW,
+      ),
     )
 
     rootElement?.addEventListener('contextmenu', onRightClick)
@@ -316,7 +320,7 @@ export default function ImageComponent({
 
   const onResizeEnd = (
     nextWidth: 'inherit' | number,
-    nextHeight: 'inherit' | number
+    nextHeight: 'inherit' | number,
   ) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
