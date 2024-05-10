@@ -1,4 +1,5 @@
-// import React, { useContext } from 'react'
+/* eslint-disable no-console */
+import React, { useContext, useState } from 'react'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -8,36 +9,59 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-// import { Interceptor, LocalStorage } from '../helpers/classes'
-// import AuthApi from '../api/managers/auth'
-// import { AuthContext } from '../context/AuthContext'
-// import { useNavigate } from 'react-router-dom'
-// import { CircularProgress } from '@mui/material'
+import { loginUser } from '../api/authAPI'
+import { AuthContext } from '../context/AuthContext/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import { CircularProgress, IconButton } from '@mui/material'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 
 const theme = createTheme()
 
 export default function Login() {
-  //   const [loading, setLoading] = React.useState(false)
-  //   const { setUser } = useContext(AuthContext) || {}
-  //   const navigate = useNavigate()
+  const [loading, setLoading] = React.useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const { dispatch } = useContext(AuthContext)
+  const navigate = useNavigate()
 
-  //   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-  //     event.preventDefault()
-  //     const data = new FormData(event.currentTarget)
-  //     const request = {
-  //       email: data.get('email') as string,
-  //       password: data.get('password') as string,
-  //     }
-  //     await Interceptor.handleApi(
-  //       async () => await AuthApi.login(request),
-  //       setLoading,
-  //       (res) => {
-  //         setUser && setUser(res)
-  //         LocalStorage.set('user', res ?? null)
-  //         navigate('/courses')
-  //       },
-  //     )
-  //   }
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    try {
+      setLoading(true)
+      const { accessToken, role } = await loginUser(email, password)
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: { user: { email, role }, accessToken },
+      })
+      console.log(role)
+
+      // Redirect to the appropriate page based on the role
+      switch (role) {
+        case 'ADMIN':
+          navigate('/tutorials')
+          break
+        case 'CONTENT_WRITER':
+          navigate('/tutorial-content')
+          break
+        case 'CONTENT_REVIEWER':
+          navigate('/tutorial-content')
+          break
+        default:
+          console.error('Invalid role')
+          break
+      }
+    } catch (error) {
+      console.error('Login failed:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -58,16 +82,17 @@ export default function Login() {
             <LockOutlinedIcon />
           </Avatar>
           <img
-            style={{ maxWidth: 200, padding: '5px 0px 20    px 17px' }}
+            style={{ maxWidth: 200, padding: '5px 0px 20px 17px' }}
             src="/images/euronlogo.png"
           />
           <Typography component="h1" variant="h5" sx={{ marginTop: 3 }}>
-            Sign in to Euron <span style={{ color: 'darkblue' }}>Tutorial </span>
+            Sign in to Euron{' '}
+            <span style={{ color: 'darkblue' }}>Tutorial </span>
             Admin
           </Typography>
           <Box
             component="form"
-            // onSubmit={handleSubmit}
+            onSubmit={handleSubmit}
             noValidate
             sx={{ mt: 1 }}
           >
@@ -80,6 +105,8 @@ export default function Login() {
               name="email"
               autoComplete="email"
               autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <TextField
               margin="normal"
@@ -87,23 +114,30 @@ export default function Login() {
               fullWidth
               name="password"
               label="Password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <IconButton onClick={togglePasswordVisibility} edge="end">
+                    {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  </IconButton>
+                ),
+              }}
             />
-
             <Button
-              //   type={loading ? 'button' : 'submit'}
+              type={loading ? 'button' : 'submit'}
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              {/* {loading ? (
+              {loading ? (
                 <CircularProgress size={24} sx={{ color: '#fff' }} />
               ) : (
                 'Sign in'
-              )} */}
-              Sign In
+              )}
             </Button>
           </Box>
         </Box>

@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -23,13 +25,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-
-import {
-  DeleteOutline,
-  EditOutlined,
-  Visibility,
-  VisibilityOff,
-} from '@mui/icons-material'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
+import { createAdmin } from '../../api/adminAPI' // Import the API function
 
 interface Column {
   id: 'name' | 'email' | 'actions'
@@ -41,7 +38,6 @@ interface Column {
 const columns: readonly Column[] = [
   { id: 'name', label: 'Name', minWidth: 170 },
   { id: 'email', label: 'Email', minWidth: 170 },
-
   {
     id: 'actions',
     label: 'Actions',
@@ -49,34 +45,38 @@ const columns: readonly Column[] = [
     align: 'right',
   },
 ]
-const data = [
-  { id: 1, name: 'Lokesh', email: 'lokesh@example.com' },
-  { id: 2, name: 'Demo User', email: 'demo@example.com' },
-]
+
+interface AdminUser {
+  _id: string
+  name: string
+  email: string
+  role: 'ADMIN' | 'CONTENT_WRITER' | 'CONTENT_REVIEWER'
+}
 
 const AdminUsers = () => {
   const [showModal, setShowModal] = React.useState(false)
   const [showPassword, setShowPassword] = React.useState(true)
 
-  const [user, setUser] = React.useState({
+  const [user, setUser] = React.useState<AdminUser & { password: string }>({
     _id: '',
     name: '',
     email: '',
-
     password: '',
-    assignedPrograms: [] as string[],
+    role: 'ADMIN',
   })
   const [isEditing, setIsEditing] = React.useState(false)
+  const [adminUsers, setAdminUsers] = React.useState<AdminUser[]>([]) // State to store admin users
 
-  const handleEditUser = (userData: any) => {
-    setUser(userData)
+  const handleEditUser = (userData: AdminUser) => {
+    setUser({
+      ...userData,
+      _id: user._id,
+      role: user.role,
+      password: (Math.random() + 1).toString(36).substring(2),
+    })
     setIsEditing(true)
     setShowModal(true)
   }
-  // const createAdminUser = async () => {
-  //   setShowModal(false)
-  //   setSuccess('Admin user added successfully!')
-  // }
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword)
@@ -86,6 +86,31 @@ const AdminUsers = () => {
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     event.preventDefault()
+  }
+
+  const handleCreateAdmin = async () => {
+    try {
+      const response = await createAdmin(
+        user.name,
+        user.email,
+        user.password,
+        user.role,
+      )
+      // Handle the response as needed, e.g., update the adminUsers state
+      console.log(response)
+      // Update the adminUsers state with the new admin user
+      setAdminUsers([...adminUsers, { ...user, _id: response._id }])
+      setShowModal(false)
+      setUser({
+        _id: '',
+        name: '',
+        email: '',
+        password: '',
+        role: 'ADMIN',
+      })
+    } catch (error) {
+      console.error('Error creating admin:', error)
+    }
   }
 
   return (
@@ -138,30 +163,25 @@ const AdminUsers = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data?.map((row) => {
+                {adminUsers.map((user) => {
                   return (
                     <TableRow
                       hover
                       role="checkbox"
                       tabIndex={-1}
-                      key={row.email}
+                      key={user.email}
                     >
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.email}</TableCell>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
                       <TableCell align="right">
                         <Button
                           variant="contained"
-                          startIcon={<EditOutlined />}
                           style={{ marginRight: '12px' }}
-                          onClick={() => handleEditUser(row)}
+                          onClick={() => handleEditUser(user)}
                         >
                           Edit
                         </Button>
-                        <Button
-                          startIcon={<DeleteOutline />}
-                          variant="contained"
-                          color="error"
-                        >
+                        <Button variant="contained" color="error">
                           Delete
                         </Button>
                       </TableCell>
@@ -181,7 +201,7 @@ const AdminUsers = () => {
               name: '',
               email: '',
               password: '',
-              assignedPrograms: [],
+              role: 'ADMIN',
             })
           }}
           maxWidth="md"
@@ -230,13 +250,21 @@ const AdminUsers = () => {
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                // value={age}
-                label="Age"
-                // onChange={handleChange}
+                value={user.role}
+                label="Role"
+                onChange={(e) => {
+                  setUser({
+                    ...user,
+                    role: e.target.value as
+                      | 'ADMIN'
+                      | 'CONTENT_WRITER'
+                      | 'CONTENT_REVIEWER',
+                  })
+                }}
               >
-                <MenuItem value={10}>Admin</MenuItem>
-                <MenuItem value={20}>Content Writer</MenuItem>
-                <MenuItem value={30}>Content Reviewer</MenuItem>
+                <MenuItem value="ADMIN">Admin</MenuItem>
+                <MenuItem value="CONTENT_WRITER">Content Writer</MenuItem>
+                <MenuItem value="CONTENT_REVIEWER">Content Reviewer</MenuItem>
               </Select>
             </FormControl>
 
@@ -306,7 +334,7 @@ const AdminUsers = () => {
                   name: '',
                   email: '',
                   password: '',
-                  assignedPrograms: [],
+                  role: 'ADMIN',
                 })
               }}
             >
@@ -315,7 +343,7 @@ const AdminUsers = () => {
             <Button
               variant="contained"
               onClick={() => {
-                setShowModal(false)
+                handleCreateAdmin()
               }}
             >
               {user._id ? 'Update user' : 'Add'}

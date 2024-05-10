@@ -2,8 +2,8 @@ import { Button, Menu, MenuItem, useMediaQuery } from '@mui/material'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import { useContext, useRef, useState, useEffect } from 'react'
-import { ThemeContext } from '../ThemeContext'
-import { IThemeContext, IThemeMode } from '../ThemeContext/types'
+import { ThemeContext } from '../../ThemeContext'
+import { IThemeContext, IThemeMode } from '../../ThemeContext/types'
 
 const ToggleTheme: React.FC = () => {
   const { themeMode, switchThemeMode } = useContext(
@@ -68,7 +68,12 @@ const ToggleTheme: React.FC = () => {
         startIcon={icon}
         ref={buttonRef}
       ></Button>
-      <Menu anchorEl={buttonRef.current} open={openMenu} onClose={handleClose} style={{marginTop: "20px"}}>
+      <Menu
+        anchorEl={buttonRef.current}
+        open={openMenu}
+        onClose={handleClose}
+        style={{ marginTop: '20px' }}
+      >
         <MenuItem
           onClick={() => {
             handleSwitchTheme(IThemeMode.DARK)

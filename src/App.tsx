@@ -1,24 +1,42 @@
+import React, { useContext } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-// import PrivateRoute from './components/PrivateRoute'
-// import PublicRoute from './components/PublicRoute'
-// import { AuthProvider } from './context/AuthContext'
-// import { LocalStorage } from './helpers/classes'
 import { routes } from './routes'
+import { AuthContext, AuthProvider } from './context/AuthContext/AuthContext'
+import Login from './pages/Login'
 
-// import './index.css'
-// import 'react-toastify/dist/ReactToastify.css'
+const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
+  const { state } = useContext(AuthContext)
+
+  return state.accessToken ? children : <Navigate to="/login" />
+}
 
 const App = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/tutorials" />} />
-        {routes.map((route) => {
-          return (
-            <Route key={route.path} path={route.path} element={route.page} />
-          )
-        })}
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/*"
+            element={
+              <PrivateRoute>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/tutorials" />} />
+                  {routes.map((route) => {
+                    return (
+                      <Route
+                        key={route.path}
+                        path={route.path}
+                        element={route.page}
+                      />
+                    )
+                  })}
+                </Routes>
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }
