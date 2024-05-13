@@ -34,7 +34,15 @@ export default function Login() {
       const { accessToken, role } = await loginUser(email, password)
       dispatch({
         type: 'LOGIN_SUCCESS',
-        payload: { user: { email, role }, accessToken },
+        payload: {
+          user: {
+            id: '', // Placeholder value for id
+            fullName: '', // Placeholder value for fullName
+            email,
+            role,
+          },
+          accessToken,
+        },
       })
       console.log(role)
 
@@ -59,6 +67,7 @@ export default function Login() {
       setLoading(false)
     }
   }
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)
   }
