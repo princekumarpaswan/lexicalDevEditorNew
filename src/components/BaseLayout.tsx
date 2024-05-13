@@ -23,6 +23,7 @@ import ToggleTheme from './ToggleTheme/ToggleTheme'
 import { useNavigate } from 'react-router-dom'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { AuthContext } from '../context/AuthContext/AuthContext'
 
 interface SidebarElement {
   id: number
@@ -136,6 +137,16 @@ export const BaseLayout: React.FC<{
   const theme = useTheme()
   const [open, setOpen] = React.useState(true)
 
+  const { dispatch } = React.useContext(AuthContext) // Access the dispatch function from the authentication context
+
+  // Function to handle logout
+  const handleLogout = () => {
+    // Dispatch a logout action to clear the authentication state
+    dispatch({ type: 'LOGOUT' })
+    // Redirect to the login page or perform any other action after logout
+    // Example: history.push('/login');
+  }
+
   const handleDrawerOpen = () => {
     setOpen(true)
   }
@@ -248,7 +259,7 @@ export const BaseLayout: React.FC<{
                 style={{ color: 'red' }}
                 onClick={() => {
                   // LocalStorage.clear()
-                  window.location.reload()
+                  handleLogout()
                 }}
               >
                 LOGOUT

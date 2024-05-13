@@ -1,25 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { createContext, useReducer } from 'react'
-import AuthReducer from './AuthReducer'
+// AuthProvider.tsx
 
-interface AuthState {
-  user: null | {
-    id: string
-    fullName: string
-    email: string
-    role: 'ADMIN' | 'CONTENT_WRITER' | 'CONTENT_REVIEWER'
-  }
-  accessToken: string | null
-}
+import React, { createContext, useReducer, useEffect } from 'react'
+import AuthReducer, { AuthState, AuthAction } from './AuthReducer'
 
 const initialState: AuthState = {
   user: null,
-  accessToken: null,
+  accessToken: localStorage.getItem('accessToken') || null, // Retrieve token from localStorage
 }
 
 export const AuthContext = createContext<{
   state: AuthState
-  dispatch: React.Dispatch<any>
+  dispatch: React.Dispatch<AuthAction>
 }>({
   state: initialState,
   dispatch: () => null,
@@ -31,6 +22,23 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(AuthReducer, initialState)
+
+  useEffect(() => {
+    const storedState = localStorage.getItem('authState')
+    if (storedState) {
+      const parsedState: AuthState = JSON.parse(storedState)
+      dispatch({ type: 'RESTORE_STATE', payload: parsedState })
+    }
+  }, [])
+
+  // Persist token to localStorage whenever it changes
+  useEffect(() => {
+    if (state.accessToken) {
+      localStorage.setItem('accessToken', state.accessToken)
+    } else {
+      localStorage.removeItem('accessToken')
+    }
+  }, [state.accessToken])
 
   return (
     <AuthContext.Provider value={{ state, dispatch }}>
