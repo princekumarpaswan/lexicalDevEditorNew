@@ -171,7 +171,7 @@ function Tutorials() {
               <Button
                 variant="contained"
                 sx={{ marginRight: 2 }}
-                onClick={() => navigate('/add-tutorial')}
+                onClick={() => navigate('/tutorials/add-tutorial')}
               >
                 Add Tutorial
               </Button>

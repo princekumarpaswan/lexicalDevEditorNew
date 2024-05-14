@@ -69,43 +69,43 @@ export const deleteAdminUser = async (adminId: string) => {
   }
 }
 
-// API  to change password
-export const changePassword = async (userId: string, newPassword: string) => {
-  try {
-    const config: AxiosRequestConfig = {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-    const response = await axios.post(
-      `${BASE_URL}/admins/change-password`,
-      { userId, newPassword },
-      config,
-    )
-    return response.data
-  } catch (error) {
-    throw error
-  }
-}
+// // API  to change password
+// export const changePassword = async (userId: string, newPassword: string) => {
+//   try {
+//     const config: AxiosRequestConfig = {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//     }
+//     const response = await axios.post(
+//       `${BASE_URL}/admins/change-password`,
+//       { userId, newPassword },
+//       config,
+//     )
+//     return response.data
+//   } catch (error) {
+//     throw error
+//   }
+// }
 
-// API  to change role
-export const changeRole = async (userId: string, newRole: string) => {
-  try {
-    const config: AxiosRequestConfig = {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-    const response = await axios.patch(
-      `${BASE_URL}/admins/change-role`,
-      { userId, newRole },
-      config,
-    )
-    return response.data
-  } catch (error) {
-    throw error
-  }
-}
+// // API  to change role
+// export const changeRole = async (userId: string, newRole: string) => {
+//   try {
+//     const config: AxiosRequestConfig = {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//     }
+//     const response = await axios.patch(
+//       `${BASE_URL}/admins/update/role/${userId}`,
+//       { newRole },
+//       config,
+//     )
+//     return response.data
+//   } catch (error) {
+//     throw error
+//   }
+// }
 
 // export const updateUser = async (
 //   userId: any,

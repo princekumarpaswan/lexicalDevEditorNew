@@ -1,13 +1,14 @@
+/* eslint-disable no-console */
+import React, { useState, useEffect } from 'react'
 import { BaseLayout } from '../../components/BaseLayout'
-// import { useSearchParams } from 'react-router-dom'
-import { Box, Button, TextField, Typography } from '@mui/material'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Theme, useTheme } from '@mui/material/styles'
+import { Box, Button, TextField, Theme, Typography } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
-import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getAllCategories, createTutorial } from '../../api/tutorialAPI'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -20,23 +21,20 @@ const MenuProps = {
   },
 }
 
-const names = [
-  'Artificial Intelligence',
-  'Machine Learning',
-  'Data Science',
-  'Computer Vision',
-  'Cybersecurity',
-  'Software Engineering',
-  'Information Retrieval',
-  'Natural Language Processing',
-  'Computer Networks',
-  'Distributed Systems',
-]
+interface Category {
+  name: string
+  id: number
+  categoryName: string
+}
 
-function getStyles(name: string, personName: readonly string[], theme: Theme) {
+function getStyles(
+  name: string,
+  selectedCategories: readonly string[],
+  theme: Theme,
+) {
   return {
     fontWeight:
-      personName.indexOf(name) === -1
+      selectedCategories.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   }
@@ -44,25 +42,83 @@ function getStyles(name: string, personName: readonly string[], theme: Theme) {
 
 function AddTutorials() {
   const navigate = useNavigate()
-  // const [params] = useSearchParams()
-  const location = useLocation()
-  const rowData = location.state?.rowData
-
   const theme = useTheme()
-  const [personName, setPersonName] = React.useState<string[]>([])
+  const [selectedCategories, setSelectedCategories] = React.useState<string[]>(
+    [],
+  )
+  const [tutorialTitle, setTutorialTitle] = useState('')
+  const [tutorialDescription, setTutorialDescription] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
 
-  const handleChange = (event: SelectChangeEvent<typeof personName>) => {
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await getAllCategories()
+        const categoriesData = response.data
+        if (Array.isArray(categoriesData)) {
+          setCategories(categoriesData)
+        } else {
+          console.error('Categories data is not an array:', categoriesData)
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
+  const handleChange = (
+    event: SelectChangeEvent<typeof selectedCategories>,
+  ) => {
     const {
       target: { value },
     } = event
-    setPersonName(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    )
+    setSelectedCategories(typeof value === 'string' ? value.split(',') : value)
+  }
+
+  const handleSaveTutorial = async () => {
+    try {
+      // Map selected category names to their corresponding IDs
+      const selectedCategoryIds = selectedCategories.map((name) => {
+        const selectedCategory = categories.find(
+          (category) => category.categoryName === name,
+        )
+        if (selectedCategory) {
+          return selectedCategory.id
+        } else {
+          console.error(
+            `Category "${name}" does not exist in the categories array.`,
+          )
+          return null
+        }
+      })
+
+      // Check if any category ID is missing (null)
+      if (selectedCategoryIds.some((id) => id === null)) {
+        // Handle the case where a category is missing
+        // For example, display an error message to the user
+        return
+      }
+
+      // Proceed with creating the tutorial
+      const tutorialData = {
+        title: tutorialTitle,
+        description: tutorialDescription,
+        categoryIds: selectedCategoryIds,
+      }
+      const newTutorial = await createTutorial(tutorialData)
+      console.log(newTutorial)
+
+      navigate(`/tutorials/add-tutorial/topic-and-subtopic`, {
+        state: { tutorialId: newTutorial.id },
+      })
+    } catch (error) {
+      console.error('Error creating tutorial:', error)
+    }
   }
 
   return (
-    // <BaseLayout title={params.get('/edit') ? 'Edit Tutorials' : 'Add Tutorials'}>
     <BaseLayout title="Add Tutorial">
       <Box
         component="form"
@@ -82,22 +138,24 @@ function AddTutorials() {
           }}
         >
           <Typography variant="h5" component="h5" pb={1}>
-            {/* {params.get('edit') ? 'Edit Tutorials' : 'Add Tutorials'} */}
             Add Tutorial
           </Typography>
-          {/* <Button variant="contained" sx={{}} onClick={() => {}}>
-            Generate Using AI
-          </Button> */}
         </Box>
 
-        <TextField label="Tutorial Title" required value={rowData?.title} />
+        <TextField
+          label="Tutorial Title"
+          required
+          value={tutorialTitle}
+          onChange={(e) => setTutorialTitle(e.target.value)}
+        />
 
         <TextField
           required
           label="Tutorial Description"
           multiline
           rows={3}
-          value={rowData?.description}
+          value={tutorialDescription}
+          onChange={(e) => setTutorialDescription(e.target.value)}
         />
 
         <Box
@@ -110,7 +168,7 @@ function AddTutorials() {
           <FormControl sx={{ width: '100%' }}>
             <Select
               displayEmpty
-              value={personName}
+              value={selectedCategories}
               onChange={handleChange}
               input={<OutlinedInput />}
               renderValue={(selected) => {
@@ -126,39 +184,22 @@ function AddTutorials() {
               <MenuItem disabled value="">
                 <em>Select Category</em>
               </MenuItem>
-              {names.map((name) => (
+              {categories.map((category) => (
                 <MenuItem
-                  key={name}
-                  value={name}
-                  style={getStyles(name, personName, theme)}
+                  key={category.id}
+                  value={category.categoryName}
+                  style={getStyles(
+                    category.categoryName,
+                    selectedCategories,
+                    theme,
+                  )}
                 >
-                  {name}
+                  {category.categoryName}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </Box>
-
-        {/* <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-          }}
-        >
-          <TextField
-            label="Tutorial Topic"
-            required
-            value={rowData?.title}
-            fullWidth
-          />
-          <TextField
-            label="Tutorial Sub Topic"
-            required
-            value={rowData?.title}
-            fullWidth
-          />
-        </Box> */}
       </Box>
       <Box
         sx={{
@@ -171,9 +212,7 @@ function AddTutorials() {
           sx={{
             width: 150,
           }}
-          onClick={() => {
-            navigate('/add-tutorial/topic-and-subtopic')
-          }}
+          onClick={handleSaveTutorial}
         >
           Save Tutorial
         </Button>

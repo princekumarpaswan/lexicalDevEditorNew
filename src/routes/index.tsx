@@ -20,11 +20,11 @@ export const routes: Route[] = [
     page: <Tutorials />,
   },
   {
-    path: '/add-tutorial',
+    path: 'tutorials/add-tutorial',
     page: <AddTutorials />,
   },
   {
-    path: '/add-tutorial/topic-and-subtopic',
+    path: '/tutorials/add-tutorial/topic-and-subtopic',
     page: <AddTopicAndSubTopic />,
   },
   {

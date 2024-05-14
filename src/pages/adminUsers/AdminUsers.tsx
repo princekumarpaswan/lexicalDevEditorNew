@@ -26,12 +26,7 @@ import {
   Typography,
 } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import {
-  changePassword,
-  changeRole,
-  createAdmin,
-  getAllAdminUsers,
-} from '../../api/adminAPI'
+import { createAdmin, getAllAdminUsers } from '../../api/adminAPI'
 import { deleteAdminUser } from '../../api/adminAPI'
 
 interface Column {
@@ -74,7 +69,6 @@ const AdminUsers = () => {
   const [adminUsers, setAdminUsers] = React.useState<AdminUser[]>([]) // State to store admin users
   // const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
-  const [originalRole, setOriginalRole] = React.useState('ADMIN')
 
   React.useEffect(() => {
     const fetchAdminUsers = async () => {
@@ -119,7 +113,6 @@ const AdminUsers = () => {
     })
     setIsEditing(true)
     setShowModal(true)
-    setOriginalRole(userData.role)
   }
 
   const handleShowPassword = () => {
@@ -151,33 +144,6 @@ const AdminUsers = () => {
       })
     } catch (error) {
       console.error('Error creating admin:', error)
-    }
-  }
-
-  const handleUpdateUser = async () => {
-    try {
-      if (isEditing) {
-        if (user.password !== '') {
-          await changePassword(user.id, user.password)
-        }
-
-        if (user.role !== originalRole) {
-          await changeRole(user.id, user.role)
-        }
-      } else {
-        await handleCreateAdmin()
-      }
-
-      setShowModal(false)
-      setUser({
-        id: '',
-        fullName: '',
-        email: '',
-        password: '',
-        role: 'ADMIN',
-      })
-    } catch (error) {
-      console.error('Error updating user:', error)
     }
   }
 
@@ -419,7 +385,7 @@ const AdminUsers = () => {
             >
               Cancel
             </Button>
-            <Button variant="contained" onClick={handleUpdateUser}>
+            <Button variant="contained" onClick={handleCreateAdmin}>
               {isEditing ? 'Update User' : 'Add User '}
             </Button>
           </DialogActions>
