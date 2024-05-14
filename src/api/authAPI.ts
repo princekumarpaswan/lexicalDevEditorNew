@@ -1,6 +1,8 @@
 /* eslint-disable no-useless-catch */
 import axios from 'axios'
 
+const BASE_URL = `http://localhost:4444/api/v1`
+
 interface LoginResponse {
   data: {
     accessToken: string
@@ -14,7 +16,8 @@ interface LoginResponse {
 export const loginUser = async (email: string, password: string) => {
   try {
     const response = await axios.post<LoginResponse>(
-      'https://a6f7-2409-40e4-20-e0ac-bd1b-85a7-2e09-1d16.ngrok-free.app/api/v1/admins/login',
+      // 'http://localhost:4444/api/v1/admins/login',
+      `${BASE_URL}/admins/login`,
       JSON.stringify({ email, password }),
       {
         headers: {

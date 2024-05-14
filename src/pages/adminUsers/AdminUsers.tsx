@@ -26,7 +26,13 @@ import {
   Typography,
 } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import { createAdmin } from '../../api/adminAPI' // Import the API function
+import {
+  changePassword,
+  changeRole,
+  createAdmin,
+  getAllAdminUsers,
+} from '../../api/adminAPI'
+import { deleteAdminUser } from '../../api/adminAPI'
 
 interface Column {
   id: 'name' | 'email' | 'actions'
@@ -47,8 +53,8 @@ const columns: readonly Column[] = [
 ]
 
 interface AdminUser {
-  _id: string
-  name: string
+  id: string
+  fullName: string
   email: string
   role: 'ADMIN' | 'CONTENT_WRITER' | 'CONTENT_REVIEWER'
 }
@@ -58,24 +64,62 @@ const AdminUsers = () => {
   const [showPassword, setShowPassword] = React.useState(true)
 
   const [user, setUser] = React.useState<AdminUser & { password: string }>({
-    _id: '',
-    name: '',
+    id: '',
+    fullName: '',
     email: '',
     password: '',
     role: 'ADMIN',
   })
   const [isEditing, setIsEditing] = React.useState(false)
   const [adminUsers, setAdminUsers] = React.useState<AdminUser[]>([]) // State to store admin users
+  // const [isLoading, setIsLoading] = React.useState(true)
+  const [error, setError] = React.useState<string | null>(null)
+  const [originalRole, setOriginalRole] = React.useState('ADMIN')
 
-  const handleEditUser = (userData: AdminUser) => {
+  React.useEffect(() => {
+    const fetchAdminUsers = async () => {
+      try {
+        const response = await getAllAdminUsers()
+        const { data } = response // Destructure the 'data' property from the response
+        setAdminUsers(data) // Update the adminUsers state with the array of admin users
+      } catch (error) {
+        setError('Error fetching admin users')
+        console.error('Error fetching admin users:', error)
+      }
+    }
+
+    fetchAdminUsers()
+  }, [])
+
+  console.log(adminUsers)
+
+  // Handle loading and error states
+  // if (isLoading) {
+  //   return <div>Loading...</div>
+  // }
+
+  if (error) {
+    return <div>{error}</div>
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      await deleteAdminUser(userId)
+      setAdminUsers(adminUsers.filter((user) => user.id !== userId))
+    } catch (error) {
+      console.error('Error deleting admin user:', error)
+    }
+  }
+  console.log(user.id)
+
+  const handleEditButton = (userData: AdminUser) => {
     setUser({
       ...userData,
-      _id: user._id,
-      role: user.role,
       password: (Math.random() + 1).toString(36).substring(2),
     })
     setIsEditing(true)
     setShowModal(true)
+    setOriginalRole(userData.role)
   }
 
   const handleShowPassword = () => {
@@ -91,25 +135,49 @@ const AdminUsers = () => {
   const handleCreateAdmin = async () => {
     try {
       const response = await createAdmin(
-        user.name,
+        user.fullName,
         user.email,
         user.password,
         user.role,
       )
-      // Handle the response as needed, e.g., update the adminUsers state
-      console.log(response)
-      // Update the adminUsers state with the new admin user
-      setAdminUsers([...adminUsers, { ...user, _id: response._id }])
+      setAdminUsers([...adminUsers, { ...user, id: response.id }])
       setShowModal(false)
       setUser({
-        _id: '',
-        name: '',
+        id: '',
+        fullName: '',
         email: '',
         password: '',
         role: 'ADMIN',
       })
     } catch (error) {
       console.error('Error creating admin:', error)
+    }
+  }
+
+  const handleUpdateUser = async () => {
+    try {
+      if (isEditing) {
+        if (user.password !== '') {
+          await changePassword(user.id, user.password)
+        }
+
+        if (user.role !== originalRole) {
+          await changeRole(user.id, user.role)
+        }
+      } else {
+        await handleCreateAdmin()
+      }
+
+      setShowModal(false)
+      setUser({
+        id: '',
+        fullName: '',
+        email: '',
+        password: '',
+        role: 'ADMIN',
+      })
+    } catch (error) {
+      console.error('Error updating user:', error)
     }
   }
 
@@ -163,31 +231,43 @@ const AdminUsers = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {adminUsers.map((user) => {
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={user.email}
-                    >
-                      <TableCell>{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell align="right">
-                        <Button
-                          variant="contained"
-                          style={{ marginRight: '12px' }}
-                          onClick={() => handleEditUser(user)}
-                        >
-                          Edit
-                        </Button>
-                        <Button variant="contained" color="error">
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                {Array.isArray(adminUsers) && adminUsers.length > 0 ? (
+                  adminUsers.map((user) => {
+                    return (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={user.email}
+                      >
+                        <TableCell>{user.fullName}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell align="right">
+                          <Button
+                            variant="contained"
+                            style={{ marginRight: '12px' }}
+                            onClick={() => handleEditButton(user)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center">
+                      No admin users found
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -197,8 +277,8 @@ const AdminUsers = () => {
           onClose={() => {
             setShowModal(false)
             setUser({
-              _id: '',
-              name: '',
+              id: '',
+              fullName: '',
               email: '',
               password: '',
               role: 'ADMIN',
@@ -207,9 +287,7 @@ const AdminUsers = () => {
           maxWidth="md"
           fullWidth
         >
-          <DialogTitle>
-            {isEditing ? 'Edit Employee' : 'Add Employee'}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Uzer' : 'Add User'}</DialogTitle>
           <DialogContent
             style={{
               width: '100%',
@@ -224,11 +302,11 @@ const AdminUsers = () => {
               label="Name"
               variant="outlined"
               type="text"
-              value={user.name}
+              value={user.fullName}
               onChange={(e) => {
                 setUser({
                   ...user,
-                  name: e.target.value,
+                  fullName: e.target.value,
                 })
               }}
             />
@@ -304,7 +382,7 @@ const AdminUsers = () => {
                           })
                         }}
                       >
-                        {user?._id ? 'Reset' : 'Generate'} password
+                        {user?.id ? 'Reset' : 'Generate'} password
                       </Button>
                       <IconButton
                         aria-label="toggle password visibility"
@@ -330,23 +408,19 @@ const AdminUsers = () => {
               onClick={() => {
                 setShowModal(false)
                 setUser({
-                  _id: '',
-                  name: '',
+                  id: '',
+                  fullName: '',
                   email: '',
                   password: '',
                   role: 'ADMIN',
                 })
+                setIsEditing(false)
               }}
             >
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                handleCreateAdmin()
-              }}
-            >
-              {user._id ? 'Update user' : 'Add'}
+            <Button variant="contained" onClick={handleUpdateUser}>
+              {isEditing ? 'Update User' : 'Add User '}
             </Button>
           </DialogActions>
         </Dialog>

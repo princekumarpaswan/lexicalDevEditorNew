@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Button,
@@ -8,7 +10,6 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import React, { useState } from 'react'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -19,6 +20,18 @@ import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import { BaseLayout } from '../../components/BaseLayout'
 import { DeleteOutline, EditOutlined } from '@mui/icons-material'
+import {
+  getAllCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from '../../api/categoryAPI'
+
+interface Category {
+  id: string
+  categoryName: string
+  mappedTutorials: string
+}
 
 interface ColumnData {
   id: string
@@ -32,7 +45,6 @@ interface ColumnData {
 const Columndata: ColumnData[] = [
   { id: 'S.No', label: 'S.No', maxWidth: 200 },
   { id: 'Categories Name', label: 'Categories Name', minWidth: 100 },
-
   {
     id: 'Tutorials Mapped',
     label: 'Tutorials Mapped',
@@ -49,69 +61,36 @@ const Columndata: ColumnData[] = [
   },
 ]
 
-interface rowDataProp {
-  SNo: number
-  ID: string
-  tutorialsMapped: number
-}
-
-// Create an array of objects
-const rowsData: rowDataProp[] = [
-  {
-    SNo: 1,
-    ID: 'React ',
-    tutorialsMapped: 2,
-  },
-  {
-    SNo: 2,
-    ID: ' Javascript',
-    tutorialsMapped: 4,
-  },
-  {
-    SNo: 3,
-    ID: 'Javascript ',
-    tutorialsMapped: 5,
-  },
-  {
-    SNo: 4,
-    ID: ' Javascript',
-    tutorialsMapped: 2,
-  },
-  {
-    SNo: 5,
-    ID: ' Javascript',
-    tutorialsMapped: 3,
-  },
-  {
-    SNo: 6,
-    ID: ' React',
-    tutorialsMapped: 4,
-  },
-  {
-    SNo: 7,
-    ID: ' Javascript',
-    tutorialsMapped: 4,
-  },
-]
-
-function Categoriess() {
-  // const [searchQuery, setSearchQuery] = useState('')
+function Categories() {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
-
-  const [showModal, setShowModal] = React.useState(false)
-
-  const [Categories, setCategories] = React.useState({
-    _id: '',
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [categoryToAdd, setCategoryToAdd] = useState<Category>({
+    id: '',
     categoryName: '',
+    mappedTutorials: '',
   })
-  const [isEditing, setIsEditing] = React.useState(false)
+  const [categoryToEdit, setCategoryToEdit] = useState<Category>({
+    id: '',
+    categoryName: '',
+    mappedTutorials: '',
+  })
+  const [categories, setCategories] = useState<Category[]>([])
 
-  const handleEditCategories = (CategoriesData: any) => {
-    setCategories(CategoriesData)
-    setIsEditing(true)
-    setShowModal(true)
-  }
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await getAllCategories()
+        setCategories(response.data)
+        console.log(response.data)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+
+    fetchCategories()
+  }, [])
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage)
@@ -124,6 +103,45 @@ function Categoriess() {
     setPage(0)
   }
 
+  const handleAddCategory = async () => {
+    try {
+      const response = await createCategory(categoryToAdd.categoryName)
+      setCategories((prevCategories) => [...prevCategories, response.data])
+      setShowAddModal(false)
+      setCategoryToAdd({ id: '', categoryName: '', mappedTutorials: '' })
+    } catch (error) {
+      console.error('Error adding category:', error)
+    }
+  }
+
+  const handleEditCategory = async () => {
+    try {
+      const response = await updateCategory(
+        categoryToEdit.id,
+        categoryToEdit.categoryName,
+      )
+      setCategories((prevCategories) =>
+        prevCategories.map((category) =>
+          category.id === categoryToEdit.id ? response.data : category,
+        ),
+      )
+      setShowEditModal(false)
+      setCategoryToEdit({ id: '', categoryName: '', mappedTutorials: '' })
+    } catch (error) {
+      console.error('Error editing category:', error)
+    }
+  }
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    try {
+      await deleteCategory(categoryId)
+      setCategories((prevCategories) =>
+        prevCategories.filter((category) => category.id !== categoryId),
+      )
+    } catch (error) {
+      console.error('Error deleting category:', error)
+    }
+  }
   return (
     <BaseLayout title="Categories">
       <Box>
@@ -155,12 +173,9 @@ function Categoriess() {
               <Button
                 variant="contained"
                 sx={{ marginRight: 2 }}
-                onClick={() => {
-                  setShowModal(true)
-                  setIsEditing(false)
-                }}
+                onClick={() => setShowAddModal(true)}
               >
-                Add Categories
+                Add Category
               </Button>
             </div>
           </div>
@@ -184,17 +199,22 @@ function Categoriess() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rowsData.map((row) => (
-                  <TableRow key={row.ID}>
-                    <TableCell align="left">{row.SNo}</TableCell>
-                    <TableCell align="left">{row.ID}</TableCell>
-                    <TableCell align="center">{row.tutorialsMapped}</TableCell>
+                {categories.map((category: Category, index: number) => (
+                  <TableRow key={category.id}>
+                    <TableCell align="left">{index + 1}</TableCell>
+                    <TableCell align="left">{category.categoryName}</TableCell>
+                    <TableCell align="center">
+                      {category.mappedTutorials}
+                    </TableCell>
                     <TableCell align="center">
                       <Button
                         variant="contained"
                         startIcon={<EditOutlined />}
                         style={{ marginRight: '12px' }}
-                        onClick={() => handleEditCategories(row)}
+                        onClick={() => {
+                          setCategoryToEdit(category)
+                          setShowEditModal(true)
+                        }}
                       >
                         Edit
                       </Button>
@@ -202,6 +222,7 @@ function Categoriess() {
                         startIcon={<DeleteOutline />}
                         variant="contained"
                         color="error"
+                        onClick={() => handleDeleteCategory(category.id)}
                       >
                         Delete
                       </Button>
@@ -214,7 +235,7 @@ function Categoriess() {
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
-            count={rowsData.length}
+            count={categories.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -223,60 +244,64 @@ function Categoriess() {
         </Paper>
       </Box>
       <Dialog
-        open={showModal}
-        onClose={() => {
-          setShowModal(false)
-        }}
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>
-          {isEditing ? 'Edit Category' : 'Add Category'}
-        </DialogTitle>
-        <DialogContent
-          style={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            padding: '10px 24px',
-          }}
-        >
+        <DialogTitle>Add Category</DialogTitle>
+        <DialogContent>
           <TextField
             fullWidth
             label="Category Name"
             variant="outlined"
             type="text"
-            value={Categories.categoryName}
-            onChange={(e) => {
-              setCategories({
-                ...Categories,
+            value={categoryToAdd.categoryName}
+            onChange={(e) =>
+              setCategoryToAdd({
+                ...categoryToAdd,
                 categoryName: e.target.value,
               })
-            }}
+            }
           />
         </DialogContent>
-        <DialogActions
-          style={{
-            padding: '24px',
-          }}
-        >
-          <Button
-            color="error"
-            onClick={() => {
-              setShowModal(false)
-            }}
-          >
+        <DialogActions>
+          <Button onClick={handleAddCategory} color="primary">
+            Add
+          </Button>
+          <Button onClick={() => setShowAddModal(false)} color="error">
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            onClick={() => {
-              setShowModal(false)
-              setIsEditing(false)
-            }}
-          >
-            {isEditing ? 'Update Category' : 'Add Category'}
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Edit Category</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Category Name"
+            variant="outlined"
+            type="text"
+            value={categoryToEdit.categoryName}
+            onChange={(e) =>
+              setCategoryToEdit({
+                ...categoryToEdit,
+                categoryName: e.target.value,
+              })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditCategory} color="primary">
+            Save
+          </Button>
+          <Button onClick={() => setShowEditModal(false)} color="error">
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>
@@ -284,4 +309,4 @@ function Categoriess() {
   )
 }
 
-export default Categoriess
+export default Categories
