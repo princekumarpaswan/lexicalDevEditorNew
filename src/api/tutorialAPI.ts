@@ -85,3 +85,33 @@ export const searchTutorials = async (query: string) => {
     throw error
   }
 }
+
+// Api for Filter Tutorials
+
+interface FilterParams {
+  categoryId?: string
+  status?: string
+}
+
+export const filterTutorials = async ({ categoryId, status }: FilterParams) => {
+  let url = `${BASE_URL}/tutorials/filter`
+
+  if (categoryId && status) {
+    url = `${url}/?categoryId=${categoryId}&status=${status}`
+    console.log('both url', url)
+  } else if (categoryId && !status) {
+    url = `${url}/?categoryId=${categoryId}`
+    console.log('only category', url)
+  } else if (!categoryId && status) {
+    url = `${url}/?status=${status}`
+    console.log('only status', url)
+  }
+
+  try {
+    const response = await axios.get(url)
+    return response.data
+  } catch (error) {
+    console.error('Failed to fetch filtered tutorials', error)
+    throw error
+  }
+}
