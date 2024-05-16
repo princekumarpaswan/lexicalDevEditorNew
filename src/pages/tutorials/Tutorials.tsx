@@ -89,7 +89,6 @@ function Tutorials() {
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [tutorials, setTutorials] = useState<TutorialData[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  // const [searchResults, setSearchResults] = useState<TutorialData[]>([])
 
   const [showFilterBox, setShowFilterBox] = useState<null | HTMLElement>(null)
 
