@@ -1,10 +1,9 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-useless-catch */
-import axios, { AxiosRequestConfig } from 'axios'
 
-const BASE_URL = 'http://localhost:4444/api/v1'
-const accessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkzNTFkZDAxLWRmNjYtNDUyYy1hZjMxLTI3YjBlYmMxZDcxMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTcxNTU5OTY5NywiZXhwIjoxNzE1Njg2MDk3fQ.C4WlR4YB5WjQ6glBD_ixCIROs5zP6_hBr2pUNPBhmJE'
+import axios, { AxiosRequestConfig } from 'axios'
+import { BASE_URL, accessToken } from '../constants/ApiConstant'
 
 // Api for Create tutorial
 export const createTutorial = async (tutorialData: any) => {
@@ -41,3 +40,48 @@ export const getAllCategories = async () => {
   }
 }
 
+// API for creating Topic and SubTopics
+export const createTopicsAndSubTopics = async (tutorialData: any) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/tutorials/create/content`,
+      { tutorialData },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error creating topics and subtopics:', error)
+    throw error
+  }
+}
+
+// API for listing all tutorials
+export const listAllTutorials = async (skip = 0, limit = 10) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      params: { skip, limit },
+    }
+    const response = await axios.get(`${BASE_URL}/tutorials/list`, config)
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+
+// Api for Search Tutorial using Tutorial Name
+export const searchTutorials = async (query: string) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/tutorials/search?q=${query}`)
+    return response.data
+  } catch (error) {
+    console.error('Failed to search tutorials', error)
+    throw error
+  }
+}

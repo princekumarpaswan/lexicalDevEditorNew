@@ -79,44 +79,74 @@ function AddTutorials() {
 
   const handleSaveTutorial = async () => {
     try {
-      // Map selected category names to their corresponding IDs
-      const selectedCategoryIds = selectedCategories.map((name) => {
-        const selectedCategory = categories.find(
-          (category) => category.categoryName === name,
-        )
-        if (selectedCategory) {
-          return selectedCategory.id
-        } else {
-          console.error(
-            `Category "${name}" does not exist in the categories array.`,
-          )
-          return null
-        }
-      })
+      // Find the first selected category ID
+      const firstSelectedCategoryId = categories.find(
+        (category) => category.categoryName === selectedCategories[0],
+      )?.id
 
-      // Check if any category ID is missing (null)
-      if (selectedCategoryIds.some((id) => id === null)) {
-        // Handle the case where a category is missing
-        // For example, display an error message to the user
+      if (!firstSelectedCategoryId) {
+        console.error('No category selected')
         return
       }
 
-      // Proceed with creating the tutorial
       const tutorialData = {
-        title: tutorialTitle,
-        description: tutorialDescription,
-        categoryIds: selectedCategoryIds,
+        tutorialName: tutorialTitle,
+        tutorialDescription: tutorialDescription,
+        categoryId: firstSelectedCategoryId,
       }
+
       const newTutorial = await createTutorial(tutorialData)
       console.log(newTutorial)
 
       navigate(`/tutorials/add-tutorial/topic-and-subtopic`, {
         state: { tutorialId: newTutorial.id },
       })
+      
     } catch (error) {
       console.error('Error creating tutorial:', error)
     }
   }
+
+  // const handleSaveTutorial = async () => {
+  //   try {
+  //     // Map selected category names to their corresponding IDs
+  //     const selectedCategoryIds = selectedCategories.map((name) => {
+  //       const selectedCategory = categories.find(
+  //         (category) => category.categoryName === name,
+  //       )
+  //       if (selectedCategory) {
+  //         return selectedCategory.id
+  //       } else {
+  //         console.error(
+  //           `Category "${name}" does not exist in the categories array.`,
+  //         )
+  //         return null
+  //       }
+  //     })
+
+  //     // Check if any category ID is missing (null)
+  //     if (selectedCategoryIds.some((id) => id === null)) {
+  //       // Handle the case where a category is missing
+  //       // For example, display an error message to the user
+  //       return
+  //     }
+
+  //     // Proceed with creating the tutorial
+  //     const tutorialData = {
+  //       title: tutorialTitle,
+  //       description: tutorialDescription,
+  //       categoryIds: selectedCategoryIds,
+  //     }
+  //     const newTutorial = await createTutorial(tutorialData)
+  //     console.log(newTutorial)
+
+  //     navigate(`/tutorials/add-tutorial/topic-and-subtopic`, {
+  //       state: { tutorialId: newTutorial.id },
+  //     })
+  //   } catch (error) {
+  //     console.error('Error creating tutorial:', error)
+  //   }
+  // }
 
   return (
     <BaseLayout title="Add Tutorial">

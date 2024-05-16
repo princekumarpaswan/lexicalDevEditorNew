@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
 import { Autocomplete, Box, Button, TextField, Typography } from '@mui/material'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -12,6 +14,7 @@ import TableRow from '@mui/material/TableRow'
 import EditIcon from '@mui/icons-material/Edit'
 import { BaseLayout } from '../../components/BaseLayout'
 import Switch from '@mui/material/Switch'
+import { listAllTutorials, searchTutorials } from '../../api/tutorialAPI'
 
 interface ColumnData {
   id: string
@@ -23,10 +26,10 @@ interface ColumnData {
 }
 
 const Columndata: ColumnData[] = [
-  { id: 'S.No', label: 'S.No', maxWidth: 200 },
-  { id: 'Tutorial Name', label: 'Tutorial Name', minWidth: 100 },
+  { id: 'SNo', label: 'S.No', maxWidth: 200 },
+  { id: 'TutorialName', label: 'Tutorial Name', minWidth: 100 },
   {
-    id: 'Category Name',
+    id: 'CategoryName',
     label: 'Category Name',
     minWidth: 300,
     align: 'center',
@@ -40,14 +43,14 @@ const Columndata: ColumnData[] = [
     format: (value: number) => value.toLocaleString('en-US'),
   },
   {
-    id: 'Edit Tutorial',
+    id: 'EditTutorial',
     label: 'Edit Tutorial',
     minWidth: 200,
     align: 'center',
     format: (value: number) => value.toLocaleString('en-US'),
   },
   {
-    id: 'List/ Dlist Tutorial',
+    id: 'ListDlistTutorial',
     label: 'List/ Dlist Tutorial',
     minWidth: 200,
     align: 'center',
@@ -55,66 +58,88 @@ const Columndata: ColumnData[] = [
   },
 ]
 
-interface rowDataProp {
+interface TutorialData {
+  tutorialName: string
   SNo: number
   ID: string
   title: string
+  categoryName: string
+  status: string
 }
 
-// Create an array of objects
-const rowsData: rowDataProp[] = [
-  {
-    SNo: 1,
-    ID: 'React ',
-    title: 'Web Dev',
-  },
-  {
-    SNo: 2,
-    ID: ' Javascript',
-    title: 'Demo Tutorial 2',
-  },
-  {
-    SNo: 3,
-    ID: 'Javascript ',
-    title: 'Demo Tutorial 3',
-  },
-  {
-    SNo: 4,
-    ID: ' Javascript',
-    title: 'Demo Tutorial 4',
-  },
-  {
-    SNo: 5,
-    ID: ' Javascript',
-    title: 'Demo Tutorial 5',
-  },
-  {
-    SNo: 6,
-    ID: ' React',
-    title: 'Demo Tutorial 6',
-  },
-  {
-    SNo: 7,
-    ID: ' Javascript',
-    title: 'Demo Tutorial 7',
-  },
-]
-
-const top100Films = [
-  { label: 'The Shawshank Redemption', year: 1994 },
-  { label: 'The Godfather', year: 1972 },
-  { label: 'The Godfather: Part II', year: 1974 },
-  { label: 'The Dark Knight', year: 2008 },
-  { label: '12 Angry Men', year: 1957 },
-  { label: "Schindler's List", year: 1993 },
-  { label: 'Pulp Fiction', year: 1994 },
-]
-
 function Tutorials() {
-  // const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [tutorials, setTutorials] = useState<TutorialData[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<TutorialData[]>([])
+
+  useEffect(() => {
+    const fetchTutorials = async () => {
+      try {
+        const skip = page * rowsPerPage
+        const limit = rowsPerPage
+        const response = searchQuery
+          ? await searchTutorials(searchQuery)
+          : await listAllTutorials(skip, limit)
+
+        if (response.success) {
+          const data = response.data.map(
+            (tutorial: {
+              tutorialName: any
+              id: any
+              categoryName: any
+              status: any
+            }) => ({
+              tutorialName: tutorial.tutorialName,
+              SNo: 0,
+              ID: tutorial.id,
+              categoryName: tutorial.categoryName, 
+              status: tutorial.status,
+            }),
+          )
+
+          setTutorials(data)
+        } else {
+          console.error('Failed to fetch tutorials')
+        }
+      } catch (error) {
+        console.error('Failed to fetch tutorials', error)
+      }
+    }
+
+    fetchTutorials()
+  }, [page, rowsPerPage, searchQuery])
+
+  const handleSearch = async (_event: any, value: string) => {
+    setSearchQuery(value)
+    try {
+      const results = await searchTutorials(value)
+      if (results.success) {
+        const data = results.data.map(
+          (tutorial: {
+            tutorialName: any
+            id: any
+            categoryId: any
+            status: any
+          }) => ({
+            tutorialName: tutorial.tutorialName,
+            SNo: 0,
+            ID: tutorial.id,
+            title: tutorial.tutorialName,
+            categoryName: tutorial.categoryId,
+            status: tutorial.status,
+          }),
+        )
+        setSearchResults(data)
+      } else {
+        console.error('Failed to search tutorials')
+      }
+    } catch (error) {
+      console.error('Failed to search tutorials', error)
+    }
+  }
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage)
@@ -160,12 +185,13 @@ function Tutorials() {
               }}
             >
               <Autocomplete
-                disablePortal
-                id="combo-box-demo"
-                options={top100Films}
+                freeSolo
+                id="search-tutorials"
+                options={searchResults.map((result) => result.tutorialName)}
+                onInputChange={handleSearch}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Filter Content" />
+                  <TextField {...params} label="Search Tutorials" />
                 )}
               />
               <Button
@@ -197,23 +223,33 @@ function Tutorials() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rowsData
+                {tutorials
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.ID}>
-                      <TableCell align="left">{row.SNo}</TableCell>
-                      <TableCell align="left">{row.ID}</TableCell>
-                      <TableCell align="center">{row.title}</TableCell>
-                      <TableCell align="center">{row.title}</TableCell>
-
+                  .map((tutorial, index) => (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={tutorial.ID}
+                    >
+                      <TableCell align="left">{index + 1}</TableCell>
+                      <TableCell align="left">
+                        {tutorial.tutorialName}
+                      </TableCell>
+                      <TableCell align="center">
+                        {tutorial.categoryName}
+                      </TableCell>
+                      <TableCell align="center">{tutorial.status}</TableCell>
                       <TableCell
                         align="center"
-                        onClick={() => navigate(`/edit-tutorial/`)}
+                        onClick={() =>
+                          navigate(`/edit-tutorial/${tutorial.ID}`)
+                        }
                       >
                         <EditIcon sx={{ cursor: 'pointer', color: 'blue' }} />
                       </TableCell>
                       <TableCell align="center">
-                        {<Switch {...label} />}
+                        <Switch {...label} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -223,7 +259,7 @@ function Tutorials() {
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
-            count={rowsData.length}
+            count={tutorials.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

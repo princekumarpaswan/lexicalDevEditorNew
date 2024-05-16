@@ -1,8 +1,11 @@
+/* eslint-disable no-console */
 import React, { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { BaseLayout } from '../../components/BaseLayout'
 import { Box, Button, Typography, TextField, Modal, Input } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
+import { createTopicsAndSubTopics } from '../../api/tutorialAPI'
 
 export interface SubTopic {
   subTopicName: string
@@ -16,6 +19,11 @@ export interface Topic {
 }
 
 const AddTopicAndSubTopic: React.FC = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const tutorialId = location.state?.tutorialId
+  console.log(location)
+
   // State variables for modal
   const [openModal, setOpenModal] = useState(false)
   const [textInput, setTextInput] = useState('')
@@ -128,6 +136,34 @@ const AddTopicAndSubTopic: React.FC = () => {
       updatedTopics[topicIndex].subTopics.splice(subTopicIndex, 1)
       return updatedTopics
     })
+  }
+
+  const handleSubmit = async () => {
+    if (!tutorialId) {
+      console.error('Tutorial ID is missing.')
+      console.log(tutorialId)
+      return
+    }
+
+    const tutorialData = {
+      tutorialId,
+      topics: topics.map(({ topicName, topicDescription, subTopics }) => ({
+        topicName,
+        topicDescription,
+        subTopics: subTopics.map(({ subTopicName, subTopicDescription }) => ({
+          subTopicName,
+          subTopicDescription,
+        })),
+      })),
+    }
+    console.log(tutorialData)
+
+    try {
+      await createTopicsAndSubTopics(tutorialData)
+      navigate('/tutorials')
+    } catch (error) {
+      console.error('Error submitting topics and subtopics:', error)
+    }
   }
 
   return (
@@ -320,7 +356,9 @@ const AddTopicAndSubTopic: React.FC = () => {
             Add Topic
           </Button>
         </Box>
-        <Button variant="contained">Submit</Button>
+        <Button variant="contained" onClick={handleSubmit}>
+          Submit
+        </Button>
       </Box>
     </BaseLayout>
   )

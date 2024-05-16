@@ -1,7 +1,6 @@
 /* eslint-disable no-useless-catch */
 import axios from 'axios'
-
-const BASE_URL = `http://localhost:4444/api/v1`
+import { BASE_URL } from '../constants/ApiConstant'
 
 interface LoginResponse {
   data: {
@@ -16,7 +15,6 @@ interface LoginResponse {
 export const loginUser = async (email: string, password: string) => {
   try {
     const response = await axios.post<LoginResponse>(
-      // 'http://localhost:4444/api/v1/admins/login',
       `${BASE_URL}/admins/login`,
       JSON.stringify({ email, password }),
       {

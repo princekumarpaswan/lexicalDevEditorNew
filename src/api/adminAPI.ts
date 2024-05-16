@@ -2,8 +2,8 @@
 /* eslint-disable no-console */
 /* eslint-disable no-useless-catch */
 import axios, { AxiosRequestConfig } from 'axios'
+import { BASE_URL, accessToken } from '../constants/ApiConstant'
 
-const BASE_URL = `http://localhost:4444/api/v1`
 
 // Api for creating an Admin user
 export const createAdmin = async (
@@ -26,9 +26,6 @@ export const createAdmin = async (
 }
 
 // Api for listing all admin users:
-
-const accessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkzNTFkZDAxLWRmNjYtNDUyYy1hZjMxLTI3YjBlYmMxZDcxMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTcxNTU5OTY5NywiZXhwIjoxNzE1Njg2MDk3fQ.C4WlR4YB5WjQ6glBD_ixCIROs5zP6_hBr2pUNPBhmJE'
 
 export const getAllAdminUsers = async () => {
   try {

@@ -1,0 +1,4 @@
+export const BASE_URL = `http://localhost:4444/api/v1`
+
+export const accessToken =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkzNTFkZDAxLWRmNjYtNDUyYy1hZjMxLTI3YjBlYmMxZDcxMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTcxNTgyNzI1OCwiZXhwIjoxNzE1OTEzNjU4fQ.WCxaMkJHm7i9zDGeZ_oTByY1q6JzI47Jc9NESTEVvY4'

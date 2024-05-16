@@ -1,10 +1,6 @@
 /* eslint-disable no-useless-catch */
 import axios, { AxiosRequestConfig } from 'axios'
-
-const accessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkzNTFkZDAxLWRmNjYtNDUyYy1hZjMxLTI3YjBlYmMxZDcxMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTcxNTU5OTY5NywiZXhwIjoxNzE1Njg2MDk3fQ.C4WlR4YB5WjQ6glBD_ixCIROs5zP6_hBr2pUNPBhmJE'
-
-const BASE_URL = `http://localhost:4444/api/v1`
+import { BASE_URL, accessToken } from '../constants/ApiConstant'
 
 // API for creating a category
 export const createCategory = async (categoryName: string) => {
