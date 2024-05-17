@@ -21,7 +21,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
-import EditIcon from '@mui/icons-material/Edit'
+import BorderColorIcon from '@mui/icons-material/BorderColor'
 import { BaseLayout } from '../../components/BaseLayout'
 import Switch from '@mui/material/Switch'
 import {
@@ -29,6 +29,7 @@ import {
   getAllCategories,
   listAllTutorials,
   searchTutorials,
+  updateTutorialStatus,
 } from '../../api/tutorialAPI'
 import { FilterAlt } from '@mui/icons-material'
 
@@ -99,6 +100,14 @@ function Tutorials() {
     [],
   )
   const [categoryInputValue, setCategoryInputValue] = useState('')
+
+  const [accessToken, setAccessToken] = useState('')
+
+  useEffect(() => {
+    // Fetch the access token from local storage or other storage mechanism
+    const token = localStorage.getItem('accessToken')
+    setAccessToken(token || '')
+  }, [])
 
   useEffect(() => {
     const fetchTutorials = async () => {
@@ -317,6 +326,33 @@ function Tutorials() {
     setFilterCategoryId(null)
     setFilterStatus(null)
     setShowFilterBox(null)
+  }
+
+  const handleSwitchChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    tutorialId: string,
+  ) => {
+    const newStatus = event.target.checked ? 'LISTED' : 'DELISTED'
+
+    try {
+      const response = await updateTutorialStatus(
+        tutorialId,
+        newStatus,
+        accessToken,
+      )
+      console.log('Tutorial status updated:', response)
+
+      // Update the tutorial status in the `tutorials` state
+      setTutorials((prevTutorials) =>
+        prevTutorials.map((tutorial) =>
+          tutorial.ID === tutorialId
+            ? { ...tutorial, status: response.data.status }
+            : tutorial,
+        ),
+      )
+    } catch (error) {
+      console.error('Error updating tutorial status:', error)
+    }
   }
 
   const toggleFilterBox = (event: React.MouseEvent<HTMLElement>) => {
@@ -613,15 +649,42 @@ function Tutorials() {
                       <TableCell align="center">
                         {tutorial.categoryName}
                       </TableCell>
-                      <TableCell align="center">{tutorial.status}</TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{ display: 'flex', justifyContent: 'center' }}
+                      >
+                        <p
+                          style={{
+                            backgroundColor:
+                              tutorial.status === 'LISTED'
+                                ? 'darkgreen'
+                                : 'darkred',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            padding: 3,
+                            borderRadius: 20,
+                            width: 100,
+                          }}
+                        >
+                          {tutorial.status}
+                        </p>
+                      </TableCell>
                       <TableCell
                         align="center"
                         onClick={() => navigate(`/edit-tutorial`)}
                       >
-                        <EditIcon sx={{ cursor: 'pointer', color: 'blue' }} />
+                        <BorderColorIcon
+                          sx={{ cursor: 'pointer', color: 'blue' }}
+                        />
                       </TableCell>
                       <TableCell align="center">
-                        <Switch {...label} />
+                        <Switch
+                          checked={tutorial.status === 'LISTED'}
+                          onChange={(event) =>
+                            handleSwitchChange(event, tutorial.ID)
+                          }
+                          {...label}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}

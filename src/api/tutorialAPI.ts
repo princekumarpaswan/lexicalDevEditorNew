@@ -115,3 +115,26 @@ export const filterTutorials = async ({ categoryId, status }: FilterParams) => {
     throw error
   }
 }
+
+// Api for Updating Tutorial Status (LISTED / DELISTED)
+export const updateTutorialStatus = async (
+  id: string,
+  newStatus: 'LISTED' | 'DELISTED',
+  accessToken: string,
+) => {
+  try {
+    const response = await axios.patch(
+      `${BASE_URL}/tutorials/update/status/${id}`,
+      { newStatus },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error updating tutorial status:', error)
+    throw error
+  }
+}
