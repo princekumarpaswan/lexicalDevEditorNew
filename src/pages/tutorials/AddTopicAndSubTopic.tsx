@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
-import React, { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { BaseLayout } from '../../components/BaseLayout'
 import { Box, Button, Typography, TextField, Modal, Input } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
+// import { TutorialContext } from '../../context/TutorialContext/TutorialContext'
 import { createTopicsAndSubTopics } from '../../api/tutorialAPI'
 
 export interface SubTopic {
@@ -22,7 +23,16 @@ const AddTopicAndSubTopic: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const tutorialId = location.state?.tutorialId
-  console.log(location)
+
+  // const { tutorialId } = useContext(TutorialContext)
+
+  useEffect(() => {
+    if (!tutorialId) {
+      console.error('Tutorial ID is missing.')
+      return
+    }
+    console.log('Tutorial ID:', tutorialId)
+  }, [tutorialId])
 
   // State variables for modal
   const [openModal, setOpenModal] = useState(false)
@@ -137,11 +147,9 @@ const AddTopicAndSubTopic: React.FC = () => {
       return updatedTopics
     })
   }
-
   const handleSubmit = async () => {
     if (!tutorialId) {
       console.error('Tutorial ID is missing.')
-      console.log(tutorialId)
       return
     }
 
@@ -165,6 +173,33 @@ const AddTopicAndSubTopic: React.FC = () => {
       console.error('Error submitting topics and subtopics:', error)
     }
   }
+  // const handleSubmit = async () => {
+  //   if (!tutorialId) {
+  //     console.error('Tutorial ID is missing.')
+  //     return
+  //   }
+
+  //   const tutorialData = {
+  //     tutorialId,
+  //     topics: topics.map(({ topicName, topicDescription, subTopics }) => ({
+  //       topicName,
+  //       topicDescription,
+  //       subTopics: subTopics.map(({ subTopicName, subTopicDescription }) => ({
+  //         subTopicName,
+  //         subTopicDescription,
+  //       })),
+  //     })),
+  //   }
+  //   console.log(tutorialData)
+
+  //   try {
+  //     await createTopicsAndSubTopics(tutorialData)
+  //     navigate('/tutorials')
+  //   } catch (error) {
+  //     console.error('Error submitting topics and subtopics:', error)
+  //   }
+  // }
+  
 
   return (
     <BaseLayout title="Add Topics and Sub-Topics">

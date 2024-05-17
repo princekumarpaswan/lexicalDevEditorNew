@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { BaseLayout } from '../../components/BaseLayout'
 import { Box, Button, TextField, Theme, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
@@ -8,6 +8,10 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import { useNavigate } from 'react-router-dom'
+import {
+  TutorialContext,
+  TutorialProvider,
+} from '../../context/TutorialContext/TutorialContext'
 import { getAllCategories, createTutorial } from '../../api/tutorialAPI'
 
 const ITEM_HEIGHT = 48
@@ -49,6 +53,8 @@ function AddTutorials() {
   const [tutorialTitle, setTutorialTitle] = useState('')
   const [tutorialDescription, setTutorialDescription] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
+
+  const { setTutorialId } = useContext(TutorialContext)
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -96,12 +102,13 @@ function AddTutorials() {
       }
 
       const newTutorial = await createTutorial(tutorialData)
-      console.log(newTutorial)
+      const newTutorialId = newTutorial.data.id
+      setTutorialId(newTutorialId)
+      console.log('Tutorial ID set in context:', newTutorialId)
 
       navigate(`/tutorials/add-tutorial/topic-and-subtopic`, {
-        state: { tutorialId: newTutorial.id },
+        state: { tutorialId: newTutorialId },
       })
-      
     } catch (error) {
       console.error('Error creating tutorial:', error)
     }
@@ -149,105 +156,107 @@ function AddTutorials() {
   // }
 
   return (
-    <BaseLayout title="Add Tutorial">
-      <Box
-        component="form"
-        sx={{
-          '& > :not(style)': { width: '60%', my: 1 },
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-        autoComplete="off"
-      >
+    <TutorialProvider>
+      <BaseLayout title="Add Tutorial">
         <Box
+          component="form"
           sx={{
+            '& > :not(style)': { width: '60%', my: 1 },
             display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Typography variant="h5" component="h5" pb={1}>
-            Add Tutorial
-          </Typography>
-        </Box>
-
-        <TextField
-          label="Tutorial Title"
-          required
-          value={tutorialTitle}
-          onChange={(e) => setTutorialTitle(e.target.value)}
-        />
-
-        <TextField
-          required
-          label="Tutorial Description"
-          multiline
-          rows={3}
-          value={tutorialDescription}
-          onChange={(e) => setTutorialDescription(e.target.value)}
-        />
-
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
+            flexDirection: 'column',
+            justifyContent: 'center',
             alignItems: 'center',
           }}
+          autoComplete="off"
         >
-          <FormControl sx={{ width: '100%' }}>
-            <Select
-              displayEmpty
-              value={selectedCategories}
-              onChange={handleChange}
-              input={<OutlinedInput />}
-              renderValue={(selected) => {
-                if (selected.length === 0) {
-                  return <em>Select Category</em>
-                }
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Typography variant="h5" component="h5" pb={1}>
+              Add Tutorial
+            </Typography>
+          </Box>
 
-                return selected.join(', ')
-              }}
-              MenuProps={MenuProps}
-              inputProps={{ 'aria-label': 'Without label' }}
-            >
-              <MenuItem disabled value="">
-                <em>Select Category</em>
-              </MenuItem>
-              {categories.map((category) => (
-                <MenuItem
-                  key={category.id}
-                  value={category.categoryName}
-                  style={getStyles(
-                    category.categoryName,
-                    selectedCategories,
-                    theme,
-                  )}
-                >
-                  {category.categoryName}
+          <TextField
+            label="Tutorial Title"
+            required
+            value={tutorialTitle}
+            onChange={(e) => setTutorialTitle(e.target.value)}
+          />
+
+          <TextField
+            required
+            label="Tutorial Description"
+            multiline
+            rows={3}
+            value={tutorialDescription}
+            onChange={(e) => setTutorialDescription(e.target.value)}
+          />
+
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <FormControl sx={{ width: '100%' }}>
+              <Select
+                displayEmpty
+                value={selectedCategories}
+                onChange={handleChange}
+                input={<OutlinedInput />}
+                renderValue={(selected) => {
+                  if (selected.length === 0) {
+                    return <em>Select Category</em>
+                  }
+
+                  return selected.join(', ')
+                }}
+                MenuProps={MenuProps}
+                inputProps={{ 'aria-label': 'Without label' }}
+              >
+                <MenuItem disabled value="">
+                  <em>Select Category</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                {categories.map((category) => (
+                  <MenuItem
+                    key={category.id}
+                    value={category.categoryName}
+                    style={getStyles(
+                      category.categoryName,
+                      selectedCategories,
+                      theme,
+                    )}
+                  >
+                    {category.categoryName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </Box>
-      </Box>
-      <Box
-        sx={{
-          width: 100,
-          margin: 'auto',
-        }}
-      >
-        <Button
-          variant="contained"
+        <Box
           sx={{
-            width: 150,
+            width: 100,
+            margin: 'auto',
           }}
-          onClick={handleSaveTutorial}
         >
-          Save Tutorial
-        </Button>
-      </Box>
-    </BaseLayout>
+          <Button
+            variant="contained"
+            sx={{
+              width: 150,
+            }}
+            onClick={handleSaveTutorial}
+          >
+            Save Tutorial
+          </Button>
+        </Box>
+      </BaseLayout>
+    </TutorialProvider>
   )
 }
 
