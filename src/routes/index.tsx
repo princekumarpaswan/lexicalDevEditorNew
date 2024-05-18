@@ -28,7 +28,7 @@ export const routes: Route[] = [
     page: <AddTopicAndSubTopic />,
   },
   {
-    path: '/edit-tutorial',
+    path: '/edit-tutorial/:tutorialId',
     page: <EditTutorials />,
   },
   {

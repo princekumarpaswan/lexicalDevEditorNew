@@ -359,6 +359,11 @@ function Tutorials() {
     setShowFilterBox(showFilterBox ? null : event.currentTarget)
   }
 
+  const handleEditClick = (tutorialId: any) => {
+    navigate(`/edit-tutorial/${tutorialId}`)
+    console.log(tutorialId)
+  }
+
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage)
   }
@@ -669,11 +674,9 @@ function Tutorials() {
                           {tutorial.status}
                         </p>
                       </TableCell>
-                      <TableCell
-                        align="center"
-                        onClick={() => navigate(`/edit-tutorial`)}
-                      >
+                      <TableCell align="center">
                         <BorderColorIcon
+                          onClick={() => handleEditClick(tutorial.ID)}
                           sx={{ cursor: 'pointer', color: 'blue' }}
                         />
                       </TableCell>

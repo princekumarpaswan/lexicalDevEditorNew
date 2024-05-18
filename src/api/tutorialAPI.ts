@@ -87,12 +87,10 @@ export const searchTutorials = async (query: string) => {
 }
 
 // Api for Filter Tutorials
-
 interface FilterParams {
   categoryId?: string
   status?: string
 }
-
 export const filterTutorials = async ({ categoryId, status }: FilterParams) => {
   let url = `${BASE_URL}/tutorials/filter`
 
@@ -135,6 +133,207 @@ export const updateTutorialStatus = async (
     return response.data
   } catch (error) {
     console.error('Error updating tutorial status:', error)
+    throw error
+  }
+}
+
+// API for Fetching Tutorial Details
+export const getTutorialDetails = async (tutorialId: any, accessToken: any) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/tutorials/info/${tutorialId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error fetching tutorial details:', error)
+    throw error
+  }
+}
+
+// API for updating Tutorial Information
+export const updateTutorialInfo = async (
+  tutorialId: string,
+  newTutorialName: string,
+  newTutorialDescription: string,
+  newCategoryId: string,
+) => {
+  const url = `${BASE_URL}/tutorials/update/info/${tutorialId}`
+
+  try {
+    const response = await axios.patch(
+      url,
+      { newTutorialName, newTutorialDescription, newCategoryId },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error updating tutorial info:', error)
+    throw error
+  }
+}
+
+// API for Updating Topic :
+interface UpdateTopicRequest {
+  topicId: string
+  newTopicName: string
+  newTopicDescription: string
+}
+
+export const updateTopicInfo = async (
+  accessToken: string,
+  { topicId, newTopicName, newTopicDescription }: UpdateTopicRequest,
+) => {
+  try {
+    const response = await axios.patch(
+      `${BASE_URL}/topics/update/name/${topicId}`,
+      {
+        newTopicName,
+        newTopicDescription,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error updating topic info:', error)
+    throw error
+  }
+}
+
+// API for updating Sub-Topics:
+interface UpdateSubTopicRequest {
+  subTopicId: string
+  newSubTopicName: string
+  newSubTopicDescription: string
+}
+
+export const updateSubTopicInfo = async (
+  accessToken: string,
+  {
+    subTopicId,
+    newSubTopicName,
+    newSubTopicDescription,
+  }: UpdateSubTopicRequest,
+) => {
+  try {
+    const response = await axios.patch(
+      `${BASE_URL}/subtopics/update/info/${subTopicId}`,
+      {
+        newSubTopicName,
+        newSubTopicDescription,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error updating sub-topic info:', error)
+    throw error
+  }
+}
+
+// API to Delete Sub-topic :
+export const deleteSubTopicInfo = async (
+  accessToken: string,
+  subTopicId: string,
+) => {
+  try {
+    const response = await axios.delete(
+      `${BASE_URL}/subtopics/delete/${subTopicId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error deleting sub-topic info:', error)
+    throw error
+  }
+}
+
+// API to delete Topic :
+export const deleteTopicInfo = async (accessToken: string, topicId: string) => {
+  try {
+    const response = await axios.delete(
+      `${BASE_URL}/topics/delete/${topicId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error deleting topic info:', error)
+    throw error
+  }
+}
+
+// APi to add a SubTopic while Editing tutorial
+export const createSubTopicInfo = async (
+  token: string,
+  topicId: string,
+  {
+    subTopicName,
+    subTopicDescription,
+  }: { subTopicName: string; subTopicDescription: string },
+) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/subtopics/create/${topicId}`,
+      { subTopicName, subTopicDescription },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error creating sub-topic:', error)
+    throw error
+  }
+}
+
+// API for adding new Topic while Editing Tutorial
+export const createTopicInfo = async (
+  token: string,
+  tutorialId: string,
+  {
+    topicName,
+    topicDescription,
+  }: { topicName: string; topicDescription: string },
+) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/topics/create/${tutorialId}`,
+      { topicName, topicDescription },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error creating topic:', error)
     throw error
   }
 }

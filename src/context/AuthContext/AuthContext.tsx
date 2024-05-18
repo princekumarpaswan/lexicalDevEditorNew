@@ -5,7 +5,7 @@ import AuthReducer, { AuthState, AuthAction } from './AuthReducer'
 
 const initialState: AuthState = {
   user: null,
-  accessToken: localStorage.getItem('accessToken') || null, // Retrieve token from localStorage
+  accessToken: localStorage.getItem('accessToken') || null,
 }
 
 export const AuthContext = createContext<{
