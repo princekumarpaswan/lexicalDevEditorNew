@@ -7,7 +7,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import {  useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -100,9 +100,6 @@ const Columndata: ColumnData[] = [
   },
 ]
 
-
-
-
 const top100Films = [
   { label: 'The Shawshank Redemption', year: 1994 },
   { label: 'The Godfather', year: 1972 },
@@ -121,7 +118,6 @@ function AdminComponent() {
   const [rowsPerPage] = useState(10)
   const [tutorialContentData, steTutorialContentData] = useState<tutorial[]>([])
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -133,9 +129,6 @@ function AdminComponent() {
     }
     fetchData()
   }, [page, rowsPerPage])
-
-
- 
 
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
 
@@ -264,19 +257,19 @@ function AdminComponent() {
           spacing={2}
         >
           <Button
-            onClick={() => setPage(() => page == 0 ? 1 : page - 1)}
+            onClick={() => setPage(() => (page == 0 ? 1 : page - 1))}
             variant="outlined"
             startIcon={'<'}
           >
             Previous
           </Button>
           <Button
-            onClick={() => setPage(() => page == 0 ? 1 : page + 1)}
+            onClick={() => setPage(() => (page == 0 ? 1 : page + 1))}
             variant="contained"
             endIcon={'>'}
             disabled={page == 0 ? true : false}
           >
-            Page - {page == 0 ? 1 : page }
+            Page - {page == 0 ? 1 : page}
           </Button>
         </Stack>
       </Box>
