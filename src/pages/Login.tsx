@@ -44,8 +44,6 @@ export default function Login() {
           accessToken,
         },
       })
-      console.log(role)
-
       // Redirect to the appropriate page based on the role
       switch (role) {
         case 'ADMIN':

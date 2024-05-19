@@ -40,6 +40,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [state.accessToken])
 
+  
+
   return (
     <AuthContext.Provider value={{ state, dispatch }}>
       {children}
