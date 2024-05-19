@@ -2,28 +2,24 @@ import {
   Autocomplete,
   Box,
   Button,
+  Stack,
   Switch,
-  // Switch,
   TextField,
   Typography,
 } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
-// import EditIcon from '@mui/icons-material/Edit'
-// import { BaseLayout } from '../components/BaseLayout'
-// import Switch from '@mui/material/Switch'
-import { Link, useNavigate } from 'react-router-dom'
 
+import { Link, useNavigate } from 'react-router-dom'
+import { contentTutorial } from '../../api/tutorialContentAPI'
 import { BaseLayout } from '../../components/BaseLayout'
 import TutorialsContentFilter from './TutorialContentFilter'
-// import { EditNotifications } from '@mui/icons-material'
 
 interface ColumnData {
   id: string
@@ -31,6 +27,28 @@ interface ColumnData {
   maxWidth?: number
   align?: 'center'
   format?: (value: number) => string
+}
+
+interface tutorial {
+  createdAt: string
+  id: string
+  reviewerAssignedAt: string | null
+  reviewerInfo: null | string
+  status: string
+  subTopicDescription: string
+  subTopicName: string
+  topicId: string
+  topicInfo: {
+    id: string
+    topicName: string
+  }
+  tutorialInfo: {
+    id: string
+    tutorialName: string
+  }
+  updatedAt: string
+  writerAssignedAt: string | null
+  writerInfo: null | string
 }
 
 const Columndata: ColumnData[] = [
@@ -84,61 +102,35 @@ const Columndata: ColumnData[] = [
   },
 ]
 
-interface rowDataProp {
-  Id: string
-  SNo: number
-  subTopicName: string
-  TopicName: string
-  tutorialName: string
-  contentAssigneeName: string
-  ReviewerAssigneeName: string
-  status: string
-  // publish_Unpublish: ToggleEvent
-}
-
-// Create an array of objects
-const rowsData: rowDataProp[] = [
-  {
-    Id: '2348923918579874389',
-    SNo: 1,
-    subTopicName: 'Hooks ',
-    TopicName: 'React',
-    tutorialName: 'Web Dev',
-    contentAssigneeName: 'Lokesh',
-    ReviewerAssigneeName: 'Rohan',
-    status: 'Not assigned',
-    // publish_Unpublish:  ,
-  },
-  {
-    Id: '2348923918579874389',
-    SNo: 1,
-    subTopicName: 'Hooks ',
-    TopicName: 'React',
-    tutorialName: 'Web Dev',
-    contentAssigneeName: 'Lokesh',
-    ReviewerAssigneeName: 'Rohan',
-    status: 'Not assigned',
-    // publish_Unpublish:  ,
-  },
+const top100Films = [
+  { label: 'The Shawshank Redemption', year: 1994 },
+  { label: 'The Godfather', year: 1972 },
+  { label: 'The Godfather: Part II', year: 1974 },
+  { label: 'The Dark Knight', year: 2008 },
+  { label: '12 Angry Men', year: 1957 },
+  { label: "Schindler's List", year: 1993 },
+  { label: 'Pulp Fiction', year: 1994 },
 ]
 
 function TutorialContent() {
   // const [searchQuery, setSearchQuery] = useState('')
 
   const navigate = useNavigate()
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [page, setPage] = useState(1)
+  const [rowsPerPage] = useState(10)
+  const [tutorialContentData, steTutorialContentData] = useState<tutorial[]>([])
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage)
-  }
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await contentTutorial(page, rowsPerPage)
+        steTutorialContentData(data.data)
+      } catch (error) {
+        return error
+      }
+    }
+    fetchData()
+  }, [page, rowsPerPage])
 
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
 
@@ -173,14 +165,12 @@ function TutorialContent() {
             >
               <TutorialsContentFilter />
               <Autocomplete
-                freeSolo
-                id="search Sub-Topics"
-                options={[]}
-                inputValue=""
-                onInputChange={() => {}}
+                disablePortal
+                id="combo-box-demo"
+                options={top100Films}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="search Sub-Topics" />
+                  <TextField {...params} label="Filter Content" />
                 )}
               />
               <Button
@@ -213,50 +203,76 @@ function TutorialContent() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rowsData
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.Id}>
-                      <TableCell align="left">{row.SNo}</TableCell>
+                {tutorialContentData.length > 0 ? (
+                  tutorialContentData.map((row: tutorial, index: number) => (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                      <TableCell align="left">{index + 1}</TableCell>
                       <TableCell align="left">
                         <Link to={'{row.subTopicName}'}>
                           {row.subTopicName}
                         </Link>
                       </TableCell>
-                      <TableCell align="center">{row.TopicName}</TableCell>
-                      <TableCell align="center">{row.tutorialName}</TableCell>
+                      <TableCell align="center">{row.subTopicName}</TableCell>
                       <TableCell align="center">
-                        {row.contentAssigneeName}
+                        {row.tutorialInfo.tutorialName}
                       </TableCell>
                       <TableCell align="center">
-                        {row.ReviewerAssigneeName}
+                        {row.writerInfo ? 'row.writerInfo ' : 'Not Assigned'}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.reviewerInfo ? 'row.reviewerInfo' : 'Not Assigned'}
                       </TableCell>
                       <TableCell align="center">{row.status}</TableCell>
                       <TableCell align="center">
                         {<Switch {...label} />}
                       </TableCell>
                       {/* <TableCell
-                        align="center"
-                        onClick={() => navigate(`/edit-tutorial/`)}
-                      >
-                        <EditNotifications
-                          sx={{ cursor: 'pointer', color: 'blue' }}
-                        />
-                      </TableCell> */}
+                      align="center"
+                      onClick={() => navigate(`/edit-tutorial/`)}
+                    >
+                      <EditNotifications
+                        sx={{ cursor: 'pointer', color: 'blue' }}
+                      />
+                    </TableCell> */}
                     </TableRow>
-                  ))}
+                  ))
+                ) : (
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: '40%',
+                      marginLeft: '55%',
+                    }}
+                  >
+                    Loading...
+                  </div>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
-            count={rowsData.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          <Stack
+            sx={{ marginTop: '2%', justifyContent: 'flex-end' }}
+            direction="row"
+            spacing={2}
+          >
+            <Button
+              onClick={() => setPage(() => (page == 0 ? 1 : page - 1))}
+              variant="outlined"
+              startIcon={'<'}
+            >
+              Previous
+            </Button>
+            <Button
+              onClick={() => setPage(() => (page == 0 ? 1 : page + 1))}
+              variant="contained"
+              endIcon={'>'}
+              disabled={page == 0 ? true : false}
+            >
+              Page - {page == 0 ? 1 : page}
+            </Button>
+          </Stack>
         </Paper>
       </Box>
     </BaseLayout>
