@@ -94,17 +94,23 @@ function EditTutorials() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [tutorialTitle, setTutorialTitle] = useState('')
   const [tutorialDescription, setTutorialDescription] = useState('')
-
   const [fetchTrigger, setFetchTrigger] = useState(0)
 
-  const handleChange = (
-    event: SelectChangeEvent<typeof selectedCategories>,
-  ) => {
-    const {
-      target: { value },
-    } = event
-    setSelectedCategories(typeof value === 'string' ? value.split(',') : value)
-  }
+  //states for disabling the  update and create buttons until there is a change in the text fileds
+  const [tutorialChanges, setTutorialChanges] = useState(false)
+  const [topicChanges, setTopicChanges] = useState(topics.map(() => false))
+  const [subTopicChanges, setSubTopicChanges] = useState(
+    topics.map((topic) => topic.subTopics.map(() => false)),
+  )
+
+  // const handleChange = (
+  //   event: SelectChangeEvent<typeof selectedCategories>,
+  // ) => {
+  //   const {
+  //     target: { value },
+  //   } = event
+  //   setSelectedCategories(typeof value === 'string' ? value.split(',') : value)
+  // }
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -159,6 +165,12 @@ function EditTutorials() {
         )
 
         setTopics(mappedTopics)
+        setSubTopicChanges(
+          mappedTopics.map((topic: { subTopics: any[] }) =>
+            topic.subTopics.map(() => false),
+          ),
+        )
+        setTutorialChanges(false)
       } catch (error) {
         console.error('Error fetching tutorial details:', error)
       }
@@ -178,7 +190,7 @@ function EditTutorials() {
         (category) => category.categoryName === selectedCategories[0],
       )
 
-      const newCategoryId = selectedCategory?.id.toString() || '' // Convert id to string
+      const newCategoryId = selectedCategory?.id.toString() || ''
 
       const updatedTutorialData = await updateTutorialInfo(
         tutorialId,
@@ -186,8 +198,8 @@ function EditTutorials() {
         tutorialDescription,
         newCategoryId,
       )
+      setFetchTrigger((prevTrigger) => prevTrigger + 1)
       console.log('Tutorial info updated:', updatedTutorialData)
-      // You can update the tutorial list or perform any other necessary actions here
     } catch (error) {
       console.error('Error updating tutorial info:', error)
     }
@@ -234,7 +246,7 @@ function EditTutorials() {
           const updatedTopics = [...prevTopics]
           updatedTopics[topicIndex] = {
             ...createdTopic,
-            topicId: createdTopic.id, // Assuming the response includes an `id` field for the new topic
+            topicId: createdTopic.id,
             subTopics: topicToUpdate.subTopics,
           }
           return updatedTopics
@@ -256,6 +268,11 @@ function EditTutorials() {
         })
       }
       setFetchTrigger((prevTrigger) => prevTrigger + 1)
+      setTopicChanges((prevChanges) => {
+        const updatedChanges = [...prevChanges]
+        updatedChanges[topicIndex] = false
+        return updatedChanges
+      })
     } catch (error) {
       console.error('Error updating topic info:', error)
     }
@@ -283,7 +300,7 @@ function EditTutorials() {
           const updatedTopics = [...prevTopics]
           updatedTopics[topicIndex].subTopics[subTopicIndex] = {
             ...createdSubTopic,
-            subTopicId: createdSubTopic.id, // Assuming the response includes an `id` field for the new sub-topic
+            subTopicId: createdSubTopic.id,
           }
           return updatedTopics
         })
@@ -301,6 +318,11 @@ function EditTutorials() {
         })
       }
       setFetchTrigger((prevTrigger) => prevTrigger + 1)
+      setSubTopicChanges((prevChanges) => {
+        const updatedChanges = [...prevChanges]
+        updatedChanges[topicIndex][subTopicIndex] = false
+        return updatedChanges
+      })
     } catch (error) {
       console.error('Error updating sub-topic info:', error)
     }
@@ -313,11 +335,10 @@ function EditTutorials() {
         topicId: '',
         topicName: '',
         topicDescription: '',
-        subTopics: [
-          { subTopicName: '', subTopicDescription: '', subTopicId: '' },
-        ],
+        subTopics: [],
       },
     ])
+    setSubTopicChanges((prevChanges) => [...prevChanges, []])
   }
 
   const handleAddSubTopic = (index: number) => {
@@ -330,6 +351,11 @@ function EditTutorials() {
       })
       return updatedTopics
     })
+    setSubTopicChanges((prevChanges) => {
+      const updatedChanges = [...prevChanges]
+      updatedChanges[index].push(false)
+      return updatedChanges
+    })
   }
 
   const handleDeleteSubTopic = async (
@@ -341,7 +367,6 @@ function EditTutorials() {
       const subTopicToDelete = topicToUpdate.subTopics[subTopicIndex]
 
       if (!subTopicToDelete.subTopicId) {
-        // If the sub-topic ID is missing, simply remove it from the state
         setTopics((prevTopics) => {
           const updatedTopics = [...prevTopics]
           updatedTopics[topicIndex].subTopics.splice(subTopicIndex, 1)
@@ -366,14 +391,12 @@ function EditTutorials() {
       const topicToDelete = topics[topicIndex]
 
       if (!topicToDelete.topicId) {
-        // If the topic ID is missing, simply remove it from the state
         setTopics((prevTopics) => {
           const updatedTopics = [...prevTopics]
           updatedTopics.splice(topicIndex, 1)
           return updatedTopics
         })
       } else {
-        // If the topic has an ID, check if there are sub-topics
         if (topicToDelete.subTopics.length > 0) {
           alert('Please delete all sub-topics before deleting the topic.')
           return
@@ -398,6 +421,11 @@ function EditTutorials() {
       updatedTopics[index].topicName = value
       return updatedTopics
     })
+    setTopicChanges((prevChanges) => {
+      const updatedChanges = [...prevChanges]
+      updatedChanges[index] = true
+      return updatedChanges
+    })
   }
 
   const handleTopicDescriptionChange = (index: number, value: string) => {
@@ -405,6 +433,11 @@ function EditTutorials() {
       const updatedTopics = [...prevTopics]
       updatedTopics[index].topicDescription = value
       return updatedTopics
+    })
+    setTopicChanges((prevChanges) => {
+      const updatedChanges = [...prevChanges]
+      updatedChanges[index] = true
+      return updatedChanges
     })
   }
 
@@ -417,6 +450,11 @@ function EditTutorials() {
       const updatedTopics = [...prevTopics]
       updatedTopics[topicIndex].subTopics[subTopicIndex].subTopicName = value
       return updatedTopics
+    })
+    setSubTopicChanges((prevChanges) => {
+      const updatedChanges = [...prevChanges]
+      updatedChanges[topicIndex][subTopicIndex] = true
+      return updatedChanges
     })
   }
 
@@ -431,6 +469,35 @@ function EditTutorials() {
         value
       return updatedTopics
     })
+    setSubTopicChanges((prevChanges) => {
+      const updatedChanges = [...prevChanges]
+      updatedChanges[topicIndex][subTopicIndex] = true
+      return updatedChanges
+    })
+  }
+
+  const handleTutorialTitleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setTutorialTitle(e.target.value)
+    setTutorialChanges(true)
+  }
+
+  const handleTutorialDescriptionChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setTutorialDescription(e.target.value)
+    setTutorialChanges(true)
+  }
+
+  const handleCategoryChange = (
+    event: SelectChangeEvent<typeof selectedCategories>,
+  ) => {
+    const {
+      target: { value },
+    } = event
+    setSelectedCategories(typeof value === 'string' ? value.split(',') : value)
+    setTutorialChanges(true)
   }
 
   return (
@@ -469,7 +536,7 @@ function EditTutorials() {
             label="Tutorial Title"
             required
             value={tutorialTitle}
-            onChange={(e) => setTutorialTitle(e.target.value)}
+            onChange={handleTutorialTitleChange}
           />
 
           <TextField
@@ -478,7 +545,7 @@ function EditTutorials() {
             multiline
             rows={3}
             value={tutorialDescription}
-            onChange={(e) => setTutorialDescription(e.target.value)}
+            onChange={handleTutorialDescriptionChange}
           />
           <Box
             sx={{
@@ -491,7 +558,7 @@ function EditTutorials() {
               <Select
                 displayEmpty
                 value={selectedCategories}
-                onChange={handleChange}
+                onChange={handleCategoryChange}
                 input={<OutlinedInput />}
                 renderValue={(selected) => {
                   if (selected.length === 0) {
@@ -523,7 +590,11 @@ function EditTutorials() {
             </FormControl>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}>
-            <Button variant="contained" onClick={handleSaveTutorialInfo}>
+            <Button
+              variant="contained"
+              onClick={handleSaveTutorialInfo}
+              disabled={!tutorialChanges}
+            >
               Update Tutorial Info
             </Button>
           </Box>
@@ -559,14 +630,7 @@ function EditTutorials() {
                 <Typography variant="h5" component="h5" pb={1}>
                   Topic {topicIndex + 1}
                 </Typography>
-                {topicIndex !== 0 && (
-                  // <Button
-                  //   aria-label="delete"
-                  //   onClick={() => handleDeleteTopic(topicIndex)}
-                  //   variant="contained"
-                  // >
-                  //   Delete Topic
-                  // </Button>
+                {topics.length > 1 && (
                   <DeleteIcon
                     aria-label="delete"
                     onClick={() => handleDeleteTopic(topicIndex)}
@@ -598,6 +662,7 @@ function EditTutorials() {
                 <Button
                   variant="contained"
                   onClick={() => handleUpdateTopicInfo(topicIndex)}
+                  disabled={!topicChanges[topicIndex]}
                 >
                   {topic.topicId ? 'Update Topic Info' : 'Create Topic Info'}
                 </Button>
@@ -674,6 +739,7 @@ function EditTutorials() {
                           handleUpdateSubTopicInfo(topicIndex, subTopicIndex)
                         }
                         sx={{ mt: 2 }}
+                        disabled={!subTopicChanges[topicIndex][subTopicIndex]}
                       >
                         {subTopic.subTopicId
                           ? 'Update Sub-Topic'
@@ -682,7 +748,6 @@ function EditTutorials() {
                     </Box>
                   </Box>
                 ))}
-
               <Box
                 sx={{
                   display: 'flex',
@@ -699,6 +764,7 @@ function EditTutorials() {
               </Box>
             </Box>
           ))}
+
         <Box>
           <Button variant="contained" onClick={handleAddTopic}>
             Add Topic
