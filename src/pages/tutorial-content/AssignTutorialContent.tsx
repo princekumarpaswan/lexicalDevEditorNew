@@ -1,5 +1,6 @@
 import { BaseLayout } from '../../components/BaseLayout'
 import {
+  Autocomplete,
   Box,
   Button,
   FormControl,
@@ -8,6 +9,7 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  TextField,
   Typography,
 } from '@mui/material'
 import React from 'react'
@@ -64,17 +66,15 @@ function AssignTutorialContent() {
 
         {/* Select for Tutorial */}
         <FormControl fullWidth>
-          <InputLabel id="tutorial-select-label">Select Tutorial</InputLabel>
-          <Select
-            labelId="tutorial-select-label"
-            id="tutorial-select"
-            value={selectedTutorial}
-            onChange={handleTutorialChange}
-          >
-            <MenuItem value={'tutorial1'}>Tutorial 1</MenuItem>
-            <MenuItem value={'tutorial2'}>Tutorial 2</MenuItem>
-            {/* Add more tutorial options here */}
-          </Select>
+          <Autocomplete
+            freeSolo
+            id="search-category"
+            options={[]}
+            onInputChange={() => console.log('dssss')}
+            renderInput={(params) => (
+              <TextField {...params} label="Search Category" />
+            )}
+          />
         </FormControl>
 
         <FormControl sx={{ m: 1, minWidth: 120 }}>
