@@ -4,9 +4,13 @@ import {
   Autocomplete,
   Box,
   Button,
+  FormControl,
   Grid,
+  IconButton,
   Menu,
   MenuItem,
+  Select,
+  Stack,
   TextField,
   Tooltip,
   Typography,
@@ -19,7 +23,6 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import BorderColorIcon from '@mui/icons-material/BorderColor'
 import { BaseLayout } from '../../components/BaseLayout'
@@ -32,6 +35,8 @@ import {
   updateTutorialStatus,
 } from '../../api/tutorialAPI'
 import { FilterAlt } from '@mui/icons-material'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 
 interface ColumnData {
   id: string
@@ -112,11 +117,9 @@ function Tutorials() {
   useEffect(() => {
     const fetchTutorials = async () => {
       try {
-        const skip = page * rowsPerPage
-        const limit = rowsPerPage
         const response = searchQuery
           ? await searchTutorials(searchQuery)
-          : await listAllTutorials(skip, limit)
+          : await listAllTutorials(page + 1, rowsPerPage)
 
         if (response.success) {
           const data = response.data.map(
@@ -125,6 +128,7 @@ function Tutorials() {
               id: any
               categoryName: any
               status: any
+              index: number
             }) => ({
               tutorialName: tutorial.tutorialName,
               SNo: 0,
@@ -169,7 +173,7 @@ function Tutorials() {
     try {
       const results =
         value.trim() === ''
-          ? await listAllTutorials(0, rowsPerPage)
+          ? await listAllTutorials(1, rowsPerPage)
           : await searchTutorials(value)
       if (results.success) {
         const data = results.data.map(
@@ -194,35 +198,6 @@ function Tutorials() {
       console.error('Failed to search tutorials', error)
     }
   }
-
-  // const handleSearchByTutorialName = async (_event: any, value: string) => {
-  //   setSearchQuery(value)
-  //   try {
-  //     const results = await searchTutorials(value)
-  //     if (results.success) {
-  //       const data = results.data.map(
-  //         (tutorial: {
-  //           tutorialName: any
-  //           id: any
-  //           categoryId: any
-  //           status: any
-  //         }) => ({
-  //           tutorialName: tutorial.tutorialName,
-  //           SNo: 0,
-  //           ID: tutorial.id,
-  //           title: tutorial.tutorialName,
-  //           categoryName: tutorial.categoryId,
-  //           status: tutorial.status,
-  //         }),
-  //       )
-  //       setSearchResults(data)
-  //     } else {
-  //       console.error('Failed to search tutorials')
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to search tutorials', error)
-  //   }
-  // }
 
   const handleFilterFetch = async () => {
     try {
@@ -255,38 +230,6 @@ function Tutorials() {
       console.error('Failed to filter tutorials', error)
     }
   }
-  // const handleFilterFetch = async () => {
-  //   try {
-  //     const filterParams = {
-  //       categoryId: filterCategoryId || undefined,
-  //       status: filterStatus || undefined,
-  //     }
-
-  //     const response = await filterTutorials(filterParams)
-  //     const tutorials = response.data || []
-  //     console.log(filterParams)
-
-  //     const data = tutorials.map(
-  //       (tutorial: {
-  //         tutorialName: string
-  //         id: string
-  //         categoryName: string
-  //         status: string
-  //       }) => ({
-  //         tutorialName: tutorial.tutorialName,
-  //         SNo: 0,
-  //         ID: tutorial.id,
-  //         categoryName: tutorial.categoryName,
-  //         status: tutorial.status,
-  //       }),
-  //     )
-
-  //     setTutorials(data)
-  //     setShowFilterBox(null)
-  //   } catch (error) {
-  //     console.error('Failed to filter tutorials', error)
-  //   }
-  // }
 
   const handleFilterReset = async () => {
     try {
@@ -296,7 +239,7 @@ function Tutorials() {
       setShowFilterBox(null)
 
       // Fetch all tutorials
-      const response = await listAllTutorials(0, rowsPerPage)
+      const response = await listAllTutorials(1, rowsPerPage)
       if (response.success) {
         const data = response.data.map(
           (tutorial: {
@@ -364,15 +307,15 @@ function Tutorials() {
     console.log(tutorialId)
   }
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage)
-  }
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
-  }
+  // const handleChangePage = (_event: unknown, newPage: number) => {
+  //   setPage(newPage)
+  // }
+  // const handleChangeRowsPerPage = (
+  //   event: React.ChangeEvent<HTMLInputElement>,
+  // ) => {
+  //   setRowsPerPage(+event.target.value)
+  //   setPage(0)
+  // }
 
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
 
@@ -504,54 +447,6 @@ function Tutorials() {
                           )}
                           sx={{ width: 280 }}
                         />
-
-                        {/* <Autocomplete
-                          freeSolo
-                          id="search-categories"
-                          options={categories
-                            .filter((category) =>
-                              category.categoryName
-                                .toLowerCase()
-                                .includes(
-                                  filterCategoryId?.toLowerCase() || '',
-                                ),
-                            )
-                            .map((category) => category.categoryName)}
-                          inputValue={filterCategoryId || ''}
-                          onInputChange={(_event, value) => {
-                            const selectedCategory = categories.find(
-                              (category) =>
-                                category.categoryName.toLowerCase() ===
-                                value.toLowerCase(),
-                            )
-                            setFilterCategoryId(
-                              selectedCategory ? selectedCategory.id : null,
-                            )
-                          }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Filter by Category Name"
-                            />
-                          )}
-                          sx={{ width: 280 }}
-                        /> */}
-                        {/* <Autocomplete
-                          freeSolo
-                          id="search-categories"
-                          options={[]}
-                          inputValue={filterCategoryId || ''}
-                          onInputChange={(_event, value) =>
-                            setFilterCategoryId(value)
-                          }
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Filter by Category Name"
-                            />
-                          )}
-                          sx={{ width: 280 }}
-                        /> */}
                       </Grid>
                       <Grid item>
                         <TextField
@@ -638,71 +533,107 @@ function Tutorials() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {tutorials
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((tutorial, index) => (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={tutorial.ID}
+                {tutorials.map((tutorial, index) => (
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    tabIndex={-1}
+                    key={tutorial.ID}
+                  >
+                    <TableCell align="left">
+                      {page * rowsPerPage + index + 1}
+                    </TableCell>
+                    <TableCell align="left">{tutorial.tutorialName}</TableCell>
+                    <TableCell align="center">
+                      {tutorial.categoryName}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{ display: 'flex', justifyContent: 'center' }}
                     >
-                      <TableCell align="left">{index + 1}</TableCell>
-                      <TableCell align="left">
-                        {tutorial.tutorialName}
-                      </TableCell>
-                      <TableCell align="center">
-                        {tutorial.categoryName}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        sx={{ display: 'flex', justifyContent: 'center' }}
+                      <p
+                        style={{
+                          backgroundColor:
+                            tutorial.status === 'LISTED'
+                              ? 'darkgreen'
+                              : 'darkred',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          padding: 3,
+                          borderRadius: 20,
+                          width: 100,
+                        }}
                       >
-                        <p
-                          style={{
-                            backgroundColor:
-                              tutorial.status === 'LISTED'
-                                ? 'darkgreen'
-                                : 'darkred',
-                            color: 'white',
-                            fontWeight: 'bold',
-                            padding: 3,
-                            borderRadius: 20,
-                            width: 100,
-                          }}
-                        >
-                          {tutorial.status}
-                        </p>
-                      </TableCell>
-                      <TableCell align="center">
-                        <BorderColorIcon
-                          onClick={() => handleEditClick(tutorial.ID)}
-                          sx={{ cursor: 'pointer', color: 'blue' }}
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <Switch
-                          checked={tutorial.status === 'LISTED'}
-                          onChange={(event) =>
-                            handleSwitchChange(event, tutorial.ID)
-                          }
-                          {...label}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        {tutorial.status}
+                      </p>
+                    </TableCell>
+                    <TableCell align="center">
+                      <BorderColorIcon
+                        onClick={() => handleEditClick(tutorial.ID)}
+                        sx={{ cursor: 'pointer', color: 'blue' }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Switch
+                        checked={tutorial.status === 'LISTED'}
+                        onChange={(event) =>
+                          handleSwitchChange(event, tutorial.ID)
+                        }
+                        {...label}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
-            count={tutorials.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          <Stack
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              marginRight: 3,
+              gap: 4,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 14 }}>Rows Per Page : </span>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 50 }}>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  displayEmpty
+                  value={rowsPerPage}
+                  onChange={(event) =>
+                    setRowsPerPage(Number(event.target.value))
+                  }
+                  sx={{ maxWidthidth: 90 }}
+                >
+                  {[10, 50, 100, 500].map((rows) => (
+                    <MenuItem key={rows} value={rows}>
+                      {rows}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <IconButton
+                onClick={() => setPage(() => (page === 0 ? 1 : page - 1))}
+                disabled={page === 0}
+              >
+                <ArrowBackIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+              </IconButton>
+              <IconButton
+                onClick={() => setPage(() => page + 1)}
+                disabled={tutorials.length < rowsPerPage}
+              >
+                <ArrowForwardIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+                <span style={{ fontSize: 16 }}>{page + 1}</span>
+              </IconButton>
+            </Box>
+          </Stack>
         </Paper>
       </Box>
     </BaseLayout>

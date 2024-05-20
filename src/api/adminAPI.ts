@@ -4,7 +4,6 @@
 import axios, { AxiosRequestConfig } from 'axios'
 import { BASE_URL, accessToken } from '../constants/ApiConstant'
 
-
 // Api for creating an Admin user
 export const createAdmin = async (
   fullName: string,
@@ -26,7 +25,6 @@ export const createAdmin = async (
 }
 
 // Api for listing all admin users:
-
 export const getAllAdminUsers = async () => {
   try {
     const config: AxiosRequestConfig = {
@@ -35,11 +33,7 @@ export const getAllAdminUsers = async () => {
       },
     }
 
-    const response = await axios.get(
-      // 'http://localhost:4444/api/v1/admins/',
-      `${BASE_URL}/admins`,
-      config,
-    )
+    const response = await axios.get(`${BASE_URL}/admins`, config)
 
     return response.data
   } catch (error) {

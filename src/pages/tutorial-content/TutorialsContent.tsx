@@ -1,13 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
 import {
   Autocomplete,
   Box,
   Button,
+  FormControl,
+  Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+  Select,
   Stack,
   Switch,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -17,9 +26,17 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 
 import { Link, useNavigate } from 'react-router-dom'
-import { contentTutorial } from '../../api/tutorialContentAPI'
+import {
+  FilterSubtopics,
+  GetAdminUsersByRole,
+  contentTutorial,
+} from '../../api/tutorialContentAPI'
 import { BaseLayout } from '../../components/BaseLayout'
-import TutorialsContentFilter from './TutorialContentFilter'
+import { AuthContext } from '../../context/AuthContext/AuthContext'
+import { FilterAlt } from '@mui/icons-material'
+import { CircularProgress } from '@mui/material'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 
 interface ColumnData {
   id: string
@@ -49,6 +66,29 @@ interface tutorial {
   updatedAt: string
   writerAssignedAt: string | null
   writerInfo: null | string
+}
+
+interface AdminUser {
+  id: string
+  fullName: string
+  email: string
+  role: string
+}
+
+interface SubTopic {
+  id: string
+  topicId: string
+  subTopicName: string
+  status: string
+  subTopicDescription: string
+  createdAt: string
+  updatedAt: string
+  reviewerAssignedAt: string | null
+  writerAssignedAt: string | null
+  topicInfo: { id: string; topicName: string }
+  writerInfo: any
+  reviewerInfo: any
+  tutorialInfo: { id: string; tutorialName: string }
 }
 
 const Columndata: ColumnData[] = [
@@ -102,23 +142,119 @@ const Columndata: ColumnData[] = [
   },
 ]
 
-const top100Films = [
-  { label: 'The Shawshank Redemption', year: 1994 },
-  { label: 'The Godfather', year: 1972 },
-  { label: 'The Godfather: Part II', year: 1974 },
-  { label: 'The Dark Knight', year: 2008 },
-  { label: '12 Angry Men', year: 1957 },
-  { label: "Schindler's List", year: 1993 },
-  { label: 'Pulp Fiction', year: 1994 },
-]
-
 function TutorialContent() {
   // const [searchQuery, setSearchQuery] = useState('')
 
   const navigate = useNavigate()
+  const { state } = useContext(AuthContext)
+  const role = state.user?.role
+
   const [page, setPage] = useState(1)
-  const [rowsPerPage] = useState(10)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [showFilterBox, setShowFilterBox] = useState<null | HTMLElement>(null)
+  const [selectedWriter, setSelectedWriter] = useState<string>('')
+  const [selectedReviewer, setSelectedReviewer] = useState<string>('')
+  const [contentWriters, setContentWriters] = useState<
+    { id: string; name: string }[]
+  >([])
+  const [contentReviewers, setContentReviewers] = useState<
+    { id: string; name: string }[]
+  >([])
+  const [selectedStatus, setSelectedStatus] = useState<string>('')
+
   const [tutorialContentData, steTutorialContentData] = useState<tutorial[]>([])
+
+  const fetchAdminUsers = async () => {
+    try {
+      const writersResponse = await GetAdminUsersByRole('CONTENT_WRITER')
+      const writers = writersResponse.data.map((writer: AdminUser) => ({
+        id: writer.id,
+        name: writer.fullName,
+      }))
+      setContentWriters(writers)
+
+      const reviewersResponse = await GetAdminUsersByRole('CONTENT_REVIEWER')
+      const reviewers = reviewersResponse.data.map((reviewer: AdminUser) => ({
+        id: reviewer.id,
+        name: reviewer.fullName,
+      }))
+      setContentReviewers(reviewers)
+    } catch (error) {
+      console.error('Error fetching admin users:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchAdminUsers()
+  }, [])
+
+  const toggleFilterBox = (event: React.MouseEvent<HTMLElement>) => {
+    setShowFilterBox(showFilterBox ? null : event.currentTarget)
+  }
+  const fetchTutorialContent = async (
+    status?: string,
+    reviewerId?: string,
+    writerId?: string,
+  ) => {
+    try {
+      const filteredSubtopicsResponse = await FilterSubtopics(
+        status,
+        reviewerId,
+        writerId,
+      )
+      const filteredSubtopics: SubTopic[] = filteredSubtopicsResponse.data
+      // Update the tutorialContentData state with the filtered subtopics
+      steTutorialContentData(filteredSubtopics)
+    } catch (error) {
+      console.error('Error fetching tutorial content:', error)
+    }
+  }
+
+  // const handleFilterFetch = async () => {
+  //   try {
+  //     const selectedWriterId = contentWriters.find(
+  //       (writer) => writer.name === selectedWriter,
+  //     )?.id
+  //     const selectedReviewerId = contentReviewers.find(
+  //       (reviewer) => reviewer.name === selectedReviewer,
+  //     )?.id
+
+  //     const filteredSubtopicsResponse = await FilterSubtopics(
+  //       selectedStatus,
+  //       selectedReviewerId,
+  //       selectedWriterId,
+  //     )
+  //     const filteredSubtopics: SubTopic[] = filteredSubtopicsResponse.data
+  //     console.log('Filtered Subtopics:', filteredSubtopics)
+  //   } catch (error) {
+  //     console.error('Error fetching filtered subtopics:', error)
+  //   }
+  // }
+
+  const handleFilterFetch = async () => {
+    const selectedWriterId = contentWriters.find(
+      (writer) => writer.name === selectedWriter,
+    )?.id
+    const selectedReviewerId = contentReviewers.find(
+      (reviewer) => reviewer.name === selectedReviewer,
+    )?.id
+
+    fetchTutorialContent(selectedStatus, selectedReviewerId, selectedWriterId)
+  }
+
+  const handleFilterCancel = () => {
+    setShowFilterBox(null)
+    setSelectedWriter('')
+    setSelectedReviewer('')
+    setSelectedStatus('')
+  }
+
+  const handleFilterReset = async () => {
+    setSelectedWriter('')
+    setSelectedReviewer('')
+    setSelectedStatus('')
+    fetchTutorialContent()
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -163,14 +299,168 @@ function TutorialContent() {
                 gap: 20,
               }}
             >
-              <TutorialsContentFilter />
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  marginRight: 20,
+                  gap: 20,
+                }}
+              >
+                <Grid item>
+                  <Tooltip title="Filters for Tutorial Content">
+                    <Button
+                      variant="outlined"
+                      endIcon={<FilterAlt color="primary" />}
+                      onClick={toggleFilterBox}
+                    >
+                      Filters
+                    </Button>
+                  </Tooltip>
+                </Grid>
+
+                <Menu
+                  anchorEl={showFilterBox}
+                  open={Boolean(showFilterBox)}
+                  onClose={handleFilterCancel}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'center',
+                    horizontal: 'right',
+                  }}
+                  sx={{
+                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.1))',
+                  }}
+                >
+                  <Grid
+                    container
+                    spacing={2}
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 3,
+                      padding: 3,
+                      width: 'auto',
+                    }}
+                  >
+                    <Grid
+                      sx={{
+                        display: 'flex',
+                        gap: 4,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Grid item sx={{ display: 'flex', gap: 3 }}>
+                        {(role === 'ADMIN' || role === 'CONTENT_REVIEWER') && (
+                          <Autocomplete
+                            freeSolo
+                            id="search-content-writers"
+                            options={contentWriters.map(
+                              (writer) => writer.name,
+                            )}
+                            value={selectedWriter}
+                            onChange={(_event, newValue) =>
+                              setSelectedWriter(newValue || '')
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Filter by Content Writer Name"
+                              />
+                            )}
+                            sx={{ width: 280 }}
+                          />
+                        )}
+                        {(role === 'ADMIN' || role === 'CONTENT_WRITER') && (
+                          <Autocomplete
+                            freeSolo
+                            id="search-content-reviewers"
+                            options={contentReviewers.map(
+                              (reviewer) => reviewer.name,
+                            )}
+                            value={selectedReviewer}
+                            onChange={(_event, newValue) =>
+                              setSelectedReviewer(newValue || '')
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Filter by Content Reviewer Name"
+                              />
+                            )}
+                            sx={{ width: 280 }}
+                          />
+                        )}
+                      </Grid>
+                      <Grid item>
+                        <TextField
+                          select
+                          label="Filter by Status"
+                          value={selectedStatus}
+                          onChange={(event) =>
+                            setSelectedStatus(event.target.value)
+                          }
+                          sx={{ width: 180 }}
+                        >
+                          <MenuItem value="">Select Item</MenuItem>
+                          <MenuItem value="CONTENT_ASSIGNED">
+                            Content Assigned
+                          </MenuItem>
+                          <MenuItem value="TO_ASSIGN">To Assign</MenuItem>
+                          <MenuItem value="REVIEW_ASSIGNED">
+                            Review Assigned
+                          </MenuItem>
+                          <MenuItem value="CONTENT_DONE">Content Done</MenuItem>
+                          <MenuItem value="CHANGES_NEEDED">
+                            Changes Needed
+                          </MenuItem>
+                          <MenuItem value="READY_TO_PUBLISH">
+                            Ready To Publish
+                          </MenuItem>
+                          <MenuItem value="UNPUBLISHED">Unpublished</MenuItem>
+                          <MenuItem value="PUBLISHED">Published</MenuItem>
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                    <Grid
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 3,
+                      }}
+                    >
+                      <Grid item>
+                        <Button variant="outlined" onClick={handleFilterCancel}>
+                          Cancel
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <Button variant="contained" onClick={handleFilterReset}>
+                          Reset And Fetch
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <Button variant="contained" onClick={handleFilterFetch}>
+                          Fetch
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Menu>
+              </div>
               <Autocomplete
-                disablePortal
-                id="combo-box-demo"
-                options={top100Films}
+                freeSolo
+                id="search-tutorials"
+                options={[]}
+                inputValue=""
+                onInputChange={() => {}}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Filter Content" />
+                  <TextField {...params} label="Search Sub-Topic" />
                 )}
               />
               <Button
@@ -206,7 +496,9 @@ function TutorialContent() {
                 {tutorialContentData.length > 0 ? (
                   tutorialContentData.map((row: tutorial, index: number) => (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell align="left">{index + 1}</TableCell>
+                      <TableCell align="left">
+                        {(page - 1) * rowsPerPage + index + 1}
+                      </TableCell>
                       <TableCell align="left">
                         <Link to={'{row.subTopicName}'}>
                           {row.subTopicName}
@@ -226,52 +518,69 @@ function TutorialContent() {
                       <TableCell align="center">
                         {<Switch {...label} />}
                       </TableCell>
-                      {/* <TableCell
-                      align="center"
-                      onClick={() => navigate(`/edit-tutorial/`)}
-                    >
-                      <EditNotifications
-                        sx={{ cursor: 'pointer', color: 'blue' }}
-                      />
-                    </TableCell> */}
                     </TableRow>
                   ))
                 ) : (
-                  <div
+                  <TableRow
                     style={{
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      marginTop: '40%',
-                      marginLeft: '55%',
+                      alignContent: 'center',
                     }}
                   >
-                    Loading...
-                  </div>
+                    <CircularProgress />
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
           </TableContainer>
           <Stack
-            sx={{ marginTop: '2%', justifyContent: 'flex-end' }}
-            direction="row"
-            spacing={2}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              marginRight: 3,
+              gap: 4,
+            }}
           >
-            <Button
-              onClick={() => setPage(() => (page == 0 ? 1 : page - 1))}
-              variant="outlined"
-              startIcon={'<'}
-            >
-              Previous
-            </Button>
-            <Button
-              onClick={() => setPage(() => (page == 0 ? 1 : page + 1))}
-              variant="contained"
-              endIcon={'>'}
-              disabled={page == 0 ? true : false}
-            >
-              Page - {page == 0 ? 1 : page}
-            </Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 14 }}>Rows Per Page : </span>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 50 }}>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  displayEmpty
+                  value={rowsPerPage}
+                  onChange={(event) =>
+                    setRowsPerPage(Number(event.target.value))
+                  }
+                  sx={{ maxWidthidth: 90 }}
+                >
+                  {[10, 50, 100, 500].map((rows) => (
+                    <MenuItem key={rows} value={rows}>
+                      {rows}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <IconButton
+                onClick={() => setPage(() => (page == 0 ? 1 : page - 1))}
+                disabled={page === 1}
+              >
+                <ArrowBackIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+              </IconButton>
+              <IconButton
+                onClick={() => setPage(() => (page == 0 ? 1 : page + 1))}
+                disabled={tutorialContentData.length < rowsPerPage}
+              >
+                <ArrowForwardIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+                <span style={{ fontSize: 16 }}>{page == 0 ? 1 : page}</span>
+              </IconButton>
+            </Box>
           </Stack>
         </Paper>
       </Box>

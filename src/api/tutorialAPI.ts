@@ -60,15 +60,19 @@ export const createTopicsAndSubTopics = async (tutorialData: any) => {
 }
 
 // API for listing all tutorials
-export const listAllTutorials = async (skip = 0, limit = 10) => {
+// API for listing all tutorials
+export const listAllTutorials = async (page = 1, limit = 10) => {
   try {
     const config = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-      params: { skip, limit },
     }
-    const response = await axios.get(`${BASE_URL}/tutorials/list`, config)
+
+    const response = await axios.get(
+      `${BASE_URL}/tutorials/list?page=${page}&limit=${limit}`,
+      config,
+    )
     return response.data
   } catch (error) {
     throw error
