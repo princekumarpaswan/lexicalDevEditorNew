@@ -67,9 +67,8 @@ export const getAdminBYRoll = async () => {
   }
 }
 
-export const contentReviewer = async (userId: string, payload: string) => {
-  console.log(userId, payload);
-  
+export const assignContentWritter = async (subTopicId: string, payload: string) => {
+  console.log({subTopicId, payload});
   try {
     const config = {
       headers: {
@@ -77,26 +76,7 @@ export const contentReviewer = async (userId: string, payload: string) => {
       },
     };
     const response = await axios.patch(
-      `${BASE_URL}/subtopics/assign/reviewer/${userId}`,
-      {"reviewerId": payload},
-      config
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const contentWritter = async (userId: string, payload: string) => {
-   console.log( {payload});
-  try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    };
-    const response = await axios.patch(
-      `${BASE_URL}/subtopics/assign/reviewer/${userId}`,
+      `${BASE_URL}/subtopics/assign/writer/${subTopicId}`,
       {"writerId": payload}, 
       config
     );

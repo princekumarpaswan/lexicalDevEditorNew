@@ -9,15 +9,14 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { Key, SetStateAction, useContext, useEffect, useState } from 'react'
+import { Key, SetStateAction, useEffect, useState } from 'react'
 import {
-  contentReviewer,
-  contentWritter,
+  // contentReviewer,
+  assignContentWritter,
   getAdminBYRoll,
   getTutorialDetail,
   searchTutorial,
 } from '../../api/tutorialContentAPI'
-import { AuthContext } from '../../context/AuthContext/AuthContext'
 
 interface Tutorial {
   id: string
@@ -52,8 +51,8 @@ function AssignTutorialContent() {
   const [tutorialDetail, setTutorialDetail] = useState<
     TutorialDetail | undefined
   >()
-  const getrole = useContext(AuthContext)
-  const data = getrole?.state?.user?.role
+  // const getrole = useContext(AuthContext)
+  // const data = getrole?.state?.user?.role
   const [selectedSubTopic, setSelectedSubTopic] = useState('')
 
   const handleSearch = async (searchQuery: string) => {
@@ -120,12 +119,12 @@ function AssignTutorialContent() {
     }
   }
 
-  const callReviewerApi = async (id: string) => {
-    await contentReviewer(subTopicId, id)
-  }
+  // const callReviewerApi = async (id: string) => {
+  //   await contentReviewer(subTopicId, id)
+  // }
 
   const callWritterApi = async (id: string) => {
-    await contentWritter(subTopicId, id)
+    await assignContentWritter(subTopicId, id)
   }
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -133,11 +132,7 @@ function AssignTutorialContent() {
     if (selectedAdmin && selectedSubTopic && selectedValue?.label) {
       const data = selectedAdmin?.split(' ')
       const userDetail = data?.splice(-2)
-      if (userDetail && userDetail[0] === 'CONTENT_REVIEWER') {
-        callReviewerApi(userDetail[1])
-      } else if (userDetail && userDetail[0] === 'CONTENT_WRITER') {
-        callWritterApi(userDetail[1])
-      }
+      callWritterApi(userDetail[1])
     }
   }
 
@@ -212,12 +207,12 @@ function AssignTutorialContent() {
           >
             {allAdminData?.map((admin) => (
               <>
-                {admin.role === data ? null : (
+                {admin.role === 'CONTENT_REVIEWER' ? null : (
                   <option
                     value={`${admin.fullName}  ${admin.role} ${admin.id}`}
                     key={admin.role}
                   >
-                    {data === admin.role
+                    {admin.role === 'CONTENT_REVIEWER'
                       ? null
                       : `${admin.fullName} - ${admin.role}`}
                   </option>
