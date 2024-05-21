@@ -133,3 +133,23 @@ export const GetAdminUsersByRole = async (role: any) => {
     throw error
   }
 }
+
+// API for searching the subtopics by name
+export const searchSubTopics = async (query: any) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.get(
+      `${BASE_URL}/subtopics/search?q=${query}`,
+      config,
+    )
+    return response.data
+  } catch (error) {
+    console.error('Failed to search sub-topics', error)
+    throw error
+  }
+}

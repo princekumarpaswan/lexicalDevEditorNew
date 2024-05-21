@@ -24,12 +24,12 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-
 import { Link, useNavigate } from 'react-router-dom'
 import {
   FilterSubtopics,
   GetAdminUsersByRole,
   contentTutorial,
+  searchSubTopics,
 } from '../../api/tutorialContentAPI'
 import { BaseLayout } from '../../components/BaseLayout'
 import { AuthContext } from '../../context/AuthContext/AuthContext'
@@ -90,6 +90,14 @@ interface SubTopic {
   reviewerInfo: any
   tutorialInfo: { id: string; tutorialName: string }
 }
+
+// interface ContentData {
+//   contentName: string
+//   SNo: number
+//   ID: string
+//   tutorialName: string
+//   status: string
+// }
 
 const Columndata: ColumnData[] = [
   { id: 'S.No', label: 'S.No', maxWidth: 20 },
@@ -163,6 +171,59 @@ function TutorialContent() {
   const [selectedStatus, setSelectedStatus] = useState<string>('')
 
   const [tutorialContentData, steTutorialContentData] = useState<tutorial[]>([])
+
+  const [searchQuery, setSearchQuery] = useState('')
+  // const [content, setContent] = useState<ContentData[]>([])
+
+  // useEffect(() => {
+  //   const fetchContent = async () => {
+  //     try {
+  //       const response = await searchSubTopics(searchQuery)
+  //       if (response.success) {
+  //         const data = response.data.map(
+  //           (
+  //             contentItem: {
+  //               contentName: any
+  //               id: any
+  //               tutorialName: any
+  //               status: any
+  //             },
+  //             index: number,
+  //           ) => ({
+  //             contentName: contentItem.contentName,
+  //             SNo: index + 1, // Update the SNo based on the index
+  //             ID: contentItem.id,
+  //             tutorialName: contentItem.tutorialName,
+  //             status: contentItem.status,
+  //           }),
+  //         )
+  //         setContent(data)
+  //       } else {
+  //         console.error('Failed to fetch content')
+  //       }
+  //     } catch (error) {
+  //       console.error('Failed to fetch content', error)
+  //     }
+  //   }
+
+  //   fetchContent()
+  // }, [searchQuery])
+  const handleSearchByContentName = async (_event: any, value: string) => {
+    setSearchQuery(value)
+    try {
+      const results =
+        value.trim() === ''
+          ? await contentTutorial(page, rowsPerPage)
+          : await searchSubTopics(value)
+      if (results.success) {
+        steTutorialContentData(results.data)
+      } else {
+        console.error('Failed to search content')
+      }
+    } catch (error) {
+      console.error('Failed to search content', error)
+    }
+  }
 
   const fetchAdminUsers = async () => {
     try {
@@ -454,15 +515,16 @@ function TutorialContent() {
               </div>
               <Autocomplete
                 freeSolo
-                id="search-tutorials"
+                id="search-content"
                 options={[]}
-                inputValue=""
-                onInputChange={() => {}}
+                inputValue={searchQuery}
+                onInputChange={handleSearchByContentName}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Search Sub-Topic" />
+                  <TextField {...params} label="Search Content" />
                 )}
               />
+
               <Button
                 variant="contained"
                 onClick={() =>
