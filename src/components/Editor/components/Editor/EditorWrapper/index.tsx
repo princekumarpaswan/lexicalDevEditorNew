@@ -19,7 +19,6 @@ import Toolbar from '../Toolbar'
 // import lexicalEditorTheme from '../../../theme/lexicalEditorTheme'
 import lexicalEditorConfig from '../config'
 import ImagesPlugin from '../plugin/ImagePlugin'
-import { useTheme } from '@mui/material/styles'
 import { ClearEditorPlugin } from '../plugin/LexicalClearEditorPlugin'
 type EditorWrapperProps = {
   onEditorChange: (editorStateJSONString: string) => void
@@ -27,7 +26,6 @@ type EditorWrapperProps = {
 }
 
 function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
-  const theme = useTheme()
   const [editorState, setEditorState] = useState(initialContent)
 
   useEffect(() => {
@@ -44,8 +42,11 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
       <Box
         sx={{
           position: 'relative',
-          background: theme.palette.primary.light,
-          color: theme.palette.primary.dark,
+          background: 'white',
+          color: 'black',
+          width: '50%',
+          margin: 'auto',
+          border: 1,
         }}
       >
         <RichTextPlugin

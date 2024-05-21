@@ -3,20 +3,26 @@ import pluginsList from './toolbarIconsList'
 import useOnClickListener from './useOnClickListener'
 import { createPortal } from 'react-dom'
 import FloatingLinkEditor from './FloatingLinkEditor'
-import { useTheme } from '@mui/material/styles'
+import theme from '../../../theme'
+// import { useTheme } from '@mui/material/styles'
 
 const Toolbar = () => {
-  const theme = useTheme()
+  // const theme = useTheme()
 
   const { onClick, isLink, editor, modal } = useOnClickListener()
   return (
     <Grid
       container
       sx={{
-        background: theme.palette.primary.light,
-        width: '100%',
+        background: theme.palette.primary.dark,
+        color: 'white',
+        width: '50%',
+        margin: 'auto',
         py: 1,
-        px: 1,
+        px: 2,
+        border: 1,
+        borderColor: 'black',
+        borderStyle: 'solid',
       }}
       justifyContent="space-between"
     >
