@@ -500,7 +500,7 @@ function TutorialContent() {
                         {(page - 1) * rowsPerPage + index + 1}
                       </TableCell>
                       <TableCell align="left">
-                        <Link to={'{row.subTopicName}'}>
+                        <Link to={'/tutorial-content/subtopic-write-content'}>
                           {row.subTopicName}
                         </Link>
                       </TableCell>

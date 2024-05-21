@@ -44,6 +44,7 @@ const AuthReducer = (state: AuthState, action: AuthAction): AuthState => {
       return { ...state, user, accessToken }
     case 'LOGOUT':
       localStorage.removeItem('authState')
+      localStorage.removeItem('userData')
       return { ...state, user: null, accessToken: null }
     case 'RESTORE_STATE':
       return action.payload

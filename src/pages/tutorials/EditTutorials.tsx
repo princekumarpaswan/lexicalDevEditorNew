@@ -29,7 +29,15 @@ import {
   updateTutorialInfo,
 } from '../../api/tutorialAPI'
 import { useParams } from 'react-router-dom'
-import { accessToken } from '../../constants/ApiConstant'
+// import { accessToken } from '../../constants/ApiConstant'
+
+const getAccessToken = (): string => {
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    throw new Error('Access token not found')
+  }
+  return token
+}
 
 export interface SubTopic {
   subTopicId: string
@@ -133,7 +141,7 @@ function EditTutorials() {
   useEffect(() => {
     const fetchTutorialDetails = async () => {
       try {
-        const response = await getTutorialDetails(tutorialId, accessToken)
+        const response = await getTutorialDetails(tutorialId)
         const { data } = response
 
         setTutorialTitle(data.tutorialName)
@@ -237,7 +245,7 @@ function EditTutorials() {
       const topicToUpdate = topics[topicIndex]
 
       if (!topicToUpdate.topicId) {
-        const createdTopic = await createTopicInfo(accessToken, tutorialId, {
+        const createdTopic = await createTopicInfo(tutorialId, {
           topicName: topicToUpdate.topicName,
           topicDescription: topicToUpdate.topicDescription,
         })
@@ -252,7 +260,7 @@ function EditTutorials() {
           return updatedTopics
         })
       } else {
-        const updatedTopic = await updateTopicInfo(accessToken, {
+        const updatedTopic = await updateTopicInfo({
           topicId: topicToUpdate.topicId,
           newTopicName: topicToUpdate.topicName,
           newTopicDescription: topicToUpdate.topicDescription,
@@ -283,6 +291,7 @@ function EditTutorials() {
     subTopicIndex: number,
   ) => {
     try {
+      const accessToken = getAccessToken()
       const topicToUpdate = topics[topicIndex]
       const subTopicToUpdate = topicToUpdate.subTopics[subTopicIndex]
 
@@ -305,7 +314,7 @@ function EditTutorials() {
           return updatedTopics
         })
       } else {
-        const updatedSubTopic = await updateSubTopicInfo(accessToken, {
+        const updatedSubTopic = await updateSubTopicInfo({
           subTopicId: subTopicToUpdate.subTopicId,
           newSubTopicName: subTopicToUpdate.subTopicName,
           newSubTopicDescription: subTopicToUpdate.subTopicDescription,
@@ -373,7 +382,7 @@ function EditTutorials() {
           return updatedTopics
         })
       } else {
-        await deleteSubTopicInfo(accessToken, subTopicToDelete.subTopicId)
+        await deleteSubTopicInfo(subTopicToDelete.subTopicId)
 
         setTopics((prevTopics) => {
           const updatedTopics = [...prevTopics]
@@ -402,7 +411,7 @@ function EditTutorials() {
           return
         }
 
-        await deleteTopicInfo(accessToken, topicToDelete.topicId)
+        await deleteTopicInfo(topicToDelete.topicId)
 
         setTopics((prevTopics) => {
           const updatedTopics = [...prevTopics]

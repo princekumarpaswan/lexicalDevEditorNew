@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-catch */
 import axios from 'axios'
-import { BASE_URL } from '../constants/ApiConstant'
+import { BASE_URL } from '../context/AuthContext/AuthContext'
 
 interface LoginResponse {
   data: {

@@ -3,6 +3,8 @@
 import React, { createContext, useReducer, useEffect } from 'react'
 import AuthReducer, { AuthState, AuthAction } from './AuthReducer'
 
+export const BASE_URL = `https://tutorial-admin-dev-api.euron.live/api/v1`
+
 const initialState: AuthState = {
   user: null,
   accessToken: localStorage.getItem('accessToken') || null,

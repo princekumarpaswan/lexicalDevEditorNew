@@ -106,14 +106,6 @@ function Tutorials() {
   )
   const [categoryInputValue, setCategoryInputValue] = useState('')
 
-  const [accessToken, setAccessToken] = useState('')
-
-  useEffect(() => {
-    // Fetch the access token from local storage or other storage mechanism
-    const token = localStorage.getItem('accessToken')
-    setAccessToken(token || '')
-  }, [])
-
   useEffect(() => {
     const fetchTutorials = async () => {
       try {
@@ -278,11 +270,7 @@ function Tutorials() {
     const newStatus = event.target.checked ? 'LISTED' : 'DELISTED'
 
     try {
-      const response = await updateTutorialStatus(
-        tutorialId,
-        newStatus,
-        accessToken,
-      )
+      const response = await updateTutorialStatus(tutorialId, newStatus)
       console.log('Tutorial status updated:', response)
 
       // Update the tutorial status in the `tutorials` state

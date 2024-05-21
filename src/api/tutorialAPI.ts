@@ -3,11 +3,20 @@
 /* eslint-disable no-useless-catch */
 
 import axios, { AxiosRequestConfig } from 'axios'
-import { BASE_URL, accessToken } from '../constants/ApiConstant'
+import { BASE_URL } from '../context/AuthContext/AuthContext'
+
+const getAccessToken = (): string => {
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    throw new Error('Access token not found')
+  }
+  return token
+}
 
 // Api for Create tutorial
 export const createTutorial = async (tutorialData: any) => {
   try {
+    const accessToken = getAccessToken()
     const config = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -27,6 +36,7 @@ export const createTutorial = async (tutorialData: any) => {
 // API for listing all categories
 export const getAllCategories = async () => {
   try {
+    const accessToken = getAccessToken()
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -43,6 +53,7 @@ export const getAllCategories = async () => {
 // API for creating Topic and SubTopics
 export const createTopicsAndSubTopics = async (tutorialData: any) => {
   try {
+    const accessToken = getAccessToken()
     const response = await axios.post(
       `${BASE_URL}/tutorials/create/content`,
       { tutorialData },
@@ -63,6 +74,7 @@ export const createTopicsAndSubTopics = async (tutorialData: any) => {
 // API for listing all tutorials
 export const listAllTutorials = async (page = 1, limit = 10) => {
   try {
+    const accessToken = getAccessToken()
     const config = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -122,9 +134,9 @@ export const filterTutorials = async ({ categoryId, status }: FilterParams) => {
 export const updateTutorialStatus = async (
   id: string,
   newStatus: 'LISTED' | 'DELISTED',
-  accessToken: string,
 ) => {
   try {
+    const accessToken = getAccessToken()
     const response = await axios.patch(
       `${BASE_URL}/tutorials/update/status/${id}`,
       { newStatus },
@@ -142,8 +154,9 @@ export const updateTutorialStatus = async (
 }
 
 // API for Fetching Tutorial Details
-export const getTutorialDetails = async (tutorialId: any, accessToken: any) => {
+export const getTutorialDetails = async (tutorialId: any) => {
   try {
+    const accessToken = getAccessToken()
     const response = await axios.get(
       `${BASE_URL}/tutorials/info/${tutorialId}`,
       {
@@ -169,6 +182,7 @@ export const updateTutorialInfo = async (
   const url = `${BASE_URL}/tutorials/update/info/${tutorialId}`
 
   try {
+    const accessToken = getAccessToken()
     const response = await axios.patch(
       url,
       { newTutorialName, newTutorialDescription, newCategoryId },
@@ -192,11 +206,13 @@ interface UpdateTopicRequest {
   newTopicDescription: string
 }
 
-export const updateTopicInfo = async (
-  accessToken: string,
-  { topicId, newTopicName, newTopicDescription }: UpdateTopicRequest,
-) => {
+export const updateTopicInfo = async ({
+  topicId,
+  newTopicName,
+  newTopicDescription,
+}: UpdateTopicRequest) => {
   try {
+    const accessToken = getAccessToken()
     const response = await axios.patch(
       `${BASE_URL}/topics/update/name/${topicId}`,
       {
@@ -223,15 +239,13 @@ interface UpdateSubTopicRequest {
   newSubTopicDescription: string
 }
 
-export const updateSubTopicInfo = async (
-  accessToken: string,
-  {
-    subTopicId,
-    newSubTopicName,
-    newSubTopicDescription,
-  }: UpdateSubTopicRequest,
-) => {
+export const updateSubTopicInfo = async ({
+  subTopicId,
+  newSubTopicName,
+  newSubTopicDescription,
+}: UpdateSubTopicRequest) => {
   try {
+    const accessToken = getAccessToken()
     const response = await axios.patch(
       `${BASE_URL}/subtopics/update/info/${subTopicId}`,
       {
@@ -252,11 +266,9 @@ export const updateSubTopicInfo = async (
 }
 
 // API to Delete Sub-topic :
-export const deleteSubTopicInfo = async (
-  accessToken: string,
-  subTopicId: string,
-) => {
+export const deleteSubTopicInfo = async (subTopicId: string) => {
   try {
+    const accessToken = getAccessToken()
     const response = await axios.delete(
       `${BASE_URL}/subtopics/delete/${subTopicId}`,
       {
@@ -273,8 +285,9 @@ export const deleteSubTopicInfo = async (
 }
 
 // API to delete Topic :
-export const deleteTopicInfo = async (accessToken: string, topicId: string) => {
+export const deleteTopicInfo = async (topicId: string) => {
   try {
+    const accessToken = getAccessToken()
     const response = await axios.delete(
       `${BASE_URL}/topics/delete/${topicId}`,
       {
@@ -318,7 +331,6 @@ export const createSubTopicInfo = async (
 
 // API for adding new Topic while Editing Tutorial
 export const createTopicInfo = async (
-  token: string,
   tutorialId: string,
   {
     topicName,
@@ -326,12 +338,13 @@ export const createTopicInfo = async (
   }: { topicName: string; topicDescription: string },
 ) => {
   try {
+    const accessToken = getAccessToken()
     const response = await axios.post(
       `${BASE_URL}/topics/create/${tutorialId}`,
       { topicName, topicDescription },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

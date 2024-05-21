@@ -1,10 +1,13 @@
 /* eslint-disable no-useless-catch */
 import axios, { AxiosRequestConfig } from 'axios'
-import { BASE_URL, accessToken } from '../constants/ApiConstant'
+import { BASE_URL } from '../context/AuthContext/AuthContext'
+
+const getAccessToken = () => localStorage.getItem('accessToken')
 
 // API for creating a category
 export const createCategory = async (categoryName: string) => {
   try {
+    const accessToken = getAccessToken()
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -26,6 +29,7 @@ export const createCategory = async (categoryName: string) => {
 // API for listing all categories
 export const getAllCategories = async () => {
   try {
+    const accessToken = getAccessToken()
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -45,6 +49,7 @@ export const updateCategory = async (
   newCategoryName: string,
 ) => {
   try {
+    const accessToken = getAccessToken()
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -64,6 +69,7 @@ export const updateCategory = async (
 // Api for deleting a category
 export const deleteCategory = async (categoryId: string) => {
   try {
+    const accessToken = getAccessToken()
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${accessToken}`,

@@ -9,6 +9,7 @@ import TutorialsContent from '../pages/tutorial-content/TutorialsContent'
 import AddTopicAndSubTopic from '../pages/tutorials/AddTopicAndSubTopic'
 import AssignTutorialContent from '../pages/tutorial-content/AssignTutorialContent'
 import Login from '../pages/Login'
+import ContentSubTopicEditorPage from '../pages/tutorial-content/ContentSubTopicEditorPage'
 
 export const routes: Route[] = [
   {
@@ -42,6 +43,10 @@ export const routes: Route[] = [
   {
     path: '/tutorial-content/assign-tutorial-content',
     page: <AssignTutorialContent />,
+  },
+  {
+    path: '/tutorial-content/subtopic-write-content',
+    page: <ContentSubTopicEditorPage />,
   },
   {
     path: '/admin-users',

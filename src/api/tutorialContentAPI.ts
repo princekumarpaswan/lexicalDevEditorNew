@@ -3,11 +3,14 @@
 /* eslint-disable no-useless-catch */
 
 import axios from 'axios'
-import { BASE_URL, accessToken } from '../constants/ApiConstant'
+import { BASE_URL } from '../context/AuthContext/AuthContext'
+
+const getAccessToken = () => localStorage.getItem('accessToken')
 
 //API for fetching all the tutorial content
 export const contentTutorial = async (pageNo: number, limit: number) => {
   try {
+    const accessToken = getAccessToken()
     const config = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -25,7 +28,7 @@ export const contentTutorial = async (pageNo: number, limit: number) => {
 
 const axiosInstance = axios.create({
   headers: {
-    Authorization: `Bearer ${accessToken}`,
+    Authorization: `Bearer ${getAccessToken}`,
   },
 })
 
@@ -36,13 +39,21 @@ export const FilterSubtopics = async (
   writerId: any,
 ) => {
   try {
-    const response = await axiosInstance.get(`${BASE_URL}/subtopics/filter`, {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
       params: {
         status,
         reviewerId,
         writerId,
       },
-    })
+    }
+    const response = await axiosInstance.get(
+      `${BASE_URL}/subtopics/filter`,
+      config,
+    )
     return response.data
   } catch (error) {
     console.error('Error loading the Data', error)
@@ -53,11 +64,16 @@ export const FilterSubtopics = async (
 // API to list Admis by using Role in Tutorial Content filter
 export const GetAdminUsersByRole = async (role: any) => {
   try {
-    const response = await axiosInstance.get(`${BASE_URL}/admins/roles`, {
-      params: {
-        role,
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
-    })
+    }
+    const response = await axiosInstance.get(
+      `${BASE_URL}/admins/roles?role=${role}`,
+      config,
+    )
     return response.data
   } catch (error) {
     console.error('Error loading the Data', error)

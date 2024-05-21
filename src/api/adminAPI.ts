@@ -2,7 +2,9 @@
 /* eslint-disable no-console */
 /* eslint-disable no-useless-catch */
 import axios, { AxiosRequestConfig } from 'axios'
-import { BASE_URL, accessToken } from '../constants/ApiConstant'
+import { BASE_URL } from '../context/AuthContext/AuthContext'
+
+const getAccessToken = () => localStorage.getItem('accessToken')
 
 // Api for creating an Admin user
 export const createAdmin = async (
@@ -12,12 +14,22 @@ export const createAdmin = async (
   role: 'ADMIN' | 'CONTENT_WRITER' | 'CONTENT_REVIEWER',
 ) => {
   try {
-    const response = await axios.post(`${BASE_URL}/admins/create`, {
-      fullName,
-      email,
-      password,
-      role,
-    })
+    const accessToken = getAccessToken()
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.post(
+      `${BASE_URL}/admins/create`,
+      {
+        fullName,
+        email,
+        password,
+        role,
+      },
+      config,
+    )
     return response.data
   } catch (error) {
     throw error
@@ -27,6 +39,7 @@ export const createAdmin = async (
 // Api for listing all admin users:
 export const getAllAdminUsers = async () => {
   try {
+    const accessToken = getAccessToken()
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -44,6 +57,7 @@ export const getAllAdminUsers = async () => {
 //Api for Deleting Admin User:
 export const deleteAdminUser = async (adminId: string) => {
   try {
+    const accessToken = getAccessToken()
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
