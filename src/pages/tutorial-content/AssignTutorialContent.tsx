@@ -159,7 +159,7 @@ function AssignTutorialContent() {
             freeSolo
             id="search-category"
             options={options}
-            onChange={(e, value) => handleSelectedValue(value)}
+            onChange={(_e, value) => handleSelectedValue(value)}
             renderInput={(params) => (
               <TextField
                 onChange={(e) => handleSearch(e.target.value)}
