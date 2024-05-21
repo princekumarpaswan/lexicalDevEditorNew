@@ -91,14 +91,6 @@ interface SubTopic {
   tutorialInfo: { id: string; tutorialName: string }
 }
 
-// interface ContentData {
-//   contentName: string
-//   SNo: number
-//   ID: string
-//   tutorialName: string
-//   status: string
-// }
-
 const Columndata: ColumnData[] = [
   { id: 'S.No', label: 'S.No', maxWidth: 20 },
   {
@@ -151,8 +143,6 @@ const Columndata: ColumnData[] = [
 ]
 
 function TutorialContent() {
-  // const [searchQuery, setSearchQuery] = useState('')
-
   const navigate = useNavigate()
   const { state } = useContext(AuthContext)
   const role = state.user?.role
@@ -173,41 +163,7 @@ function TutorialContent() {
   const [tutorialContentData, steTutorialContentData] = useState<tutorial[]>([])
 
   const [searchQuery, setSearchQuery] = useState('')
-  // const [content, setContent] = useState<ContentData[]>([])
 
-  // useEffect(() => {
-  //   const fetchContent = async () => {
-  //     try {
-  //       const response = await searchSubTopics(searchQuery)
-  //       if (response.success) {
-  //         const data = response.data.map(
-  //           (
-  //             contentItem: {
-  //               contentName: any
-  //               id: any
-  //               tutorialName: any
-  //               status: any
-  //             },
-  //             index: number,
-  //           ) => ({
-  //             contentName: contentItem.contentName,
-  //             SNo: index + 1, // Update the SNo based on the index
-  //             ID: contentItem.id,
-  //             tutorialName: contentItem.tutorialName,
-  //             status: contentItem.status,
-  //           }),
-  //         )
-  //         setContent(data)
-  //       } else {
-  //         console.error('Failed to fetch content')
-  //       }
-  //     } catch (error) {
-  //       console.error('Failed to fetch content', error)
-  //     }
-  //   }
-
-  //   fetchContent()
-  // }, [searchQuery])
   const handleSearchByContentName = async (_event: any, value: string) => {
     setSearchQuery(value)
     try {
@@ -270,27 +226,6 @@ function TutorialContent() {
       console.error('Error fetching tutorial content:', error)
     }
   }
-
-  // const handleFilterFetch = async () => {
-  //   try {
-  //     const selectedWriterId = contentWriters.find(
-  //       (writer) => writer.name === selectedWriter,
-  //     )?.id
-  //     const selectedReviewerId = contentReviewers.find(
-  //       (reviewer) => reviewer.name === selectedReviewer,
-  //     )?.id
-
-  //     const filteredSubtopicsResponse = await FilterSubtopics(
-  //       selectedStatus,
-  //       selectedReviewerId,
-  //       selectedWriterId,
-  //     )
-  //     const filteredSubtopics: SubTopic[] = filteredSubtopicsResponse.data
-  //     console.log('Filtered Subtopics:', filteredSubtopics)
-  //   } catch (error) {
-  //     console.error('Error fetching filtered subtopics:', error)
-  //   }
-  // }
 
   const handleFilterFetch = async () => {
     const selectedWriterId = contentWriters.find(
