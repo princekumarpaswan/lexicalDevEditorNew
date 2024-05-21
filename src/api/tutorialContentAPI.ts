@@ -26,11 +26,76 @@ export const contentTutorial = async (pageNo: number, limit: number) => {
   }
 }
 
-const axiosInstance = axios.create({
-  headers: {
-    Authorization: `Bearer ${getAccessToken}`,
-  },
-})
+export const searchTutorial = async (placeHolder: string) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.get(
+      `${BASE_URL}/tutorials/search?q=${placeHolder}`,
+      config,
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const getTutorialDetail = async (id: string) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.get(`${BASE_URL}/tutorials/info/${id}`, config)
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const getAdminBYRoll = async () => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.get(`${BASE_URL}/admins/`, config)
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const assignContentWritter = async (
+  subTopicId: string,
+  payload: string,
+) => {
+  console.log({ subTopicId, payload })
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.patch(
+      `${BASE_URL}/subtopics/assign/writer/${subTopicId}`,
+      { writerId: payload },
+      config,
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
 
 // api for Filtering The Subtopics
 export const FilterSubtopics = async (
@@ -50,10 +115,7 @@ export const FilterSubtopics = async (
         writerId,
       },
     }
-    const response = await axiosInstance.get(
-      `${BASE_URL}/subtopics/filter`,
-      config,
-    )
+    const response = await axios.get(`${BASE_URL}/subtopics/filter`, config)
     return response.data
   } catch (error) {
     console.error('Error loading the Data', error)
@@ -70,7 +132,7 @@ export const GetAdminUsersByRole = async (role: any) => {
         Authorization: `Bearer ${accessToken}`,
       },
     }
-    const response = await axiosInstance.get(
+    const response = await axios.get(
       `${BASE_URL}/admins/roles?role=${role}`,
       config,
     )
