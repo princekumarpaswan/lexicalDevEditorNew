@@ -126,16 +126,7 @@ export const FilterSubtopics = async (
 // API to list Admis by using Role in Tutorial Content filter
 export const GetAdminUsersByRole = async (role: any) => {
   try {
-    const accessToken = getAccessToken()
-    const config = {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-    const response = await axios.get(
-      `${BASE_URL}/admins/roles?role=${role}`,
-      config,
-    )
+    const response = await axios.get(`${BASE_URL}/admins/roles?role=${role}`)
     return response.data
   } catch (error) {
     console.error('Error loading the Data', error)

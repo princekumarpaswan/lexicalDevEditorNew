@@ -5,11 +5,12 @@ import {
   Button,
   FormControl,
   InputLabel,
+  MenuItem,
   Select,
   TextField,
   Typography,
 } from '@mui/material'
-import { Key, SetStateAction, useEffect, useState } from 'react'
+import { Key, useEffect, useState } from 'react'
 import {
   // contentReviewer,
   assignContentWritter,
@@ -90,8 +91,8 @@ function AssignTutorialContent() {
     setAllAdminData(response.data)
   }
 
-  const handleSelectedAdmin = (e: SetStateAction<string | undefined>) => {
-    setSelectedAdmin(e)
+  const handleSelectedAdmin = (value: string) => {
+    setSelectedAdmin(value)
   }
 
   const handleSelectedSubTopic = (e: string) => {
@@ -130,8 +131,8 @@ function AssignTutorialContent() {
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault()
     if (selectedAdmin && selectedSubTopic && selectedValue?.label) {
-      const data = selectedAdmin?.split(' ')
-      const userDetail = data?.splice(-2)
+      const data = selectedAdmin.split(' ')
+      const userDetail = data.splice(-2)
       callWritterApi(userDetail[1])
     }
   }
@@ -157,14 +158,14 @@ function AssignTutorialContent() {
         <FormControl fullWidth>
           <Autocomplete
             freeSolo
-            id="search-category"
+            id="search-Tutorial"
             options={options}
             onChange={(_e, value) => handleSelectedValue(value)}
             renderInput={(params) => (
               <TextField
                 onChange={(e) => handleSearch(e.target.value)}
                 {...params}
-                label="Search Category"
+                label="Search Tutorial Name"
               />
             )}
           />
@@ -199,26 +200,22 @@ function AssignTutorialContent() {
             Select Content Writer
           </InputLabel>
           <Select
-            native
-            defaultValue=""
             id="Select Content Writer"
+            value={selectedAdmin || ''}
             label="Select Content Writer"
             onChange={(e) => handleSelectedAdmin(e.target.value)}
           >
-            {allAdminData?.map((admin) => (
-              <>
-                {admin.role === 'CONTENT_REVIEWER' ? null : (
-                  <option
-                    value={`${admin.fullName}  ${admin.role} ${admin.id}`}
-                    key={admin.role}
+            {allAdminData?.map(
+              (admin) =>
+                admin.role !== 'CONTENT_REVIEWER' && (
+                  <MenuItem
+                    value={`${admin.fullName} ${admin.role} ${admin.id}`}
+                    key={admin.id}
                   >
-                    {admin.role === 'CONTENT_REVIEWER'
-                      ? null
-                      : `${admin.fullName} - ${admin.role}`}
-                  </option>
-                )}
-              </>
-            ))}
+                    {`${admin.fullName} - ${admin.role}`}
+                  </MenuItem>
+                ),
+            )}
           </Select>
         </FormControl>
 
