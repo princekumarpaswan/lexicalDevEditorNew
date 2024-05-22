@@ -55,6 +55,7 @@ function AddTutorials() {
   const [categories, setCategories] = useState<Category[]>([])
 
   const { setTutorialId } = useContext(TutorialContext)
+  const { setTutorialName } = useContext(TutorialContext)
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -103,11 +104,14 @@ function AddTutorials() {
 
       const newTutorial = await createTutorial(tutorialData)
       const newTutorialId = newTutorial.data.id
+      const newTutorialName = newTutorial.data.tutorialName
       setTutorialId(newTutorialId)
+      setTutorialName(newTutorialName)
       console.log('Tutorial ID set in context:', newTutorialId)
+      // console.log('Tutorial ID set in context:', newTutorialName)
 
       navigate(`/tutorials/add-tutorial/topic-and-subtopic`, {
-        state: { tutorialId: newTutorialId },
+        state: { tutorialId: newTutorialId, newTutorialName: newTutorialName },
       })
     } catch (error) {
       console.error('Error creating tutorial:', error)
