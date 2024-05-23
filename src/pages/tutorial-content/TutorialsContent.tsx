@@ -16,7 +16,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { useContext, useEffect, useState } from 'react'
+import { SetStateAction, useContext, useEffect, useState } from 'react'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -37,6 +37,7 @@ import { FilterAlt } from '@mui/icons-material'
 import { CircularProgress } from '@mui/material'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
+import { useDebounce } from '../../hooks/useDebounce'
 
 interface ColumnData {
   id: string
@@ -163,23 +164,48 @@ function TutorialContent() {
   const [tutorialContentData, steTutorialContentData] = useState<tutorial[]>([])
 
   const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
-  const handleSearchByContentName = async (_event: any, value: string) => {
-    setSearchQuery(value)
-    try {
-      const results =
-        value.trim() === ''
-          ? await contentTutorial(page, rowsPerPage)
-          : await searchSubTopics(value)
-      if (results.success) {
-        steTutorialContentData(results.data)
-      } else {
-        console.error('Failed to search content')
+  useEffect(() => {
+    const handleSearchByContentName = async (value: string) => {
+      try {
+        const results =
+          value.trim() === ''
+            ? await contentTutorial(page, rowsPerPage)
+            : await searchSubTopics(value)
+        if (results.success) {
+          steTutorialContentData(results.data)
+        } else {
+          console.error('Failed to search content')
+        }
+      } catch (error) {
+        console.error('Failed to search content', error)
       }
-    } catch (error) {
-      console.error('Failed to search content', error)
     }
+
+    handleSearchByContentName(debouncedSearchQuery)
+  }, [debouncedSearchQuery, page, rowsPerPage])
+
+  const handleInputChange = (_event: any, value: SetStateAction<string>) => {
+    setSearchQuery(value)
   }
+
+  // const handleSearchByContentName = async (_event: any, value: string) => {
+  //   setSearchQuery(value)
+  //   try {
+  //     const results =
+  //       value.trim() === ''
+  //         ? await contentTutorial(page, rowsPerPage)
+  //         : await searchSubTopics(value)
+  //     if (results.success) {
+  //       steTutorialContentData(results.data)
+  //     } else {
+  //       console.error('Failed to search content')
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to search content', error)
+  //   }
+  // }
 
   const fetchAdminUsers = async () => {
     try {
@@ -453,7 +479,7 @@ function TutorialContent() {
                 id="search-content"
                 options={[]}
                 inputValue={searchQuery}
-                onInputChange={handleSearchByContentName}
+                onInputChange={handleInputChange}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Search Content" />
@@ -501,7 +527,9 @@ function TutorialContent() {
                           {row.subTopicName}
                         </Link>
                       </TableCell>
-                      <TableCell align="center">{row.subTopicName}</TableCell>
+                      <TableCell align="center">
+                        {row.topicInfo.topicName}
+                      </TableCell>
                       <TableCell align="center">
                         {row.tutorialInfo.tutorialName}
                       </TableCell>
