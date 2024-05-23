@@ -26,7 +26,11 @@ import {
   Typography,
 } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import { createAdmin, getAllAdminUsers } from '../../api/adminAPI'
+import {
+  createAdmin,
+  getAllAdminUsers,
+  updateAdminInfo,
+} from '../../api/adminAPI'
 import { deleteAdminUser } from '../../api/adminAPI'
 
 interface Column {
@@ -48,15 +52,24 @@ const columns: readonly Column[] = [
 ]
 
 interface AdminUser {
+  password?: string
   id: string
   fullName: string
   email: string
   role: 'ADMIN' | 'CONTENT_WRITER' | 'CONTENT_REVIEWER'
 }
 
+interface UpdateAdminPayload {
+  newName: string
+  newRole: 'ADMIN' | 'CONTENT_WRITER' | 'CONTENT_REVIEWER'
+  newEmail: string
+  newPassword?: string
+}
+
 const AdminUsers = () => {
   const [showModal, setShowModal] = React.useState(false)
   const [showPassword, setShowPassword] = React.useState(true)
+  const [userData, setUserData] = React.useState<AdminUser | null>(null)
 
   const [user, setUser] = React.useState<AdminUser & { password: string }>({
     id: '',
@@ -66,7 +79,7 @@ const AdminUsers = () => {
     role: 'ADMIN',
   })
   const [isEditing, setIsEditing] = React.useState(false)
-  const [adminUsers, setAdminUsers] = React.useState<AdminUser[]>([]) // State to store admin users
+  const [adminUsers, setAdminUsers] = React.useState<AdminUser[]>([])
   // const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -74,8 +87,8 @@ const AdminUsers = () => {
     const fetchAdminUsers = async () => {
       try {
         const response = await getAllAdminUsers()
-        const { data } = response // Destructure the 'data' property from the response
-        setAdminUsers(data) // Update the adminUsers state with the array of admin users
+        const { data } = response
+        setAdminUsers(data)
       } catch (error) {
         setError('Error fetching admin users')
         console.error('Error fetching admin users:', error)
@@ -109,8 +122,9 @@ const AdminUsers = () => {
   const handleEditButton = (userData: AdminUser) => {
     setUser({
       ...userData,
-      password: (Math.random() + 1).toString(36).substring(2),
+      password: '',
     })
+    setUserData(userData)
     setIsEditing(true)
     setShowModal(true)
   }
@@ -127,13 +141,31 @@ const AdminUsers = () => {
 
   const handleCreateAdmin = async () => {
     try {
-      const response = await createAdmin(
-        user.fullName,
-        user.email,
-        user.password,
-        user.role,
-      )
-      setAdminUsers([...adminUsers, { ...user, id: response.id }])
+      if (isEditing) {
+        const payload: UpdateAdminPayload = {
+          newName: user.fullName,
+          newRole: user.role,
+          newEmail: user.email,
+          ...(userData &&
+            user.password !== userData.password && {
+              newPassword: user.password,
+            }),
+        }
+        await updateAdminInfo(user.id, payload)
+        setAdminUsers(
+          adminUsers.map((adminUser) =>
+            adminUser.id === user.id ? { ...user } : adminUser,
+          ),
+        )
+      } else {
+        const response = await createAdmin(
+          user.fullName,
+          user.email,
+          user.password,
+          user.role,
+        )
+        setAdminUsers([...adminUsers, { ...user, id: response.id }])
+      }
       setShowModal(false)
       setUser({
         id: '',
@@ -142,8 +174,9 @@ const AdminUsers = () => {
         password: '',
         role: 'ADMIN',
       })
+      setIsEditing(false)
     } catch (error) {
-      console.error('Error creating admin:', error)
+      console.error('Error creating/updating admin:', error)
     }
   }
 
@@ -325,7 +358,6 @@ const AdminUsers = () => {
                   style: { marginLeft: '0px' },
                 }}
                 InputProps={{
-                  readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
                       <Button
@@ -360,6 +392,12 @@ const AdminUsers = () => {
                       </IconButton>
                     </InputAdornment>
                   ),
+                }}
+                onChange={(e) => {
+                  setUser({
+                    ...user,
+                    password: e.target.value,
+                  })
                 }}
               />
             </FormControl>
