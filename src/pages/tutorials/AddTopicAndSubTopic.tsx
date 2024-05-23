@@ -19,7 +19,9 @@ import IconButton from '@mui/material/IconButton'
 import { createTopicsAndSubTopics } from '../../api/tutorialAPI'
 import {
   createTopicsAndSubTopicsAI,
+  createTopicsAndSubTopicsFileUploadAI,
   getTopicsAndSubTopicsAI,
+  uploadFile,
 } from '../../api/tutorialContentAPI'
 
 export interface SubTopic {
@@ -47,19 +49,83 @@ const AddTopicAndSubTopic: React.FC = () => {
     },
   ])
 
+  const [fileError, setFileError] = useState<string | null>(null)
+
+  const [textInput, setTextInput] = useState('')
+  const [fileInput, setFileInput] = useState<File | null>(null)
+
+  // const handleGenerate = async () => {
+  //   setOpenModal(false)
+  //   const payload = {
+  //     tutorialName: tutorialName,
+  //     technologies: textInput.split(',').map((tech) => tech.trim()),
+  //   }
+
+  //   try {
+  //     setLoading(true)
+  //     const response = await createTopicsAndSubTopicsAI(payload)
+  //     const { id } = response.data
+
+  //     pollForData(id)
+  //   } catch (error) {
+  //     console.error('Error creating topics and subtopics:', error)
+  //     setLoading(false)
+  //   }
+  // }
+
   const handleGenerate = async () => {
     setOpenModal(false)
-    const payload = {
-      tutorialName: tutorialName,
-      technologies: textInput.split(',').map((tech) => tech.trim()),
-    }
+    setLoading(true)
 
     try {
-      setLoading(true)
-      const response = await createTopicsAndSubTopicsAI(payload)
-      const { id } = response.data
+      if (textInput.trim()) {
+        // Generate topics and subtopics using text input (technologies)
+        const payload = {
+          tutorialName,
+          technologies: textInput.split(',').map((tech) => tech.trim()),
+        }
+        try {
+          const response = await createTopicsAndSubTopicsAI(payload)
+          const { id } = response.data
+          pollForData(id)
+        } catch (error) {
+          console.error(
+            'Error creating topics and subtopics with text input:',
+            error,
+          )
+          setLoading(false)
+        }
+      } else {
+        // Generate topics and subtopics using file input
+        const fileInput = (
+          document.querySelector('input[type="file"]') as HTMLInputElement
+        )?.files?.[0]
+        if (!fileInput) {
+          console.error('No file selected.')
+          setLoading(false)
+          return
+        }
 
-      pollForData(id)
+        try {
+          const fileUploadResponse = await uploadFile(fileInput)
+          const fileUploadResponseData = fileUploadResponse.data
+          console.log('File upload response:', fileUploadResponseData)
+
+          const createResponse = await createTopicsAndSubTopicsFileUploadAI(
+            fileUploadResponseData,
+          )
+          const { id } = createResponse.data
+          console.log('Generated ID:', id)
+
+          pollForData(id)
+        } catch (error) {
+          console.error(
+            'Error creating topics and subtopics with file input:',
+            error,
+          )
+          setLoading(false)
+        }
+      }
     } catch (error) {
       console.error('Error creating topics and subtopics:', error)
       setLoading(false)
@@ -109,12 +175,8 @@ const AddTopicAndSubTopic: React.FC = () => {
     console.log('Tutorial name:', tutorialName)
   }, [tutorialId, tutorialName])
 
-  // State variables for modal
   const [openModal, setOpenModal] = useState(false)
-  const [textInput, setTextInput] = useState('')
-  // const [fileInput, setFileInput] = useState<File | null>(null)
 
-  // Functions to handle modal open/close and input changes
   const handleOpenModal = () => {
     setOpenModal(true)
   }
@@ -123,15 +185,35 @@ const AddTopicAndSubTopic: React.FC = () => {
     setOpenModal(false)
   }
 
-  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTextInput(e.target.value)
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Check file extension
+      const allowedExtensions = ['.pdf']
+      const fileExtension = file.name.split('.').pop()?.toLowerCase()
+      if (!allowedExtensions.includes(`.${fileExtension}`)) {
+        setFileError('Please select a .pdf file.')
+        return
+      }
+
+      // Check file size
+      const maxSize = 5 * 1024 * 1024 // 5 MB
+      if (file.size > maxSize) {
+        setFileError('File size exceeds 5 MB limit.')
+        return
+      }
+      setFileError(null)
+    }
+    if (file) {
+      setFileInput(file)
+      setTextInput('')
+    }
   }
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (files && files.length > 0) {
-      // setFileInput(files[0])
-    }
+  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTextInput(e.target.value)
+    setTextInput(e.target.value)
+    setFileInput(null)
   }
 
   const handleAddTopic = () => {
@@ -290,6 +372,7 @@ const AddTopicAndSubTopic: React.FC = () => {
               value={textInput}
               onChange={handleTextInputChange}
               sx={{ marginBottom: 2 }}
+              disabled={!!fileInput}
             />
             <Typography sx={{ textAlign: 'center' }}> Or</Typography>
             <Divider />
@@ -297,17 +380,6 @@ const AddTopicAndSubTopic: React.FC = () => {
               Note : you can either write a prompt or choose a file to Generate
               the Topics and Sub-topics
             </Typography>
-            {/* File input */}
-            {/* <Button
-              fullWidth
-              component="label"
-              role={undefined}
-              variant="contained"
-              tabIndex={-1}
-              startIcon={<CloudUploadIcon />}
-            >
-              Upload file <VisuallyHiddenInput type="file" />
-            </Button> */}
             <Input
               fullWidth
               sx={{
@@ -318,11 +390,21 @@ const AddTopicAndSubTopic: React.FC = () => {
                 borderRadius: 1,
               }}
               type="file"
+              disabled={!!textInput}
               onChange={handleFileInputChange}
+              inputProps={{
+                accept: '.pdf',
+              }}
             />
+
             <Typography sx={{ fontSize: 13, mt: 1 }}>
               {`Uploda the  Content Index File - ( .pdf only )`}
             </Typography>
+            {fileError && (
+              <Typography sx={{ fontSize: 13, color: 'red', mt: 1 }}>
+                {fileError}
+              </Typography>
+            )}
             {/* Buttons */}
             <Box
               sx={{

@@ -195,3 +195,75 @@ export const getTopicsAndSubTopicsAI = async (id: any) => {
     throw error
   }
 }
+
+/// file input
+export const uploadFile = async (file: File) => {
+  const accessToken = getAccessToken()
+  const config = {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  }
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/upload/file`,
+      formData,
+      config,
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error uploading file:', error)
+    throw error
+  }
+}
+
+export const createTopicsAndSubTopicsFileUploadAI = async (fileId: string) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const payload = { fileId }
+
+    // Logging payload to ensure it's correct
+    console.log('Sending payload:', payload)
+
+    const response = await axios.post(
+      `${BASE_URL}/tutorials/ai/create/file`,
+      payload,
+      config,
+    )
+
+    // Logging the response to debug
+    console.log('Response:', response.data)
+
+    return response.data
+  } catch (error) {
+    console.error('Error creating topics and subtopics:')
+    throw error
+  }
+}
+
+export const getTopicsAndSubTopicsFileUploadAI = async (id: string) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.get(
+      `${BASE_URL}/tutorials/ai/get/${id}`,
+      config,
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error fetching topics and subtopics:', error)
+    throw error
+  }
+}
