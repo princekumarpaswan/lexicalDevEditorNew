@@ -37,6 +37,7 @@ import {
 import { FilterAlt } from '@mui/icons-material'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
+import { useDebounce } from '../../hooks/useDebounce'
 
 interface ColumnData {
   id: string
@@ -95,6 +96,7 @@ function Tutorials() {
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [tutorials, setTutorials] = useState<TutorialData[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
   const [showFilterBox, setShowFilterBox] = useState<null | HTMLElement>(null)
 
@@ -106,11 +108,45 @@ function Tutorials() {
   )
   const [categoryInputValue, setCategoryInputValue] = useState('')
 
+  // useEffect(() => {
+  //   const fetchTutorials = async () => {
+  //     try {
+  //       const response = searchQuery
+  //         ? await searchTutorials(searchQuery)
+  //         : await listAllTutorials(page + 1, rowsPerPage)
+
+  //       if (response.success) {
+  //         const data = response.data.map(
+  //           (tutorial: {
+  //             tutorialName: any
+  //             id: any
+  //             categoryName: any
+  //             status: any
+  //             index: number
+  //           }) => ({
+  //             tutorialName: tutorial.tutorialName,
+  //             SNo: 0,
+  //             ID: tutorial.id,
+  //             categoryName: tutorial.categoryName,
+  //             status: tutorial.status,
+  //           }),
+  //         )
+  //         setTutorials(data)
+  //       } else {
+  //         console.error('Failed to fetch tutorials')
+  //       }
+  //     } catch (error) {
+  //       console.error('Failed to fetch tutorials', error)
+  //     }
+  //   }
+
+  //   fetchTutorials()
+  // }, [page, rowsPerPage, searchQuery])
   useEffect(() => {
     const fetchTutorials = async () => {
       try {
-        const response = searchQuery
-          ? await searchTutorials(searchQuery)
+        const response = debouncedSearchQuery
+          ? await searchTutorials(debouncedSearchQuery)
           : await listAllTutorials(page + 1, rowsPerPage)
 
         if (response.success) {
@@ -139,7 +175,7 @@ function Tutorials() {
     }
 
     fetchTutorials()
-  }, [page, rowsPerPage, searchQuery])
+  }, [page, rowsPerPage, debouncedSearchQuery])
 
   interface Category {
     id: string
@@ -160,35 +196,38 @@ function Tutorials() {
     fetchCategories()
   }, [])
 
-  const handleSearchByTutorialName = async (_event: any, value: string) => {
+  // const handleSearchByTutorialName = async (_event: any, value: string) => {
+  //   setSearchQuery(value)
+  //   try {
+  //     const results =
+  //       value.trim() === ''
+  //         ? await listAllTutorials(1, rowsPerPage)
+  //         : await searchTutorials(value)
+  //     if (results.success) {
+  //       const data = results.data.map(
+  //         (tutorial: {
+  //           tutorialName: any
+  //           id: any
+  //           categoryName: any
+  //           status: any
+  //         }) => ({
+  //           tutorialName: tutorial.tutorialName,
+  //           SNo: 0,
+  //           ID: tutorial.id,
+  //           categoryName: tutorial.categoryName,
+  //           status: tutorial.status,
+  //         }),
+  //       )
+  //       setTutorials(data)
+  //     } else {
+  //       console.error('Failed to search tutorials')
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to search tutorials', error)
+  //   }
+  // }
+  const handleSearchByTutorialName = (_event: any, value: string) => {
     setSearchQuery(value)
-    try {
-      const results =
-        value.trim() === ''
-          ? await listAllTutorials(1, rowsPerPage)
-          : await searchTutorials(value)
-      if (results.success) {
-        const data = results.data.map(
-          (tutorial: {
-            tutorialName: any
-            id: any
-            categoryName: any
-            status: any
-          }) => ({
-            tutorialName: tutorial.tutorialName,
-            SNo: 0,
-            ID: tutorial.id,
-            categoryName: tutorial.categoryName,
-            status: tutorial.status,
-          }),
-        )
-        setTutorials(data)
-      } else {
-        console.error('Failed to search tutorials')
-      }
-    } catch (error) {
-      console.error('Failed to search tutorials', error)
-    }
   }
 
   const handleFilterFetch = async () => {
