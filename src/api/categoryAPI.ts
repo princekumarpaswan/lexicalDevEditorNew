@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-useless-catch */
 import axios, { AxiosRequestConfig } from 'axios'
 import { BASE_URL } from '../context/AuthContext/AuthContext'
@@ -81,6 +82,24 @@ export const deleteCategory = async (categoryId: string) => {
     )
     return response.data
   } catch (error) {
+    throw error
+  }
+}
+
+//API for searching the Categories
+export const searchCategories = async (query: string) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/categories/search`, {
+      params: { q: query },
+    })
+
+    if (response.status === 200) {
+      return response.data
+    } else {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`)
+    }
+  } catch (error) {
+    console.error('Error searching categories:', error)
     throw error
   }
 }

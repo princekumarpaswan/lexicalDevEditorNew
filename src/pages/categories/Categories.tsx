@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 import React, { useState, useEffect } from 'react'
 import {
@@ -26,7 +27,9 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
+  searchCategories,
 } from '../../api/categoryAPI'
+import { useDebounce } from '../../hooks/useDebounce'
 
 interface Category {
   id: string
@@ -77,23 +80,43 @@ function Categories() {
     categoryName: '',
     mappedTutorials: '',
   })
-  const [categories, setCategories] = useState<Category[]>([])
-  const [filteredCategories, setFilteredCategories] = useState<Category[]>([])
+
+  const [Categories, setCategories] = useState<Category[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await getAllCategories()
+        const response = debouncedSearchQuery
+          ? await searchCategories(debouncedSearchQuery)
+          : await getAllCategories()
         setCategories(response.data)
-        setFilteredCategories(response.data)
-        console.log(response.data)
       } catch (error) {
         console.error('Error fetching categories:', error)
       }
     }
 
     fetchCategories()
-  }, [])
+  }, [debouncedSearchQuery])
+
+  const handleSearchInput = (_event: any, value: string) => {
+    setSearchQuery(value)
+  }
+
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     try {
+  //       const response = await getAllCategories()
+  //       setCategories(response.data)
+  //       console.log(response.data)
+  //     } catch (error) {
+  //       console.error('Error fetching categories:', error)
+  //     }
+  //   }
+
+  //   fetchCategories()
+  // }, [])
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage)
@@ -110,12 +133,11 @@ function Categories() {
     try {
       const response = await createCategory(categoryToAdd.categoryName)
       setCategories((prevCategories) => [...prevCategories, response.data])
-      setFilteredCategories((prevCategories) => [
-        ...prevCategories,
-        response.data,
-      ])
       setShowAddModal(false)
       setCategoryToAdd({ id: '', categoryName: '', mappedTutorials: '' })
+      // Call getAllCategories to refresh the categories list
+      const allCategoriesResponse = await getAllCategories()
+      setCategories(allCategoriesResponse.data)
     } catch (error) {
       console.error('Error adding category:', error)
     }
@@ -128,11 +150,6 @@ function Categories() {
         categoryToEdit.categoryName,
       )
       setCategories((prevCategories) =>
-        prevCategories.map((category) =>
-          category.id === categoryToEdit.id ? response.data : category,
-        ),
-      )
-      setFilteredCategories((prevCategories) =>
         prevCategories.map((category) =>
           category.id === categoryToEdit.id ? response.data : category,
         ),
@@ -150,22 +167,8 @@ function Categories() {
       setCategories((prevCategories) =>
         prevCategories.filter((category) => category.id !== categoryId),
       )
-      setFilteredCategories((prevCategories) =>
-        prevCategories.filter((category) => category.id !== categoryId),
-      )
     } catch (error) {
       console.error('Error deleting category:', error)
-    }
-  }
-
-  const handleSearchCategory = (_event: unknown, value: string | null) => {
-    if (value) {
-      const filtered = categories.filter((category) =>
-        category.categoryName.toLowerCase().includes(value.toLowerCase()),
-      )
-      setFilteredCategories(filtered)
-    } else {
-      setFilteredCategories(categories)
     }
   }
 
@@ -201,8 +204,8 @@ function Categories() {
               <Autocomplete
                 freeSolo
                 id="search-category"
-                options={categories.map((category) => category.categoryName)}
-                onInputChange={handleSearchCategory}
+                options={[]}
+                onInputChange={handleSearchInput}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Search Category" />
@@ -237,7 +240,7 @@ function Categories() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredCategories.map((category: Category, index: number) => (
+                {Categories.map((category: Category, index: number) => (
                   <TableRow key={category.id}>
                     <TableCell align="left">{index + 1}</TableCell>
                     <TableCell align="left">{category.categoryName}</TableCell>
@@ -273,7 +276,7 @@ function Categories() {
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
-            count={filteredCategories.length}
+            count={setCategories.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
