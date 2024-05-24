@@ -18,6 +18,7 @@ import {
   getTutorialDetail,
   searchTutorial,
 } from '../../api/tutorialContentAPI'
+import SnackbarComponent from '../../components/SnackBar'
 
 interface Tutorial {
   id: string
@@ -55,6 +56,10 @@ function AssignTutorialContent() {
   // const getrole = useContext(AuthContext)
   // const data = getrole?.state?.user?.role
   const [selectedSubTopic, setSelectedSubTopic] = useState('')
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   const handleSearch = async (searchQuery: string) => {
     if (searchQuery) {
@@ -135,6 +140,8 @@ function AssignTutorialContent() {
       const userDetail = data.splice(-2)
       callWritterApi(userDetail[1])
     }
+    setSnackbarOpen(true)
+    setSnackbarMessage('Content Assigned Successfully')
   }
 
   return (
@@ -227,6 +234,18 @@ function AssignTutorialContent() {
           Assign
         </Button>
       </Box>
+      <SnackbarComponent
+        severity="success"
+        open={snackbarOpen}
+        message={snackbarMessage}
+        closeSnackbar={() => setSnackbarOpen(false)}
+      />
+      <SnackbarComponent
+        severity="error"
+        message={errorMsg}
+        open={!!errorMsg}
+        closeSnackbar={() => setErrorMsg('')}
+      />
     </BaseLayout>
   )
 }

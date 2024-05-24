@@ -29,6 +29,7 @@ import {
   updateTutorialInfo,
 } from '../../api/tutorialAPI'
 import { useParams } from 'react-router-dom'
+import SnackbarComponent from '../../components/SnackBar'
 // import { accessToken } from '../../constants/ApiConstant'
 
 const getAccessToken = (): string => {
@@ -110,6 +111,9 @@ function EditTutorials() {
   const [subTopicChanges, setSubTopicChanges] = useState(
     topics.map((topic) => topic.subTopics.map(() => false)),
   )
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   // const handleChange = (
   //   event: SelectChangeEvent<typeof selectedCategories>,
@@ -207,9 +211,13 @@ function EditTutorials() {
         newCategoryId,
       )
       setFetchTrigger((prevTrigger) => prevTrigger + 1)
+      setSnackbarOpen(true)
+      setSnackbarMessage('Tutorial Details Updated Successfully')
       console.log('Tutorial info updated:', updatedTutorialData)
     } catch (error) {
       console.error('Error updating tutorial info:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Something Went Wrong')
     }
   }
 
@@ -259,6 +267,8 @@ function EditTutorials() {
           }
           return updatedTopics
         })
+        setSnackbarOpen(true)
+        setSnackbarMessage('Topic Created Successfully')
       } else {
         const updatedTopic = await updateTopicInfo({
           topicId: topicToUpdate.topicId,
@@ -274,6 +284,8 @@ function EditTutorials() {
           }
           return updatedTopics
         })
+        setSnackbarOpen(true)
+        setSnackbarMessage('Topic Updated Successfully')
       }
       setFetchTrigger((prevTrigger) => prevTrigger + 1)
       setTopicChanges((prevChanges) => {
@@ -283,6 +295,8 @@ function EditTutorials() {
       })
     } catch (error) {
       console.error('Error updating topic info:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Something Went Wrong')
     }
   }
 
@@ -313,6 +327,8 @@ function EditTutorials() {
           }
           return updatedTopics
         })
+        setSnackbarOpen(true)
+        setSnackbarMessage('Sub-Topic Created Successfully')
       } else {
         const updatedSubTopic = await updateSubTopicInfo({
           subTopicId: subTopicToUpdate.subTopicId,
@@ -325,6 +341,8 @@ function EditTutorials() {
           updatedTopics[topicIndex].subTopics[subTopicIndex] = updatedSubTopic
           return updatedTopics
         })
+        setSnackbarOpen(true)
+        setSnackbarMessage('Sub-Topic Updated Successfully')
       }
       setFetchTrigger((prevTrigger) => prevTrigger + 1)
       setSubTopicChanges((prevChanges) => {
@@ -334,6 +352,8 @@ function EditTutorials() {
       })
     } catch (error) {
       console.error('Error updating sub-topic info:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Something Went Wrong')
     }
   }
 
@@ -390,8 +410,12 @@ function EditTutorials() {
           return updatedTopics
         })
       }
+      setSnackbarOpen(true)
+      setSnackbarMessage('Sub-Topic Deleted Successfully')
     } catch (error) {
       console.error('Error deleting sub-topic info:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Something Went Wrong')
     }
   }
 
@@ -419,8 +443,12 @@ function EditTutorials() {
           return updatedTopics
         })
       }
+      setSnackbarOpen(true)
+      setSnackbarMessage('Topic Deleted Successfully')
     } catch (error) {
       console.error('Error deleting topic info:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Something Went Wrong')
     }
   }
 
@@ -780,6 +808,18 @@ function EditTutorials() {
           </Button>
         </Box>
       </Box>
+      <SnackbarComponent
+        severity="success"
+        open={snackbarOpen}
+        message={snackbarMessage}
+        closeSnackbar={() => setSnackbarOpen(false)}
+      />
+      <SnackbarComponent
+        severity="error"
+        message={errorMsg}
+        open={!!errorMsg}
+        closeSnackbar={() => setErrorMsg('')}
+      />
     </BaseLayout>
   )
 }

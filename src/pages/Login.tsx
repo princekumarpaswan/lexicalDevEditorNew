@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom'
 import { CircularProgress, IconButton } from '@mui/material'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import SnackbarComponent from '../components/SnackBar'
 
 const theme = createTheme()
 
@@ -25,6 +26,10 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const { dispatch } = useContext(AuthContext)
   const navigate = useNavigate()
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -44,6 +49,8 @@ export default function Login() {
           accessToken,
         },
       })
+      setSnackbarOpen(true)
+      setSnackbarMessage('Login SuccessFull')
       // Redirect to the appropriate page based on the role
       switch (role) {
         case 'ADMIN':
@@ -61,6 +68,8 @@ export default function Login() {
       }
     } catch (error) {
       console.error('Login failed:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Wrong User name or Password')
     } finally {
       setLoading(false)
     }
@@ -148,6 +157,18 @@ export default function Login() {
             </Button>
           </Box>
         </Box>
+        <SnackbarComponent
+          severity="success"
+          open={snackbarOpen}
+          message={snackbarMessage}
+          closeSnackbar={() => setSnackbarOpen(false)}
+        />
+        <SnackbarComponent
+          severity="error"
+          message={errorMsg}
+          open={!!errorMsg}
+          closeSnackbar={() => setErrorMsg('')}
+        />
       </Container>
     </ThemeProvider>
   )

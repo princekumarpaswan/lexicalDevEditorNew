@@ -32,6 +32,7 @@ import {
   updateAdminInfo,
 } from '../../api/adminAPI'
 import { deleteAdminUser } from '../../api/adminAPI'
+import SnackbarComponent from '../../components/SnackBar'
 
 interface Column {
   id: 'name' | 'email' | 'actions'
@@ -83,6 +84,10 @@ const AdminUsers = () => {
   // const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false)
+  const [snackbarMessage, setSnackbarMessage] = React.useState('')
+  const [errorMsg, setErrorMsg] = React.useState('')
+
   React.useEffect(() => {
     const fetchAdminUsers = async () => {
       try {
@@ -113,6 +118,8 @@ const AdminUsers = () => {
     try {
       await deleteAdminUser(userId)
       setAdminUsers(adminUsers.filter((user) => user.id !== userId))
+      setSnackbarOpen(true)
+      setSnackbarMessage('User Deleted Successfully')
     } catch (error) {
       console.error('Error deleting admin user:', error)
     }
@@ -157,6 +164,8 @@ const AdminUsers = () => {
             adminUser.id === user.id ? { ...user } : adminUser,
           ),
         )
+        setSnackbarOpen(true)
+        setSnackbarMessage('User Details Added Successfully')
       } else {
         const response = await createAdmin(
           user.fullName,
@@ -166,6 +175,8 @@ const AdminUsers = () => {
         )
         setAdminUsers([...adminUsers, { ...user, id: response.id }])
       }
+      setSnackbarOpen(true)
+      setSnackbarMessage('User Details Added Successfully')
       setShowModal(false)
       setUser({
         id: '',
@@ -177,6 +188,8 @@ const AdminUsers = () => {
       setIsEditing(false)
     } catch (error) {
       console.error('Error creating/updating admin:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Something Went Wrong')
     }
   }
 
@@ -428,6 +441,18 @@ const AdminUsers = () => {
             </Button>
           </DialogActions>
         </Dialog>
+        <SnackbarComponent
+          severity="success"
+          open={snackbarOpen}
+          message={snackbarMessage}
+          closeSnackbar={() => setSnackbarOpen(false)}
+        />
+        <SnackbarComponent
+          severity="error"
+          message={errorMsg}
+          open={!!errorMsg}
+          closeSnackbar={() => setErrorMsg('')}
+        />
       </BaseLayout>
     </>
   )

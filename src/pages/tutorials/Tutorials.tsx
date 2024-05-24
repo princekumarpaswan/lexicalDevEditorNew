@@ -38,6 +38,7 @@ import { FilterAlt } from '@mui/icons-material'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useDebounce } from '../../hooks/useDebounce'
+import SnackbarComponent from '../../components/SnackBar'
 
 interface ColumnData {
   id: string
@@ -107,6 +108,10 @@ function Tutorials() {
     [],
   )
   const [categoryInputValue, setCategoryInputValue] = useState('')
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   // useEffect(() => {
   //   const fetchTutorials = async () => {
@@ -320,8 +325,11 @@ function Tutorials() {
             : tutorial,
         ),
       )
+      setSnackbarMessage('Tutorial Status Updated Successfully')
+      setSnackbarOpen(true)
     } catch (error) {
       console.error('Error updating tutorial status:', error)
+      setErrorMsg("Cannot Update Tutorial Status")
     }
   }
 
@@ -663,6 +671,18 @@ function Tutorials() {
           </Stack>
         </Paper>
       </Box>
+      <SnackbarComponent
+        severity="success"
+        open={snackbarOpen}
+        message={snackbarMessage}
+        closeSnackbar={() => setSnackbarOpen(false)}
+      />
+      <SnackbarComponent
+        severity="error"
+        message={errorMsg}
+        open={!!errorMsg}
+        closeSnackbar={() => setErrorMsg('')}
+      />
     </BaseLayout>
   )
 }

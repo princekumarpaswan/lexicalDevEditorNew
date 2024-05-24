@@ -30,6 +30,7 @@ import {
   searchCategories,
 } from '../../api/categoryAPI'
 import { useDebounce } from '../../hooks/useDebounce'
+import SnackbarComponent from '../../components/SnackBar'
 
 interface Category {
   id: string
@@ -85,6 +86,10 @@ function Categories() {
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -135,7 +140,9 @@ function Categories() {
       setCategories((prevCategories) => [...prevCategories, response.data])
       setShowAddModal(false)
       setCategoryToAdd({ id: '', categoryName: '', mappedTutorials: '' })
-      // Call getAllCategories to refresh the categories list
+      setSnackbarMessage('Category added successfully!')
+      setSnackbarOpen(true)
+
       const allCategoriesResponse = await getAllCategories()
       setCategories(allCategoriesResponse.data)
     } catch (error) {
@@ -154,8 +161,12 @@ function Categories() {
           category.id === categoryToEdit.id ? response.data : category,
         ),
       )
+      const allCategoriesResponse = await getAllCategories()
+      setCategories(allCategoriesResponse.data)
       setShowEditModal(false)
       setCategoryToEdit({ id: '', categoryName: '', mappedTutorials: '' })
+      setSnackbarMessage('Category Updated successfully!')
+      setSnackbarOpen(true)
     } catch (error) {
       console.error('Error editing category:', error)
     }
@@ -167,8 +178,12 @@ function Categories() {
       setCategories((prevCategories) =>
         prevCategories.filter((category) => category.id !== categoryId),
       )
+      setSnackbarMessage('Category Deleted successfully!')
+      setSnackbarOpen(true)
     } catch (error) {
       console.error('Error deleting category:', error)
+      setErrorMsg('Cannot Delete Category bacause its already Mapped')
+      setSnackbarOpen(true)
     }
   }
 
@@ -346,6 +361,18 @@ function Categories() {
           </Button>
         </DialogActions>
       </Dialog>
+      <SnackbarComponent
+        severity="success"
+        open={snackbarOpen}
+        message={snackbarMessage}
+        closeSnackbar={() => setSnackbarOpen(false)}
+      />
+      <SnackbarComponent
+        severity="error"
+        message={errorMsg}
+        open={!!errorMsg}
+        closeSnackbar={() => setErrorMsg('')}
+      />
     </BaseLayout>
   )
 }

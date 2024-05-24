@@ -13,6 +13,7 @@ import {
   TutorialProvider,
 } from '../../context/TutorialContext/TutorialContext'
 import { getAllCategories, createTutorial } from '../../api/tutorialAPI'
+import SnackbarComponent from '../../components/SnackBar'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -56,6 +57,10 @@ function AddTutorials() {
 
   const { setTutorialId } = useContext(TutorialContext)
   const { setTutorialName } = useContext(TutorialContext)
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -107,6 +112,8 @@ function AddTutorials() {
       const newTutorialName = newTutorial.data.tutorialName
       setTutorialId(newTutorialId)
       setTutorialName(newTutorialName)
+      setSnackbarOpen(true)
+      setSnackbarMessage('Tutorial Added Successfuly')
       console.log('Tutorial ID set in context:', newTutorialId)
       // console.log('Tutorial ID set in context:', newTutorialName)
 
@@ -115,6 +122,8 @@ function AddTutorials() {
       })
     } catch (error) {
       console.error('Error creating tutorial:', error)
+      setErrorMsg('Something Went Wrong')
+      setSnackbarOpen(true)
     }
   }
 
@@ -260,6 +269,18 @@ function AddTutorials() {
           </Button>
         </Box>
       </BaseLayout>
+      <SnackbarComponent
+        severity="success"
+        open={snackbarOpen}
+        message={snackbarMessage}
+        closeSnackbar={() => setSnackbarOpen(false)}
+      />
+      <SnackbarComponent
+        severity="error"
+        message={errorMsg}
+        open={!!errorMsg}
+        closeSnackbar={() => setErrorMsg('')}
+      />
     </TutorialProvider>
   )
 }

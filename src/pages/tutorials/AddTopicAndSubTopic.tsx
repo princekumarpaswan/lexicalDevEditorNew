@@ -23,6 +23,7 @@ import {
   getTopicsAndSubTopicsAI,
   uploadFile,
 } from '../../api/tutorialContentAPI'
+import SnackbarComponent from '../../components/SnackBar'
 
 export interface SubTopic {
   subTopicName: string
@@ -53,6 +54,10 @@ const AddTopicAndSubTopic: React.FC = () => {
 
   const [textInput, setTextInput] = useState('')
   const [fileInput, setFileInput] = useState<File | null>(null)
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   // const handleGenerate = async () => {
   //   setOpenModal(false)
@@ -88,12 +93,16 @@ const AddTopicAndSubTopic: React.FC = () => {
           const response = await createTopicsAndSubTopicsAI(payload)
           const { id } = response.data
           pollForData(id)
+          setSnackbarOpen(true)
+          setSnackbarMessage('Topics and Subtopics Generated Successfully')
         } catch (error) {
           console.error(
             'Error creating topics and subtopics with text input:',
             error,
           )
           setLoading(false)
+          setSnackbarOpen(true)
+          setErrorMsg('Something Went Wrong , please try again later')
         }
       } else {
         // Generate topics and subtopics using file input
@@ -310,6 +319,8 @@ const AddTopicAndSubTopic: React.FC = () => {
     try {
       await createTopicsAndSubTopics(tutorialData)
       navigate('/tutorials')
+      setSnackbarOpen(true)
+      setSnackbarMessage('Topics and Subtopics Added  Successfuly')
     } catch (error) {
       console.error('Error submitting topics and subtopics:', error)
     }
@@ -573,6 +584,18 @@ const AddTopicAndSubTopic: React.FC = () => {
           </Box>
         )}
       </Box>
+      <SnackbarComponent
+        severity="success"
+        open={snackbarOpen}
+        message={snackbarMessage}
+        closeSnackbar={() => setSnackbarOpen(false)}
+      />
+      <SnackbarComponent
+        severity="error"
+        message={errorMsg}
+        open={!!errorMsg}
+        closeSnackbar={() => setErrorMsg('')}
+      />
     </BaseLayout>
   )
 }
