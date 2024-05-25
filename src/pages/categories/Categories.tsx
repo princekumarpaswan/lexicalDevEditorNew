@@ -5,6 +5,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -89,14 +90,17 @@ function Categories() {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        setIsLoading(true)
         const response = debouncedSearchQuery
           ? await searchCategories(debouncedSearchQuery)
           : await getAllCategories()
         setCategories(response.data)
+        setIsLoading(false)
       } catch (error) {
         console.error('Error fetching categories:', error)
       }
@@ -240,53 +244,71 @@ function Categories() {
       <Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
           <TableContainer sx={{ maxHeight: 600 }}>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  {Columndata.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      align={column.align}
-                      style={{ minWidth: column.minWidth }}
-                    >
-                      {column.label}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Categories.map((category: Category, index: number) => (
-                  <TableRow key={category.id}>
-                    <TableCell align="left">{index + 1}</TableCell>
-                    <TableCell align="left">{category.categoryName}</TableCell>
-                    <TableCell align="center">
-                      {category.mappedTutorials}
-                    </TableCell>
-                    <TableCell align="center">
-                      <Button
-                        variant="contained"
-                        startIcon={<EditOutlined />}
-                        style={{ marginRight: '12px' }}
-                        onClick={() => {
-                          setCategoryToEdit(category)
-                          setShowEditModal(true)
-                        }}
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%',
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <Table stickyHeader aria-label="sticky table">
+                <TableHead>
+                  <TableRow>
+                    {Columndata.map((column) => (
+                      <TableCell
+                        key={column.id}
+                        align={column.align}
+                        style={{ minWidth: column.minWidth }}
                       >
-                        Edit
-                      </Button>
-                      <Button
-                        startIcon={<DeleteOutline />}
-                        variant="contained"
-                        color="error"
-                        onClick={() => handleDeleteCategory(category.id)}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
+                        <p style={{ fontSize: 14, fontWeight: 505 }}>
+                          {column.label}
+                        </p>
+                      </TableCell>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+
+                <TableBody>
+                  {Categories.map((category: Category, index: number) => (
+                    <TableRow key={category.id}>
+                      <TableCell align="left">{index + 1}</TableCell>
+                      <TableCell align="left">
+                        {category.categoryName}
+                      </TableCell>
+                      <TableCell align="center">
+                        {category.mappedTutorials}
+                      </TableCell>
+                      <TableCell align="center">
+                        <Button
+                          variant="contained"
+                          startIcon={<EditOutlined />}
+                          style={{ marginRight: '12px' }}
+                          onClick={() => {
+                            setCategoryToEdit(category)
+                            setShowEditModal(true)
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          startIcon={<DeleteOutline />}
+                          variant="contained"
+                          color="error"
+                          onClick={() => handleDeleteCategory(category.id)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </TableContainer>
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}

@@ -4,6 +4,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   FormControl,
   Grid,
   IconButton,
@@ -113,6 +114,8 @@ function Tutorials() {
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
 
+  const [isLoading, setLoading] = useState(true)
+
   // useEffect(() => {
   //   const fetchTutorials = async () => {
   //     try {
@@ -150,6 +153,7 @@ function Tutorials() {
   useEffect(() => {
     const fetchTutorials = async () => {
       try {
+        setLoading(true)
         const response = debouncedSearchQuery
           ? await searchTutorials(debouncedSearchQuery)
           : await listAllTutorials(page + 1, rowsPerPage)
@@ -174,8 +178,10 @@ function Tutorials() {
         } else {
           console.error('Failed to fetch tutorials')
         }
+        setLoading(false)
       } catch (error) {
         console.error('Failed to fetch tutorials', error)
+        setLoading(false)
       }
     }
 
@@ -185,7 +191,6 @@ function Tutorials() {
   interface Category {
     id: string
     categoryName: string
-    // Add any other properties if needed
   }
   useEffect(() => {
     const fetchCategories = async () => {
@@ -237,6 +242,7 @@ function Tutorials() {
 
   const handleFilterFetch = async () => {
     try {
+      setLoading(true)
       const filterParams = {
         categoryId: filterCategoryId || undefined,
         status: filterStatus || undefined,
@@ -262,6 +268,7 @@ function Tutorials() {
 
       setTutorials(data)
       setShowFilterBox(null)
+      setLoading(false)
     } catch (error) {
       console.error('Failed to filter tutorials', error)
     }
@@ -329,7 +336,7 @@ function Tutorials() {
       setSnackbarOpen(true)
     } catch (error) {
       console.error('Error updating tutorial status:', error)
-      setErrorMsg("Cannot Update Tutorial Status")
+      setErrorMsg('Cannot Update Tutorial Status')
     }
   }
 
@@ -374,7 +381,7 @@ function Tutorials() {
               display: 'flex',
               justifyContent: 'flex-end',
               alignItems: 'center',
-              gap: '10px',
+              gap: 2,
               width: '50%',
             }}
           >
@@ -552,75 +559,92 @@ function Tutorials() {
 
       <Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: 600 }}>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  {Columndata.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      align={column.align}
-                      style={{ minWidth: column.minWidth }}
-                    >
-                      {column.label}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tutorials.map((tutorial, index) => (
-                  <TableRow
-                    hover
-                    role="checkbox"
-                    tabIndex={-1}
-                    key={tutorial.ID}
-                  >
-                    <TableCell align="left">
-                      {page * rowsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell align="left">{tutorial.tutorialName}</TableCell>
-                    <TableCell align="center">
-                      {tutorial.categoryName}
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      sx={{ display: 'flex', justifyContent: 'center' }}
-                    >
-                      <p
-                        style={{
-                          backgroundColor:
-                            tutorial.status === 'LISTED'
-                              ? 'darkgreen'
-                              : 'darkred',
-                          color: 'white',
-                          fontWeight: 'bold',
-                          padding: 3,
-                          borderRadius: 20,
-                          width: 100,
-                        }}
+          <TableContainer sx={{ maxHeight: 570 }}>
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%',
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <Table stickyHeader aria-label="sticky table">
+                <TableHead>
+                  <TableRow>
+                    {Columndata.map((column) => (
+                      <TableCell
+                        key={column.id}
+                        align={column.align}
+                        style={{ minWidth: column.minWidth }}
                       >
-                        {tutorial.status}
-                      </p>
-                    </TableCell>
-                    <TableCell align="center">
-                      <BorderColorIcon
-                        onClick={() => handleEditClick(tutorial.ID)}
-                        sx={{ cursor: 'pointer', color: 'blue' }}
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      <Switch
-                        checked={tutorial.status === 'LISTED'}
-                        onChange={(event) =>
-                          handleSwitchChange(event, tutorial.ID)
-                        }
-                        {...label}
-                      />
-                    </TableCell>
+                        <p style={{ fontSize: 15, fontWeight: 505 }}>
+                          {column.label}
+                        </p>
+                      </TableCell>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {tutorials.map((tutorial, index) => (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={tutorial.ID}
+                    >
+                      <TableCell align="left">
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell align="left">
+                        {tutorial.tutorialName}
+                      </TableCell>
+                      <TableCell align="center">
+                        {tutorial.categoryName}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{ display: 'flex', justifyContent: 'center' }}
+                      >
+                        <p
+                          style={{
+                            backgroundColor:
+                              tutorial.status === 'LISTED'
+                                ? 'darkgreen'
+                                : 'darkred',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            padding: 3,
+                            borderRadius: 20,
+                            width: 100,
+                          }}
+                        >
+                          {tutorial.status}
+                        </p>
+                      </TableCell>
+                      <TableCell align="center">
+                        <BorderColorIcon
+                          onClick={() => handleEditClick(tutorial.ID)}
+                          sx={{ cursor: 'pointer', color: 'blue' }}
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <Switch
+                          checked={tutorial.status === 'LISTED'}
+                          onChange={(event) =>
+                            handleSwitchChange(event, tutorial.ID)
+                          }
+                          {...label}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </TableContainer>
           <Stack
             sx={{

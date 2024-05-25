@@ -12,6 +12,7 @@ import { BaseLayout } from '../../components/BaseLayout'
 import { Box } from '@mui/system'
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -35,20 +36,21 @@ import { deleteAdminUser } from '../../api/adminAPI'
 import SnackbarComponent from '../../components/SnackBar'
 
 interface Column {
-  id: 'name' | 'email' | 'actions'
+  id: 'S.No' | 'name' | 'email' | 'actions'
   label: string
-  minWidth?: number
-  align?: 'right' | 'center'
+  maxWidth?: number
+  align?: 'left'
 }
 
 const columns: readonly Column[] = [
-  { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'email', label: 'Email', minWidth: 170 },
+  { id: 'S.No', label: 'S.No', maxWidth: 100 },
+  { id: 'name', label: 'Name', maxWidth: 200, align: 'left' },
+  { id: 'email', label: 'Email', maxWidth: 170, align: 'left' },
   {
     id: 'actions',
     label: 'Actions',
-    minWidth: 170,
-    align: 'right',
+    maxWidth: 170,
+    align: 'left',
   },
 ]
 
@@ -87,13 +89,16 @@ const AdminUsers = () => {
   const [snackbarOpen, setSnackbarOpen] = React.useState(false)
   const [snackbarMessage, setSnackbarMessage] = React.useState('')
   const [errorMsg, setErrorMsg] = React.useState('')
+  const [isLoading, setIsLoading] = React.useState(false)
 
   React.useEffect(() => {
     const fetchAdminUsers = async () => {
       try {
+        setIsLoading(true)
         const response = await getAllAdminUsers()
         const { data } = response
         setAdminUsers(data)
+        setIsLoading(false)
       } catch (error) {
         setError('Error fetching admin users')
         console.error('Error fetching admin users:', error)
@@ -224,64 +229,84 @@ const AdminUsers = () => {
         </Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
           <TableContainer>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  {columns.map((column) => {
-                    return (
-                      <>
-                        <TableCell
-                          key={column.id}
-                          align={column.align}
-                          style={{ minWidth: column.minWidth }}
-                        >
-                          {column.label}
-                        </TableCell>
-                      </>
-                    )
-                  })}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Array.isArray(adminUsers) && adminUsers.length > 0 ? (
-                  adminUsers.map((user) => {
-                    return (
-                      <TableRow
-                        hover
-                        role="checkbox"
-                        tabIndex={-1}
-                        key={user.email}
-                      >
-                        <TableCell>{user.fullName}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell align="right">
-                          <Button
-                            variant="contained"
-                            style={{ marginRight: '12px' }}
-                            onClick={() => handleEditButton(user)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() => handleDeleteUser(user.id)}
-                          >
-                            Delete
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })
-                ) : (
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%',
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <Table stickyHeader aria-label="sticky table">
+                <TableHead>
                   <TableRow>
-                    <TableCell colSpan={3} align="center">
-                      No admin users found
-                    </TableCell>
+                    {columns.map((column) => {
+                      return (
+                        <>
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            style={{ maxWidth: column.maxWidth }}
+                          >
+                            <p style={{ fontSize: 14, fontWeight: 505 }}>
+                              {column.label}
+                            </p>
+                          </TableCell>
+                        </>
+                      )
+                    })}
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {Array.isArray(adminUsers) && adminUsers.length > 0 ? (
+                    adminUsers.map((user, index: number) => {
+                      return (
+                        <TableRow
+                          hover
+                          role="checkbox"
+                          tabIndex={-1}
+                          key={user.email}
+                        >
+                          <TableCell align="left">{index + 1}</TableCell>
+                          <TableCell sx={{ textAlign: 'left' }}>
+                            {user.fullName}
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'left' }}>
+                            {user.email}
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'left' }}>
+                            <Button
+                              variant="contained"
+                              style={{ marginRight: '12px' }}
+                              onClick={() => handleEditButton(user)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="error"
+                              onClick={() => handleDeleteUser(user.id)}
+                            >
+                              Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center">
+                        No admin users found
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </TableContainer>
         </Paper>
         <Dialog

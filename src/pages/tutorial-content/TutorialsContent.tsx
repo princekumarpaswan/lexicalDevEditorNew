@@ -97,7 +97,7 @@ const Columndata: ColumnData[] = [
   {
     id: 'Sub Topic Name',
     label: 'SubTopic Name',
-    maxWidth: 20,
+    maxWidth: 40,
   },
   {
     id: 'Topic Name',
@@ -114,8 +114,8 @@ const Columndata: ColumnData[] = [
     format: (value: number) => value.toLocaleString('en-US'),
   },
   {
-    id: 'Content Assignee Name',
-    label: 'Content Assignee Name',
+    id: 'Content Writer Name',
+    label: 'Content Writer Name',
     maxWidth: 50,
     align: 'center',
     format: (value: number) => value.toLocaleString('en-US'),
@@ -166,15 +166,19 @@ function TutorialContent() {
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
+  const [isLoading, setLoading] = useState(true)
+
   useEffect(() => {
     const handleSearchByContentName = async (value: string) => {
       try {
+        setLoading(true)
         const results =
           value.trim() === ''
             ? await contentTutorial(page, rowsPerPage)
             : await searchSubTopics(value)
         if (results.success) {
           steTutorialContentData(results.data)
+          setLoading(false)
         } else {
           console.error('Failed to search content')
         }
@@ -234,12 +238,14 @@ function TutorialContent() {
   const toggleFilterBox = (event: React.MouseEvent<HTMLElement>) => {
     setShowFilterBox(showFilterBox ? null : event.currentTarget)
   }
+
   const fetchTutorialContent = async (
     status?: string,
     reviewerId?: string,
     writerId?: string,
   ) => {
     try {
+      setLoading(true)
       const filteredSubtopicsResponse = await FilterSubtopics(
         status,
         reviewerId,
@@ -248,6 +254,7 @@ function TutorialContent() {
       const filteredSubtopics: SubTopic[] = filteredSubtopicsResponse.data
       // Update the tutorialContentData state with the filtered subtopics
       steTutorialContentData(filteredSubtopics)
+      setLoading(false)
     } catch (error) {
       console.error('Error fetching tutorial content:', error)
     }
@@ -281,8 +288,10 @@ function TutorialContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
         const data = await contentTutorial(page, rowsPerPage)
         steTutorialContentData(data.data)
+        setLoading(false)
       } catch (error) {
         return error
       }
@@ -500,65 +509,75 @@ function TutorialContent() {
       </Box>
       <Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: 600 }}>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  {Columndata.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      align={column.align}
-                      style={{ maxWidth: column.maxWidth }}
-                    >
-                      {column.label}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tutorialContentData.length > 0 ? (
-                  tutorialContentData.map((row: tutorial, index: number) => (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell align="left">
-                        {(page - 1) * rowsPerPage + index + 1}
+          <TableContainer sx={{ maxHeight: 550 }}>
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%',
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <Table stickyHeader aria-label="sticky table">
+                <TableHead>
+                  <TableRow>
+                    {Columndata.map((column) => (
+                      <TableCell
+                        key={column.id}
+                        align={column.align}
+                        style={{ maxWidth: column.maxWidth }}
+                      >
+                        <p style={{ fontSize: 14, fontWeight: 505 }}>
+                          {column.label}
+                        </p>
                       </TableCell>
-                      <TableCell align="left">
-                        <Link to={'/tutorial-content/subtopic-write-content'}>
-                          {row.subTopicName}
-                        </Link>
-                      </TableCell>
-                      <TableCell align="center">
-                        {row.topicInfo.topicName}
-                      </TableCell>
-                      <TableCell align="center">
-                        {row.tutorialInfo.tutorialName}
-                      </TableCell>
-                      <TableCell align="center">
-                        {row.writerInfo ? 'row.writerInfo ' : 'Not Assigned'}
-                      </TableCell>
-                      <TableCell align="center">
-                        {row.reviewerInfo ? 'row.reviewerInfo' : 'Not Assigned'}
-                      </TableCell>
-                      <TableCell align="center">{row.status}</TableCell>
-                      <TableCell align="center">
-                        {<Switch {...label} />}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      alignContent: 'center',
-                    }}
-                  >
-                    <CircularProgress />
+                    ))}
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {tutorialContentData.length > 0 &&
+                    tutorialContentData.map((row: tutorial, index: number) => (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={row.id}
+                      >
+                        <TableCell align="left">
+                          {(page - 1) * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell align="left">
+                          <Link to={'/tutorial-content/subtopic-write-content'}>
+                            {row.subTopicName}
+                          </Link>
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.topicInfo.topicName}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.tutorialInfo.tutorialName}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.writerInfo ? 'row.writerInfo ' : 'Not Assigned'}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.reviewerInfo
+                            ? 'row.reviewerInfo'
+                            : 'Not Assigned'}
+                        </TableCell>
+                        <TableCell align="center">{row.status}</TableCell>
+                        <TableCell align="center">
+                          {<Switch {...label} />}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            )}
           </TableContainer>
           <Stack
             sx={{

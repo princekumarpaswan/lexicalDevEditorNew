@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { AuthContext } from '../context/AuthContext/AuthContext'
+import { useState, useContext } from 'react'
 
 interface SidebarElement {
   id: number
@@ -135,9 +136,9 @@ export const BaseLayout: React.FC<{
   title: string
 }> = ({ title, ...props }) => {
   const theme = useTheme()
-  const [open, setOpen] = React.useState(true)
+  const [open, setOpen] = useState(true)
 
-  const { dispatch } = React.useContext(AuthContext) // Access the dispatch function from the authentication context
+  const { dispatch } = useContext(AuthContext)
 
   // Function to handle logout
   const handleLogout = () => {
@@ -224,52 +225,64 @@ export const BaseLayout: React.FC<{
           </div>
         </DrawerHeader>
         <Divider />
-        <List>
-          {sidebarElements.map((items) => {
-            return (
-              <>
-                <ListItemButton
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            height: '100%',
+          }}
+        >
+          <Box>
+            <List>
+              {sidebarElements.map((items) => {
+                return (
+                  <>
+                    <ListItemButton
+                      onClick={() => {
+                        navigate(items.href)
+                      }}
+                      key={items.id}
+                    >
+                      <ListItemIcon>{items.icon}</ListItemIcon>
+                      <ListItemText primary={items.title} />
+                    </ListItemButton>
+                  </>
+                )
+              })}
+            </List>
+            <Divider />
+          </Box>
+
+          <List>
+            <ListItemButton
+              sx={{
+                minWidth: 0,
+                mr: open ? 0 : 'auto',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                flexDirection: 'column',
+              }}
+            >
+              {open && (
+                <Button
+                  variant="text"
+                  color="primary"
+                  style={{ color: 'red' }}
                   onClick={() => {
-                    navigate(items.href)
+                    // LocalStorage.clear()
+                    handleLogout()
                   }}
-                  key={items.id}
                 >
-                  <ListItemIcon>{items.icon}</ListItemIcon>
-                  <ListItemText primary={items.title} />
-                </ListItemButton>
-              </>
-            )
-          })}
-        </List>
-        <Divider />
-        <List>
-          <ListItemButton
-            sx={{
-              minWidth: 0,
-              mr: open ? 0 : 'auto',
-              justifyContent: 'center',
-              flexDirection: 'column',
-              marginTop: 70,
-            }}
-          >
-            {open && (
-              <Button
-                variant="text"
-                color="primary"
-                style={{ color: 'red' }}
-                onClick={() => {
-                  // LocalStorage.clear()
-                  handleLogout()
-                }}
-              >
-                LOGOUT
+                  LOGOUT
+                </Button>
+              )}
+              <Button style={{ color: 'red' }}>
+                {open == false && <ExitToAppIcon />}
               </Button>
-            )}
-            <Button style={{ color: 'red' }}>
-              {open == false && <ExitToAppIcon />}
-            </Button>
-          </ListItemButton>
-        </List>
+            </ListItemButton>
+          </List>
+        </Box>
       </Drawer>
 
       <Box
