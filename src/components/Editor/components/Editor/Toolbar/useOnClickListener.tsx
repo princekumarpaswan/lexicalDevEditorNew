@@ -4,7 +4,9 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { eventTypes } from './toolbarIconsList'
 import { useEffect, useState } from 'react'
 import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   CAN_REDO_COMMAND,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   CAN_UNDO_COMMAND,
   REDO_COMMAND,
   UNDO_COMMAND,
@@ -14,6 +16,7 @@ import {
   $getSelection,
   $isRangeSelection,
   $createParagraphNode,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   $getNodeByKey,
 } from 'lexical'
 import { $getNearestNodeOfType, mergeRegister } from '@lexical/utils'
@@ -32,12 +35,17 @@ import {
 } from '@lexical/rich-text'
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
 import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   $createCodeNode,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   $isCodeNode,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getDefaultCodeLanguage,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getCodeLanguages,
 } from '@lexical/code'
 import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   $isParentElementRTL,
   $wrapNodes,
   $isAtNodeEnd,
@@ -165,7 +173,6 @@ const useOnClickListener = () => {
     } else if (event === eventTypes.h2) {
       formatHeading('h2')
     } else if (event === eventTypes.ol) {
-      console.log('orderlest ')
       formatNumberedList()
     } else if (event === eventTypes.ul) {
       formatBulletList()

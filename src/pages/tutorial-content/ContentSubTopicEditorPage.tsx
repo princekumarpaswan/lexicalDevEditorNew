@@ -23,9 +23,9 @@ const ContentSubTopicEditorPage = () => {
         </Box>
         <Box>
           <EditorWrapper
-            onEditorChange={function (): void {
-              throw new Error('Function not implemented.')
-            }}
+            // eslint-disable-next-line no-console
+            onEditorChange={(e) => console.log(e)
+            }
           />
         </Box>
         <Box sx={{ display: 'flex', gap: 5, justifyContent: 'center' }}>

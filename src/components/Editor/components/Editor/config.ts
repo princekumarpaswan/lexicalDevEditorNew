@@ -11,6 +11,7 @@ import { ImageNode } from './nodes/ImageNode'
 // or throw them as needed. If you don't throw them, Lexical will
 // try to recover gracefully without losing user data.
 function onError(error: Error) {
+  // eslint-disable-next-line no-console
   console.error(error)
 }
 
