@@ -37,7 +37,24 @@ export const createAdmin = async (
 }
 
 // Api for listing all admin users:
-export const getAllAdminUsers = async () => {
+// export const getAllAdminUsers = async () => {
+//   try {
+//     const accessToken = getAccessToken()
+//     const config: AxiosRequestConfig = {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//     }
+
+//     const response = await axios.get(`${BASE_URL}/admins`, config)
+
+//     return response.data
+//   } catch (error) {
+//     throw error
+//   }
+// }
+
+export const getAllAdminUsers = async (pageNo: number, limit: number) => {
   try {
     const accessToken = getAccessToken()
     const config: AxiosRequestConfig = {
@@ -45,9 +62,10 @@ export const getAllAdminUsers = async () => {
         Authorization: `Bearer ${accessToken}`,
       },
     }
-
-    const response = await axios.get(`${BASE_URL}/admins`, config)
-
+    const response = await axios.get(
+      `${BASE_URL}/admins?page=${pageNo}&limit=${limit}`,
+      config,
+    )
     return response.data
   } catch (error) {
     throw error

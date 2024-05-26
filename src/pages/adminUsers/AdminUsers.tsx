@@ -23,6 +23,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Stack,
   TextField,
   Typography,
 } from '@mui/material'
@@ -36,6 +37,8 @@ import { deleteAdminUser } from '../../api/adminAPI'
 import SnackbarComponent from '../../components/SnackBar'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useNavigate } from 'react-router-dom'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 
 interface Column {
   id: 'S.No' | 'name' | 'email' | 'actions'
@@ -72,6 +75,9 @@ interface UpdateAdminPayload {
 }
 
 const AdminUsers = () => {
+  const [page, setPage] = React.useState(1)
+  const [rowsPerPage, setRowsPerPage] = React.useState(10)
+
   const [showModal, setShowModal] = React.useState(false)
   const [showPassword, setShowPassword] = React.useState(true)
   const [userData, setUserData] = React.useState<AdminUser | null>(null)
@@ -94,15 +100,19 @@ const AdminUsers = () => {
   const [isLoading, setIsLoading] = React.useState(false)
 
   const navigate = useNavigate()
+  const [hasMore, setHasMore] = React.useState(false)
 
   React.useEffect(() => {
     const fetchAdminUsers = async () => {
       try {
         setIsLoading(true)
-        const response = await getAllAdminUsers()
+        const response = await getAllAdminUsers(page, rowsPerPage)
         const { data } = response
         setAdminUsers(data)
         setIsLoading(false)
+
+        // Check if there are more pages available
+        setHasMore(data.length === rowsPerPage)
       } catch (error) {
         setError('Error fetching admin users')
         console.error('Error fetching admin users:', error)
@@ -110,14 +120,9 @@ const AdminUsers = () => {
     }
 
     fetchAdminUsers()
-  }, [])
+  }, [page, rowsPerPage])
 
   console.log(adminUsers)
-
-  // Handle loading and error states
-  // if (isLoading) {
-  //   return <div>Loading...</div>
-  // }
 
   if (error) {
     return <div>{error}</div>
@@ -491,6 +496,51 @@ const AdminUsers = () => {
           open={!!errorMsg}
           closeSnackbar={() => setErrorMsg('')}
         />
+        <Stack
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            marginRight: 3,
+            gap: 4,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <span style={{ fontSize: 14 }}>Rows Per Page : </span>
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 50 }}>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                displayEmpty
+                value={rowsPerPage}
+                onChange={(event) => setRowsPerPage(Number(event.target.value))}
+                sx={{ maxWidthidth: 90 }}
+              >
+                {[10, 50, 100, 500].map((rows) => (
+                  <MenuItem key={rows} value={rows}>
+                    {rows}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box>
+            <IconButton
+              onClick={() => setPage((prevPage) => prevPage - 1)}
+              disabled={page === 1}
+            >
+              <ArrowBackIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+            </IconButton>
+            <IconButton
+              onClick={() => setPage((prevPage) => prevPage + 1)}
+              disabled={!hasMore}
+            >
+              <ArrowForwardIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+              <span style={{ fontSize: 16 }}>{page}</span>
+            </IconButton>
+          </Box>
+        </Stack>
       </BaseLayout>
     </>
   )
