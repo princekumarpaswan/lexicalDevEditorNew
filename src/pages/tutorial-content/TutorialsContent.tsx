@@ -563,7 +563,7 @@ function TutorialContent() {
                           {(page - 1) * rowsPerPage + index + 1}
                         </TableCell>
                         <TableCell align="left">
-                          <Link to={'/tutorial-content/subtopic-write-content'}>
+                           <Link to={`/tutorial-content/subtopic-write-content/${row.subTopicName.split(' ').join('-')}/${row.id}`}>
                             {row.subTopicName}
                           </Link>
                         </TableCell>

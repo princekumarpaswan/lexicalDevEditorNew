@@ -45,7 +45,7 @@ export const routes: Route[] = [
     page: <AssignTutorialContent />,
   },
   {
-    path: '/tutorial-content/subtopic-write-content',
+    path: '/tutorial-content/subtopic-write-content/:suntopicname/:id',
     page: <ContentSubTopicEditorPage />,
   },
   {

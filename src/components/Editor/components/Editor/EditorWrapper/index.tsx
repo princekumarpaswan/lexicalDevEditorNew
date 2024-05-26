@@ -15,11 +15,13 @@ import { MuiContentEditable, placeHolderSx } from './styles'
 import { Box } from '@mui/material'
 import { ListPlugin } from '@lexical/react/LexicalListPlugin'
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin'
-import Toolbar from '../Toolbar'
+// import Toolbar from '../Toolbar'
 // import lexicalEditorTheme from '../../../theme/lexicalEditorTheme'
 import lexicalEditorConfig from '../config'
 import ImagesPlugin from '../plugin/ImagePlugin'
 import { ClearEditorPlugin } from '../plugin/LexicalClearEditorPlugin'
+import ToolbarPlugin from './newToolbar/index'
+// import NewToolbar from '../NewToolbar'
 type EditorWrapperProps = {
   onEditorChange: (editorStateJSONString: string) => void
   initialContent?: string // Accept initial JSON content as prop
@@ -36,17 +38,19 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
 
   return (
     <LexicalComposer
-      initialConfig={{ ...lexicalEditorConfig, editorState: editorState }}
+      initialConfig={{...lexicalEditorConfig, editorState: editorState }}
     >
-      <Toolbar />
+
+      <ToolbarPlugin/>
       <Box
         sx={{
           position: 'relative',
           background: 'white',
           color: 'black',
-          width: '50%',
+          width: '100%',
           margin: 'auto',
           border: 1,
+          minHeight: "450px"
         }}
       >
         <RichTextPlugin
