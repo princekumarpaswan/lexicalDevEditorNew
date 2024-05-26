@@ -10,6 +10,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   TextField,
   Typography,
 } from '@mui/material'
@@ -32,6 +33,8 @@ import {
 } from '../../api/categoryAPI'
 import { useDebounce } from '../../hooks/useDebounce'
 import SnackbarComponent from '../../components/SnackBar'
+import { useNavigate } from 'react-router-dom'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 interface Category {
   id: string
@@ -91,6 +94,8 @@ function Categories() {
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -197,48 +202,50 @@ function Categories() {
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: 2,
+            alignItems: 'center',
           }}
         >
-          <Typography variant="h5" component="h5" mb={2}>
-            Categories
-          </Typography>
-          <div
-            style={{
+          <Box
+            sx={{
               display: 'flex',
-              justifyContent: 'flex-end',
               alignItems: 'center',
-              gap: '10px',
-              width: '50%',
+              alignContent: 'center',
+              gap: 2,
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                gap: 50,
-              }}
+            <IconButton
+              onClick={() => navigate(-1)}
+              color="inherit"
+              size="large"
             >
-              <Autocomplete
-                freeSolo
-                id="search-category"
-                options={[]}
-                onInputChange={handleSearchInput}
-                sx={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Search Category" />
-                )}
-              />
-              <Button
-                variant="contained"
-                sx={{ marginRight: 2 }}
-                onClick={() => setShowAddModal(true)}
-              >
-                Add Category
-              </Button>
-            </div>
-          </div>
+              <ArrowBackIcon />
+            </IconButton>
+
+            <Typography variant="h5" component="h5">
+              Categories
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 4 }}>
+            <Autocomplete
+              freeSolo
+              id="search-category"
+              options={[]}
+              onInputChange={handleSearchInput}
+              sx={{ width: 300 }}
+              renderInput={(params) => (
+                <TextField {...params} label="Search Category" />
+              )}
+            />
+            <Button
+              variant="contained"
+              sx={{ marginRight: 2 }}
+              onClick={() => setShowAddModal(true)}
+            >
+              Add Category
+            </Button>
+          </Box>
         </Box>
       </Box>
       <Box>

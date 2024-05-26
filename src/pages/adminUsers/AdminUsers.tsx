@@ -34,6 +34,8 @@ import {
 } from '../../api/adminAPI'
 import { deleteAdminUser } from '../../api/adminAPI'
 import SnackbarComponent from '../../components/SnackBar'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { useNavigate } from 'react-router-dom'
 
 interface Column {
   id: 'S.No' | 'name' | 'email' | 'actions'
@@ -90,6 +92,8 @@ const AdminUsers = () => {
   const [snackbarMessage, setSnackbarMessage] = React.useState('')
   const [errorMsg, setErrorMsg] = React.useState('')
   const [isLoading, setIsLoading] = React.useState(false)
+
+  const navigate = useNavigate()
 
   React.useEffect(() => {
     const fetchAdminUsers = async () => {
@@ -209,9 +213,18 @@ const AdminUsers = () => {
             marginBottom: 2,
           }}
         >
-          <Typography variant="h5" component="h5" mb={2}>
-            Admin Users
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <IconButton
+              onClick={() => navigate(-1)}
+              color="inherit"
+              size="large"
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" component="h5">
+              Admin Users
+            </Typography>
+          </Box>
           <Box>
             <Button
               variant="contained"

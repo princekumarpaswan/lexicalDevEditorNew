@@ -23,7 +23,7 @@ import ToggleTheme from './ToggleTheme/ToggleTheme'
 
 import { useNavigate } from 'react-router-dom'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+// import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { AuthContext } from '../context/AuthContext/AuthContext'
 import { useState, useContext } from 'react'
 
@@ -135,7 +135,7 @@ const Drawer = styled(MuiDrawer, {
 export const BaseLayout: React.FC<{
   children: React.ReactNode
   title: string
-}> = ({ title, ...props }) => {
+}> = ({ ...props }) => {
   const theme = useTheme()
   const [open, setOpen] = useState(true)
   const { state } = useContext(AuthContext)
@@ -208,14 +208,14 @@ export const BaseLayout: React.FC<{
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              <IconButton
+              {/* <IconButton
                 onClick={() => navigate(-1)}
                 color="inherit"
                 size="large"
               >
                 <ArrowBackIcon />
-              </IconButton>
-              {title}
+              </IconButton> */}
+              {/* {title} */}
             </Typography>
             <ToggleTheme />
           </div>
@@ -277,6 +277,12 @@ export const BaseLayout: React.FC<{
                     <ListItemButton
                       onClick={() => navigate(items.href)}
                       key={items.id}
+                      style={{
+                        backgroundColor:
+                          location.pathname === items.href
+                            ? theme.palette.contrastColor.main
+                            : 'inherit',
+                      }}
                     >
                       <ListItemIcon>{items.icon}</ListItemIcon>
                       <ListItemText primary={items.title} />
