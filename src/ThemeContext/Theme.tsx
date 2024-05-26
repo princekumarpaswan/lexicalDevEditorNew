@@ -1,12 +1,19 @@
 import { Theme, createTheme } from '@mui/material/styles'
+declare module '@mui/material/styles' {
+  interface Palette {
+    contrastColor: Palette['primary']
+  }
+
+  interface PaletteOptions {
+    contrastColor?: PaletteOptions['primary']
+  }
+}
 
 export const AppLightTheme: Theme = createTheme({
   palette: {
-    primary: {
-      main: '#0052cc',
-    },
-    secondary: {
-      main: '#edf2ff',
+    contrastColor: {
+      main: '#eeeeee',
+      dark: '#000',
     },
   },
 })
@@ -14,11 +21,10 @@ export const AppLightTheme: Theme = createTheme({
 export const AppDarkTheme: Theme = createTheme({
   palette: {
     mode: 'dark',
-    primary: {
-      main: 'rgb(33,37,39)',
-    },
-    secondary: {
-      main: 'rgb(41,44,49)',
+
+    contrastColor: {
+      main: '#212121',
+      dark: '#fff',
     },
   },
 })

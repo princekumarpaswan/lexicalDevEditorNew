@@ -20,6 +20,7 @@ import SourceIcon from '@mui/icons-material/Source'
 import GroupIcon from '@mui/icons-material/Group'
 import { Button, Container } from '@mui/material'
 import ToggleTheme from './ToggleTheme/ToggleTheme'
+
 import { useNavigate } from 'react-router-dom'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -137,8 +138,26 @@ export const BaseLayout: React.FC<{
 }> = ({ title, ...props }) => {
   const theme = useTheme()
   const [open, setOpen] = useState(true)
+  const { state } = useContext(AuthContext)
+  const { user } = state
 
   const { dispatch } = useContext(AuthContext)
+
+  const filterSidebarElements = () => {
+    if (user && user.role === 'ADMIN') {
+      return sidebarElements
+    } else if (user && user.role === 'CONTENT_WRITER') {
+      return sidebarElements.filter(
+        (item) => item.title === 'Tutorials Content',
+      )
+    } else if (user && user.role === 'CONTENT_REVIEWER') {
+      return sidebarElements.filter(
+        (item) => item.title === 'Tutorials Content',
+      )
+    } else {
+      return []
+    }
+  }
 
   // Function to handle logout
   const handleLogout = () => {
@@ -234,7 +253,7 @@ export const BaseLayout: React.FC<{
           }}
         >
           <Box>
-            <List>
+            {/* <List>
               {sidebarElements.map((items) => {
                 return (
                   <>
@@ -242,6 +261,21 @@ export const BaseLayout: React.FC<{
                       onClick={() => {
                         navigate(items.href)
                       }}
+                      key={items.id}
+                    >
+                      <ListItemIcon>{items.icon}</ListItemIcon>
+                      <ListItemText primary={items.title} />
+                    </ListItemButton>
+                  </>
+                )
+              })}
+            </List> */}
+            <List>
+              {filterSidebarElements().map((items) => {
+                return (
+                  <>
+                    <ListItemButton
+                      onClick={() => navigate(items.href)}
                       key={items.id}
                     >
                       <ListItemIcon>{items.icon}</ListItemIcon>
