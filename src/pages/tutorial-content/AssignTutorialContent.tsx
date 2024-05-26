@@ -3,6 +3,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   FormControl,
   InputLabel,
   MenuItem,
@@ -60,6 +61,7 @@ function AssignTutorialContent() {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSearch = async (searchQuery: string) => {
     if (searchQuery) {
@@ -130,7 +132,12 @@ function AssignTutorialContent() {
   // }
 
   const callWritterApi = async (id: string) => {
+    setIsLoading(true)
     await assignContentWritter(subTopicId, id)
+
+    setSnackbarOpen(true)
+    setSnackbarMessage('Content Assigned Successfully')
+    setIsLoading(false)
   }
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -140,8 +147,6 @@ function AssignTutorialContent() {
       const userDetail = data.splice(-2)
       callWritterApi(userDetail[1])
     }
-    setSnackbarOpen(true)
-    setSnackbarMessage('Content Assigned Successfully')
   }
 
   return (
@@ -231,7 +236,11 @@ function AssignTutorialContent() {
           variant="contained"
           sx={{ mt: 2 }}
         >
-          Assign
+          {isLoading ? (
+            <CircularProgress size={24} sx={{ color: '#fff' }} />
+          ) : (
+            'Assign Content'
+          )}
         </Button>
       </Box>
       <SnackbarComponent
