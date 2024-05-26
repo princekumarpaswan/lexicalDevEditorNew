@@ -24,6 +24,7 @@ import {
   uploadFile,
 } from '../../api/tutorialContentAPI'
 import SnackbarComponent from '../../components/SnackBar'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 export interface SubTopic {
   subTopicName: string
@@ -329,6 +330,29 @@ const AddTopicAndSubTopic: React.FC = () => {
   return (
     <BaseLayout title="Add Topics and Sub-Topics">
       <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          marginBottom: 6,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton onClick={() => navigate(-2)} color="inherit" size="large">
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h5" component="h5">
+            Add Topics and Sub-Topics
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Button variant="contained" sx={{}} onClick={handleOpenModal}>
+            Generate Using AI
+          </Button>
+        </Box>
+      </Box>
+      <Box
         component="form"
         sx={{
           '& > :not(style)': { width: '60%', my: 1 },
@@ -338,14 +362,6 @@ const AddTopicAndSubTopic: React.FC = () => {
         }}
         autoComplete="off"
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="h5" component="h5" pb={1}>
-            Add Topics and Sub-Topics
-          </Typography>
-          <Button variant="contained" sx={{}} onClick={handleOpenModal}>
-            Generate Using AI
-          </Button>
-        </Box>
         {/* Modal */}
         <Modal
           open={openModal}

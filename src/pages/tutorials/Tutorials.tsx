@@ -40,7 +40,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useDebounce } from '../../hooks/useDebounce'
 import SnackbarComponent from '../../components/SnackBar'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+// import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 interface ColumnData {
   id: string
@@ -368,40 +368,38 @@ function Tutorials() {
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
             justifyContent: 'space-between',
+            alignItems: 'center',
             marginBottom: 2,
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton
+            {/* <IconButton
               onClick={() => navigate(-1)}
               color="inherit"
               size="large"
             >
               <ArrowBackIcon />
-            </IconButton>
+            </IconButton> */}
             <Typography variant="h5" component="h5">
               Tutorials
             </Typography>
           </Box>
 
-          <div
+          <Box
             style={{
               display: 'flex',
-              justifyContent: 'flex-end',
               alignItems: 'center',
               gap: 2,
-              width: '50%',
             }}
           >
-            <div
+            <Box
               style={{
                 display: 'flex',
                 gap: 20,
               }}
             >
-              <div
+              <Box
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -543,7 +541,7 @@ function Tutorials() {
                     </Grid>
                   </Grid>
                 </Menu>
-              </div>
+              </Box>
               <Autocomplete
                 freeSolo
                 id="search-tutorials"
@@ -562,8 +560,8 @@ function Tutorials() {
               >
                 Add Tutorial
               </Button>
-            </div>
-          </div>
+            </Box>
+          </Box>
         </Box>
       </Box>
 

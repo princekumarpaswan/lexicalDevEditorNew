@@ -5,6 +5,7 @@ import {
   Button,
   CircularProgress,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -20,6 +21,8 @@ import {
   searchTutorial,
 } from '../../api/tutorialContentAPI'
 import SnackbarComponent from '../../components/SnackBar'
+import { useNavigate } from 'react-router-dom'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 interface Tutorial {
   id: string
@@ -42,6 +45,8 @@ interface Admin {
 }
 
 function AssignTutorialContent() {
+  const navigate = useNavigate()
+
   const [results, setResults] = useState<Tutorial[]>([])
   const [allAdminData, setAllAdminData] = useState<Admin[]>([])
   const [options, setOptions] = useState<{ label: string; id: string }[]>([])
@@ -152,6 +157,16 @@ function AssignTutorialContent() {
   return (
     <BaseLayout title="Assign Tutorial Content">
       <Box
+        sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 5 }}
+      >
+        <IconButton onClick={() => navigate(-1)} color="inherit" size="large">
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h5" component="h5">
+          Assign Tutorial Content
+        </Typography>
+      </Box>
+      <Box
         component="form"
         onSubmit={handleSubmit}
         sx={{
@@ -163,10 +178,6 @@ function AssignTutorialContent() {
         }}
         autoComplete="off"
       >
-        <Typography variant="h5" component="h5" pb={1}>
-          Assign Tutorial Content
-        </Typography>
-
         <FormControl fullWidth>
           <Autocomplete
             freeSolo

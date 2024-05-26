@@ -333,7 +333,6 @@ function TutorialContent() {
               justifyContent: 'flex-end',
               alignItems: 'center',
               gap: '10px',
-              width: '50%',
             }}
           >
             <div
@@ -367,12 +366,12 @@ function TutorialContent() {
                   open={Boolean(showFilterBox)}
                   onClose={handleFilterCancel}
                   anchorOrigin={{
-                    vertical: 'bottom',
+                    vertical: 'center',
                     horizontal: 'right',
                   }}
                   transformOrigin={{
                     vertical: 'center',
-                    horizontal: 'right',
+                    horizontal: 'center',
                   }}
                   sx={{
                     filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.1))',

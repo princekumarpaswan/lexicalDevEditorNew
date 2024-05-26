@@ -1,7 +1,14 @@
 /* eslint-disable no-console */
 import React, { useState, useEffect, useContext } from 'react'
 import { BaseLayout } from '../../components/BaseLayout'
-import { Box, Button, TextField, Theme, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  IconButton,
+  TextField,
+  Theme,
+  Typography,
+} from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import MenuItem from '@mui/material/MenuItem'
@@ -14,6 +21,7 @@ import {
 } from '../../context/TutorialContext/TutorialContext'
 import { getAllCategories, createTutorial } from '../../api/tutorialAPI'
 import SnackbarComponent from '../../components/SnackBar'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -172,6 +180,32 @@ function AddTutorials() {
     <TutorialProvider>
       <BaseLayout title="Add Tutorial">
         <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              marginBottom: 6,
+            }}
+          >
+            <IconButton
+              onClick={() => navigate(-1)}
+              color="inherit"
+              size="large"
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" component="h5">
+              Add Tutorial
+            </Typography>
+          </Box>
+        </Box>
+        <Box
           component="form"
           sx={{
             '& > :not(style)': { width: '60%', my: 1 },
@@ -182,17 +216,6 @@ function AddTutorials() {
           }}
           autoComplete="off"
         >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Typography variant="h5" component="h5" pb={1}>
-              Add Tutorial
-            </Typography>
-          </Box>
-
           <TextField
             label="Tutorial Title"
             required
