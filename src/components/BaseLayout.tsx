@@ -331,6 +331,7 @@ export const BaseLayout: React.FC<{
           flexGrow: 1,
           height: '100vh',
           overflow: 'auto',
+          backgroundColor: theme.palette.contrastColor.main,
         }}
       >
         <Toolbar />

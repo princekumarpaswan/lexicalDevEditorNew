@@ -245,8 +245,8 @@ const AdminUsers = () => {
             </Button>
           </Box>
         </Box>
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer>
+        <Paper sx={{ width: '100%', overflow: 'scroll' }}>
+          <TableContainer sx={{ maxHeight: 580 }}>
             {isLoading ? (
               <Box
                 sx={{
@@ -326,6 +326,53 @@ const AdminUsers = () => {
               </Table>
             )}
           </TableContainer>
+          <Stack
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              marginRight: 3,
+              gap: 4,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 14 }}>Rows Per Page : </span>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 50 }}>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  displayEmpty
+                  value={rowsPerPage}
+                  onChange={(event) =>
+                    setRowsPerPage(Number(event.target.value))
+                  }
+                  sx={{ maxWidthidth: 90 }}
+                >
+                  {[10, 50, 100, 500].map((rows) => (
+                    <MenuItem key={rows} value={rows}>
+                      {rows}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <IconButton
+                onClick={() => setPage((prevPage) => prevPage - 1)}
+                disabled={page === 1}
+              >
+                <ArrowBackIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+              </IconButton>
+              <IconButton
+                onClick={() => setPage((prevPage) => prevPage + 1)}
+                disabled={!hasMore}
+              >
+                <ArrowForwardIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+                <span style={{ fontSize: 16 }}>{page}</span>
+              </IconButton>
+            </Box>
+          </Stack>
         </Paper>
         <Dialog
           open={showModal}
@@ -496,51 +543,6 @@ const AdminUsers = () => {
           open={!!errorMsg}
           closeSnackbar={() => setErrorMsg('')}
         />
-        <Stack
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            marginRight: 3,
-            gap: 4,
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <span style={{ fontSize: 14 }}>Rows Per Page : </span>
-            <FormControl variant="standard" sx={{ m: 1, minWidth: 50 }}>
-              <Select
-                labelId="demo-simple-select-standard-label"
-                id="demo-simple-select-standard"
-                displayEmpty
-                value={rowsPerPage}
-                onChange={(event) => setRowsPerPage(Number(event.target.value))}
-                sx={{ maxWidthidth: 90 }}
-              >
-                {[10, 50, 100, 500].map((rows) => (
-                  <MenuItem key={rows} value={rows}>
-                    {rows}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          <Box>
-            <IconButton
-              onClick={() => setPage((prevPage) => prevPage - 1)}
-              disabled={page === 1}
-            >
-              <ArrowBackIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
-            </IconButton>
-            <IconButton
-              onClick={() => setPage((prevPage) => prevPage + 1)}
-              disabled={!hasMore}
-            >
-              <ArrowForwardIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
-              <span style={{ fontSize: 16 }}>{page}</span>
-            </IconButton>
-          </Box>
-        </Stack>
       </BaseLayout>
     </>
   )
