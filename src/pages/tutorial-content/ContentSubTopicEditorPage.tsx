@@ -2,9 +2,12 @@ import { Box, Button, Typography } from '@mui/material'
 import { BaseLayout } from '../../components/BaseLayout'
 import EditorWrapper from '../../components/Editor/components/Editor/EditorWrapper'
 import { useParams } from 'react-router-dom'
+import { useState } from 'react'
 
 const ContentSubTopicEditorPage = () => {
   const url = useParams()
+
+  const [, setEditorData] = useState('')
 
   return (
     <BaseLayout title="Content Editor">
@@ -24,8 +27,7 @@ const ContentSubTopicEditorPage = () => {
         <Box>
           <EditorWrapper
             // eslint-disable-next-line no-console
-            onEditorChange={(e) => console.log(e)
-            }
+            onEditorChange={(e) => setEditorData(e)}
           />
         </Box>
         <Box sx={{ display: 'flex', gap: 5, justifyContent: 'center' }}>
