@@ -36,6 +36,7 @@ import { createPortal } from 'react-dom'
 import useOnClickListener from '../../Toolbar/useOnClickListener'
 import FloatingLinkEditor from '../../Toolbar/FloatingLinkEditor'
 import pluginsList from '../../Toolbar/toolbarIconsList'
+import { INSERT_EXCALIDRAW_COMMAND } from '../../plugin/ExcalidrawPlugin'
 
 const LowPriority = 3
 
@@ -362,6 +363,13 @@ export default function ToolbarPlugin() {
           </Select>
         </FormControl>
         <Divider />
+        <button
+          onClick={() => {
+            editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined)
+          }}
+        >
+          Exclidraw
+        </button>
       </div>
       {isLink &&
         createPortal(<FloatingLinkEditor editor={hookEditor} />, document.body)}

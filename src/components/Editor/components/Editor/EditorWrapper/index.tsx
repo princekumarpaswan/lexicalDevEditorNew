@@ -21,6 +21,7 @@ import lexicalEditorConfig from '../config'
 import ImagesPlugin from '../plugin/ImagePlugin'
 import { ClearEditorPlugin } from '../plugin/LexicalClearEditorPlugin'
 import ToolbarPlugin from './newToolbar/index'
+import ExcalidrawPlugin from '../plugin/ExcalidrawPlugin'
 // import Toolbar from '../Toolbar'
 // import NewToolbar from '../NewToolbar'
 type EditorWrapperProps = {
@@ -64,6 +65,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
         <HistoryPlugin />
         <HistoryPlugin />
         <ImagesPlugin captionsEnabled={false} />
+        <ExcalidrawPlugin/>
         <ListPlugin />
         <LinkPlugin />
         <MyOnChangePlugin onChange={onEditorChange} />
