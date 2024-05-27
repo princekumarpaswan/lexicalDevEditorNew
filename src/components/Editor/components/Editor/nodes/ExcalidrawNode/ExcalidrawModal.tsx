@@ -226,6 +226,7 @@ export default function ExcalidrawModal({
       <div
         className="ExcalidrawModal__modal"
         ref={excaliDrawModelRef}
+        style={{marginTop: "70px"}}
         tabIndex={-1}>
         <div className="ExcalidrawModal__row">
           {discardModalOpen && <ShowDiscardDialog />}
