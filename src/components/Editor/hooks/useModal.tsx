@@ -1,59 +1,59 @@
-import * as React from 'react'
-import { useState, useCallback, useMemo } from 'react'
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
 
-import ModalWrapper from '../components/ui/Modal'
+import {useCallback, useMemo, useState} from 'react';
 
-interface ModalContent {
-  title: string
-  content: React.ReactNode
-  closeOnClickOutside?: boolean
-}
+import Modal from '../components/ui/Modal';
 
 export default function useModal(): [
-  React.ReactNode | null,
-  (
-    title: string,
-    getContent: (onClose: () => void) => React.ReactNode,
-    closeOnClickOutside?: boolean
-  ) => void
+  JSX.Element | null,
+  (title: string, showModal: (onClose: () => void) => JSX.Element) => void,
 ] {
-  const [modalContent, setModalContent] = useState<ModalContent | null>(null)
+  const [modalContent, setModalContent] = useState<null | {
+    closeOnClickOutside: boolean;
+    content: JSX.Element;
+    title: string;
+  }>(null);
 
   const onClose = useCallback(() => {
-    setModalContent(null)
-  }, [])
+    setModalContent(null);
+  }, []);
 
   const modal = useMemo(() => {
     if (modalContent === null) {
-      return null
+      return null;
     }
-    const { title, content, closeOnClickOutside } = modalContent
+    const {title, content, closeOnClickOutside} = modalContent;
     return (
-      <ModalWrapper
+      <Modal
         onClose={onClose}
         title={title}
-        open={!!modalContent}
-        closeOnClickOutside={closeOnClickOutside}
-      >
+        closeOnClickOutside={closeOnClickOutside}>
         {content}
-      </ModalWrapper>
-    )
-  }, [modalContent, onClose])
+      </Modal>
+    );
+  }, [modalContent, onClose]);
 
   const showModal = useCallback(
     (
       title: string,
-      getContent: (onClose: () => void) => React.ReactNode,
-      closeOnClickOutside = false
+      // eslint-disable-next-line no-shadow
+      getContent: (onClose: () => void) => JSX.Element,
+      closeOnClickOutside = false,
     ) => {
       setModalContent({
         closeOnClickOutside,
         content: getContent(onClose),
         title,
-      })
+      });
     },
-    [onClose]
-  )
+    [onClose],
+  );
 
-  return [modal, showModal]
+  return [modal, showModal];
 }

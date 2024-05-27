@@ -37,6 +37,8 @@ import useOnClickListener from '../../Toolbar/useOnClickListener'
 import FloatingLinkEditor from '../../Toolbar/FloatingLinkEditor'
 import pluginsList from '../../Toolbar/toolbarIconsList'
 import { INSERT_EXCALIDRAW_COMMAND } from '../../plugin/ExcalidrawPlugin'
+import { EmbedConfigs } from '../../plugin/AutoEmbedPlugin'
+import { INSERT_EMBED_COMMAND } from '@lexical/react/LexicalAutoEmbedPlugin'
 
 const LowPriority = 3
 
@@ -370,10 +372,25 @@ export default function ToolbarPlugin() {
         >
           Exclidraw
         </button>
+        {EmbedConfigs.map((embedConfig) => (
+          <button
+            key={embedConfig.type}
+            onClick={() => {
+              editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type)
+            }}
+            // className="item"
+          >
+            {/* {embedConfig.icon} */}
+            <span className="text">{embedConfig.contentName}</span>
+          </button>
+        ))}
+        {isLink &&
+          createPortal(
+            <FloatingLinkEditor editor={hookEditor} />,
+            document.body,
+          )}
+        {modal}
       </div>
-      {isLink &&
-        createPortal(<FloatingLinkEditor editor={hookEditor} />, document.body)}
-      {modal}
     </>
   )
 }

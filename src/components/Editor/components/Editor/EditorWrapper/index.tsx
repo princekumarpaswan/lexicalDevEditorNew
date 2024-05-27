@@ -22,6 +22,8 @@ import ImagesPlugin from '../plugin/ImagePlugin'
 import { ClearEditorPlugin } from '../plugin/LexicalClearEditorPlugin'
 import ToolbarPlugin from './newToolbar/index'
 import ExcalidrawPlugin from '../plugin/ExcalidrawPlugin'
+import YouTubePlugin from '../plugin/YouTubePlugin'
+import AutoEmbedPlugin from '../plugin/AutoEmbedPlugin'
 // import Toolbar from '../Toolbar'
 // import NewToolbar from '../NewToolbar'
 type EditorWrapperProps = {
@@ -66,10 +68,11 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
         <HistoryPlugin />
         <ImagesPlugin captionsEnabled={false} />
         <ExcalidrawPlugin/>
+        <YouTubePlugin/>
         <ListPlugin />
         <LinkPlugin />
+        <AutoEmbedPlugin/>
         <MyOnChangePlugin onChange={onEditorChange} />
-
         <ClearEditorPlugin />
       </Box>
     </LexicalComposer>

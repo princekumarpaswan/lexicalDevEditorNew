@@ -66,6 +66,7 @@ type Props = {
   ) => void
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useCallbackRefState = () => {
   const [refValue, setRefValue] =
     React.useState<ExcalidrawImperativeAPI | null>(null)
