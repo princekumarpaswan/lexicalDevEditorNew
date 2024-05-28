@@ -4,6 +4,7 @@ import { routes } from './routes'
 import { AuthContext, AuthProvider } from './context/AuthContext/AuthContext'
 import Login from './pages/Login'
 
+
 const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
   const { state } = useContext(AuthContext)
 

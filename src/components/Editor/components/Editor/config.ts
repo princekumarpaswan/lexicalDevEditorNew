@@ -1,4 +1,4 @@
-import lexicalEditorTheme from '../../theme/lexicalEditorTheme'
+// import lexicalEditorTheme from '../../theme/lexicalEditorTheme'
 
 import { AutoLinkNode, LinkNode } from '@lexical/link'
 import { HeadingNode, QuoteNode } from '@lexical/rich-text'
@@ -10,6 +10,7 @@ import { ExcalidrawNode } from './nodes/ExcalidrawNode'
 import { YouTubeNode } from './nodes/youtubeNode/YouTubeNode'
 import { TweetNode } from './nodes/TweetNode/TweetNode'
 import { FigmaNode } from './nodes/figmaNode/FigmaNode'
+import PlaygroundEditorTheme from '../../../../themes/PlaygroundEditorTheme'
 
 // Catch any errors that occur during Lexical updates and log them
 // or throw them as needed. If you don't throw them, Lexical will
@@ -21,7 +22,7 @@ function onError(error: Error) {
 
 const lexicalEditorConfig = {
   namespace: 'MyEditor',
-  theme: lexicalEditorTheme,
+  theme: PlaygroundEditorTheme,
   onError,
   nodes: [
     HeadingNode,
@@ -39,7 +40,10 @@ const lexicalEditorConfig = {
     ExcalidrawNode,
     YouTubeNode,
     TweetNode,
-    FigmaNode
+    FigmaNode,
+    TableNode,
+    TableCellNode,
+    TableRowNode,
   ],
 }
 

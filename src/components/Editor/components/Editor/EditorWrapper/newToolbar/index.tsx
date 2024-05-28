@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { mergeRegister } from '@lexical/utils'
 import {
@@ -5,6 +6,7 @@ import {
   $isRangeSelection,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
+  COMMAND_PRIORITY_CRITICAL,
   FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
   REDO_COMMAND,
@@ -39,6 +41,8 @@ import pluginsList from '../../Toolbar/toolbarIconsList'
 import { INSERT_EXCALIDRAW_COMMAND } from '../../plugin/ExcalidrawPlugin'
 import { EmbedConfigs } from '../../plugin/AutoEmbedPlugin'
 import { INSERT_EMBED_COMMAND } from '@lexical/react/LexicalAutoEmbedPlugin'
+import { InsertTableDialog } from '../../plugin/TablePlugin'
+import useModal from '../../../../hooks/useModal'
 
 const LowPriority = 3
 
@@ -58,6 +62,8 @@ export default function ToolbarPlugin() {
   const [, setCodeBlock] = useState(false)
   const [age, setAge] = useState('Normal')
   const [align, setAlign] = useState('')
+  const [newModal, showModal] = useModal()
+  const [activeEditor, setActiveEditor] = useState(editor)
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection()
@@ -69,6 +75,19 @@ export default function ToolbarPlugin() {
       setCodeBlock(selection.hasFormat('code'))
     }
   }, [])
+
+  useEffect(() => {
+    return editor.registerCommand(
+      SELECTION_CHANGE_COMMAND,
+      (_payload, newEditor) => {
+        $updateToolbar();
+        setActiveEditor(newEditor);
+        return false;
+      },
+      COMMAND_PRIORITY_CRITICAL,
+    );
+  }, [editor, $updateToolbar]);
+
 
   useEffect(() => {
     return mergeRegister(
@@ -384,12 +403,24 @@ export default function ToolbarPlugin() {
             <span className="text">{embedConfig.contentName}</span>
           </button>
         ))}
+        <button
+          onClick={() => {
+            showModal('Insert Table', (onClose) => (
+              <InsertTableDialog activeEditor={activeEditor} onClose={onClose} />
+            ))
+          }}
+          className="item"
+        >
+          <i className="icon table" />
+          <span className="text">Table</span>
+        </button>
         {isLink &&
           createPortal(
             <FloatingLinkEditor editor={hookEditor} />,
             document.body,
           )}
         {modal}
+        {newModal}
       </div>
     </>
   )

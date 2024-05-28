@@ -24,6 +24,13 @@ import ToolbarPlugin from './newToolbar/index'
 import ExcalidrawPlugin from '../plugin/ExcalidrawPlugin'
 import YouTubePlugin from '../plugin/YouTubePlugin'
 import AutoEmbedPlugin from '../plugin/AutoEmbedPlugin'
+import { TableContext } from '../plugin/TablePlugin'
+import TableCellResizer from '../plugin/TableCellResizer'
+import { useSettings } from '../../../../../context/SettingsContext'
+import TableOfContentsPlugin from '../plugin/TableOfContentsPlugin'
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin'
+import PlaygroundEditorTheme from '../../../../../themes/PlaygroundEditorTheme'
+
 // import Toolbar from '../Toolbar'
 // import NewToolbar from '../NewToolbar'
 type EditorWrapperProps = {
@@ -40,41 +47,65 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
     }
   }, [initialContent])
 
+  const {
+    settings: {
+      isCollab,
+      isRichText,
+      showTableOfContents,
+      tableCellMerge,
+      tableCellBackgroundColor,
+    },
+  } = useSettings()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const text = isCollab
+    ? 'Enter some collaborative rich text...'
+    : isRichText
+      ? 'Enter some rich text...'
+      : 'Enter some plain text...'
   return (
     <LexicalComposer
-      initialConfig={{...lexicalEditorConfig, editorState: editorState }}
+      initialConfig={{ ...lexicalEditorConfig, editorState: editorState }}
     >
+      <TableContext>
+        <>
+          <ToolbarPlugin />
+          {/* <Toolbar/> */}
+          <Box
+            sx={{
+              position: 'relative',
+              background: 'white',
+              color: 'black',
+              width: '100%',
+              margin: 'auto',
+              border: 1,
+              minHeight: '450px',
+            }}
+          >
+            <RichTextPlugin
+              contentEditable={<MuiContentEditable />}
+              placeholder={<Box sx={placeHolderSx}>Enter your text here</Box>}
+              ErrorBoundary={LexicalErrorBoundary}
+            />
 
-      <ToolbarPlugin/>
-      {/* <Toolbar/> */}
-      <Box
-        sx={{
-          position: 'relative',
-          background: 'white',
-          color: 'black',
-          width: '100%',
-          margin: 'auto',
-          border: 1,
-          minHeight: "450px"
-        }}
-      >
-        <RichTextPlugin
-          contentEditable={<MuiContentEditable />}
-          placeholder={<Box sx={placeHolderSx}>Enter your text here</Box>}
-          ErrorBoundary={LexicalErrorBoundary}
-        />
-
-        <HistoryPlugin />
-        <HistoryPlugin />
-        <ImagesPlugin captionsEnabled={false} />
-        <ExcalidrawPlugin/>
-        <YouTubePlugin/>
-        <ListPlugin />
-        <LinkPlugin />
-        <AutoEmbedPlugin/>
-        <MyOnChangePlugin onChange={onEditorChange} />
-        <ClearEditorPlugin />
-      </Box>
+            <HistoryPlugin />
+            <HistoryPlugin />
+            <ImagesPlugin captionsEnabled={false} />
+            <ExcalidrawPlugin />
+            <YouTubePlugin />
+            <ListPlugin />
+            <LinkPlugin />
+            <AutoEmbedPlugin />
+            <MyOnChangePlugin onChange={onEditorChange} />
+            <ClearEditorPlugin />
+            <TablePlugin
+              hasCellMerge={tableCellMerge}
+              hasCellBackgroundColor={tableCellBackgroundColor}
+            />
+            <TableCellResizer />
+            <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
+          </Box>
+        </>
+      </TableContext>
     </LexicalComposer>
   )
 }
@@ -98,4 +129,3 @@ function MyOnChangePlugin({ onChange }: MyOnChangePluginProps) {
 
   return null
 }
-
