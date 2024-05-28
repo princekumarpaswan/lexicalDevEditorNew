@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { BaseLayout } from '../../components/BaseLayout'
 import {
   Autocomplete,
@@ -7,14 +8,12 @@ import {
   FormControl,
   IconButton,
   InputLabel,
-  MenuItem,
   Select,
   TextField,
   Typography,
 } from '@mui/material'
 import { Key, useEffect, useState } from 'react'
 import {
-  // contentReviewer,
   assignContentWritter,
   getAdminBYRoll,
   getTutorialDetail,
@@ -23,6 +22,7 @@ import {
 import SnackbarComponent from '../../components/SnackBar'
 import { useNavigate } from 'react-router-dom'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { useDebounce } from '../../hooks/useDebounce'
 
 interface Tutorial {
   id: string
@@ -59,8 +59,6 @@ function AssignTutorialContent() {
   const [tutorialDetail, setTutorialDetail] = useState<
     TutorialDetail | undefined
   >()
-  // const getrole = useContext(AuthContext)
-  // const data = getrole?.state?.user?.role
   const [selectedSubTopic, setSelectedSubTopic] = useState('')
 
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -68,18 +66,26 @@ function AssignTutorialContent() {
   const [errorMsg, setErrorMsg] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSearch = async (searchQuery: string) => {
-    if (searchQuery) {
-      try {
-        const response = await searchTutorial(searchQuery)
-        setResults(response.data)
-      } catch (error) {
-        alert(error)
-      }
-    } else {
-      setResults([])
-    }
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
+
+  const handleSearch = (searchQuery: string) => {
+    setSearchQuery(searchQuery)
   }
+
+  useEffect(() => {
+    if (debouncedSearchQuery) {
+      const fetchData = async () => {
+        try {
+          const response = await searchTutorial(debouncedSearchQuery)
+          setResults(response.data)
+        } catch (error) {
+          alert(error)
+        }
+      }
+      fetchData()
+    }
+  }, [debouncedSearchQuery])
 
   useEffect(() => {
     if (selectedValue?.id) {
@@ -92,19 +98,28 @@ function AssignTutorialContent() {
   }, [selectedValue])
 
   useEffect(() => {
-    if (results.length > 0) {
-      const options = results.map((e) => ({ label: e.tutorialName, id: e.id }))
-      setOptions(options)
+    if (searchQuery) {
+      if (results.length > 0) {
+        const options = results.map((e) => ({
+          label: e.tutorialName,
+          id: e.id,
+        }))
+        setOptions(options)
+      } else {
+        setOptions([])
+      }
+    } else {
+      setOptions([])
     }
-  }, [results])
+  }, [searchQuery, results])
 
   const handleAdmin = async () => {
-    const response = await getAdminBYRoll()
-    setAllAdminData(response.data)
-  }
-
-  const handleSelectedAdmin = (value: string) => {
-    setSelectedAdmin(value)
+    try {
+      const response = await getAdminBYRoll()
+      setAllAdminData(response.data)
+    } catch (error) {
+      console.error('Error fetching admins:', error)
+    }
   }
 
   const handleSelectedSubTopic = (e: string) => {
@@ -132,10 +147,6 @@ function AssignTutorialContent() {
     }
   }
 
-  // const callReviewerApi = async (id: string) => {
-  //   await contentReviewer(subTopicId, id)
-  // }
-
   const callWritterApi = async (id: string) => {
     setIsLoading(true)
     await assignContentWritter(subTopicId, id)
@@ -148,9 +159,32 @@ function AssignTutorialContent() {
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault()
     if (selectedAdmin && selectedSubTopic && selectedValue?.label) {
-      const data = selectedAdmin.split(' ')
-      const userDetail = data.splice(-2)
-      callWritterApi(userDetail[1])
+      callWritterApi(selectedAdmin)
+    }
+  }
+
+  const [adminOptions, setAdminOptions] = useState<
+    { label: string; id: string }[]
+  >([])
+  const [adminInputValue, setAdminInputValue] = useState('')
+
+  const filterAdmins = (query: string) => {
+    if (query) {
+      const filteredAdmins = allAdminData.filter(
+        (admin) =>
+          admin.fullName.toLowerCase().includes(query.toLowerCase()) ||
+          admin.role.toLowerCase().includes(query.toLowerCase()),
+      )
+      const contentWritersAndAdmins = filteredAdmins.filter(
+        (admin) => admin.role === 'CONTENT_WRITER' || admin.role === 'ADMIN',
+      )
+      const options = contentWritersAndAdmins.map((admin) => ({
+        label: `${admin.fullName} - ${admin.role}`,
+        id: admin.id,
+      }))
+      setAdminOptions(options)
+    } else {
+      setAdminOptions([])
     }
   }
 
@@ -219,27 +253,27 @@ function AssignTutorialContent() {
         </FormControl>
 
         <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel id="content-writer-select-label">
-            Select Content Writer
-          </InputLabel>
-          <Select
-            id="Select Content Writer"
-            value={selectedAdmin || ''}
-            label="Select Content Writer"
-            onChange={(e) => handleSelectedAdmin(e.target.value)}
-          >
-            {allAdminData?.map(
-              (admin) =>
-                admin.role !== 'CONTENT_REVIEWER' && (
-                  <MenuItem
-                    value={`${admin.fullName} ${admin.role} ${admin.id}`}
-                    key={admin.id}
-                  >
-                    {`${admin.fullName} - ${admin.role}`}
-                  </MenuItem>
-                ),
+          <Autocomplete
+            id="search-Admin"
+            options={adminOptions}
+            onInputChange={(_e, value) => {
+              setAdminInputValue(value)
+              filterAdmins(value)
+            }}
+            onChange={(_e, value) => {
+              if (typeof value === 'string') {
+                setSelectedAdmin(value)
+              } else if (value) {
+                setSelectedAdmin(value.id)
+              } else {
+                setSelectedAdmin('')
+              }
+            }}
+            inputValue={adminInputValue}
+            renderInput={(params) => (
+              <TextField {...params} label="Search Content Writer Name" />
             )}
-          </Select>
+          />
         </FormControl>
 
         <Button

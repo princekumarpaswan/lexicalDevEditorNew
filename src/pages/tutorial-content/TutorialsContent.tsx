@@ -169,6 +169,13 @@ function TutorialContent() {
 
   const [isLoading, setLoading] = useState(true)
 
+  const [filteredWriters, setFilteredWriters] = useState<
+    { id: string; name: string }[]
+  >([])
+  const [filteredReviewers, setFilteredReviewers] = useState<
+    { id: string; name: string }[]
+  >([])
+
   useEffect(() => {
     const handleSearchByContentName = async (value: string) => {
       try {
@@ -401,17 +408,30 @@ function TutorialContent() {
                           <Autocomplete
                             freeSolo
                             id="search-content-writers"
-                            options={contentWriters.map(
+                            options={filteredWriters.map(
                               (writer) => writer.name,
                             )}
                             value={selectedWriter}
+                            onInputChange={async (_event, newInputValue) => {
+                              if (newInputValue) {
+                                const filtered = contentWriters.filter(
+                                  (writer) =>
+                                    writer.name
+                                      .toLowerCase()
+                                      .includes(newInputValue.toLowerCase()),
+                                )
+                                setFilteredWriters(filtered)
+                              } else {
+                                setFilteredWriters([])
+                              }
+                            }}
                             onChange={(_event, newValue) =>
                               setSelectedWriter(newValue || '')
                             }
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                label="Filter by Content Writer Name"
+                                label="Search Content Writer Name"
                               />
                             )}
                             sx={{ width: 280 }}
@@ -421,17 +441,30 @@ function TutorialContent() {
                           <Autocomplete
                             freeSolo
                             id="search-content-reviewers"
-                            options={contentReviewers.map(
+                            options={filteredReviewers.map(
                               (reviewer) => reviewer.name,
                             )}
                             value={selectedReviewer}
+                            onInputChange={async (_event, newInputValue) => {
+                              if (newInputValue) {
+                                const filtered = contentReviewers.filter(
+                                  (reviewer) =>
+                                    reviewer.name
+                                      .toLowerCase()
+                                      .includes(newInputValue.toLowerCase()),
+                                )
+                                setFilteredReviewers(filtered)
+                              } else {
+                                setFilteredReviewers([])
+                              }
+                            }}
                             onChange={(_event, newValue) =>
                               setSelectedReviewer(newValue || '')
                             }
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                label="Filter by Content Reviewer Name"
+                                label="Search Content Reviewer Name"
                               />
                             )}
                             sx={{ width: 280 }}
@@ -562,7 +595,9 @@ function TutorialContent() {
                           {(page - 1) * rowsPerPage + index + 1}
                         </TableCell>
                         <TableCell align="left">
-                           <Link to={`/tutorial-content/subtopic-write-content/${row.subTopicName.split(' ').join('-')}/${row.id}`}>
+                          <Link
+                            to={`/tutorial-content/subtopic-write-content/${row.subTopicName.split(' ').join('-')}/${row.id}`}
+                          >
                             {row.subTopicName}
                           </Link>
                         </TableCell>
