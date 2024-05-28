@@ -94,8 +94,6 @@ const AddTopicAndSubTopic: React.FC = () => {
           const response = await createTopicsAndSubTopicsAI(payload)
           const { id } = response.data
           pollForData(id)
-          setSnackbarOpen(true)
-          setSnackbarMessage('Topics and Subtopics Generated Successfully')
         } catch (error) {
           console.error(
             'Error creating topics and subtopics with text input:',
@@ -165,6 +163,8 @@ const AddTopicAndSubTopic: React.FC = () => {
           )
           setTopics(mappedTopics)
           setLoading(false)
+          setSnackbarOpen(true)
+          setSnackbarMessage('Topics and Subtopics Generated Successfully')
         } else {
           console.error('Topics data is not an array:', response.data)
           setTimeout(() => pollForData(id), 30000)
@@ -458,6 +458,7 @@ const AddTopicAndSubTopic: React.FC = () => {
               gap: 4,
               justifyContent: 'center',
               alignItems: 'center',
+              height: 570,
             }}
           >
             <CircularProgress />

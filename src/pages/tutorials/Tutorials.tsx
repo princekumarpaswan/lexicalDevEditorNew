@@ -574,7 +574,7 @@ function Tutorials() {
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  height: '100%',
+                  height: 570,
                 }}
               >
                 <CircularProgress />
