@@ -311,6 +311,7 @@ function TutorialContent() {
     )?.id
 
     fetchTutorialContent(selectedStatus, selectedReviewerId, selectedWriterId)
+    setShowFilterBox(null)
   }
 
   const handleFilterCancel = () => {
@@ -325,6 +326,7 @@ function TutorialContent() {
     setSelectedReviewer('')
     setSelectedStatus('')
     fetchTutorialContent()
+    setShowFilterBox(null)
   }
 
   useEffect(() => {
@@ -447,6 +449,7 @@ function TutorialContent() {
                             )}
                             value={selectedWriter}
                             onInputChange={async (_event, newInputValue) => {
+                              console.log('Writer Input:', newInputValue)
                               if (newInputValue) {
                                 const filtered = contentWriters.filter(
                                   (writer) =>
@@ -573,14 +576,16 @@ function TutorialContent() {
                 )}
               />
 
-              <Button
-                variant="contained"
-                onClick={() =>
-                  navigate('/tutorial-content/assign-tutorial-content')
-                }
-              >
-                Assign Tutorial Content
-              </Button>
+              {role == 'ADMIN' && (
+                <Button
+                  variant="contained"
+                  onClick={() =>
+                    navigate('/tutorial-content/assign-tutorial-content')
+                  }
+                >
+                  Assign Tutorial Content
+                </Button>
+              )}
             </div>
           </div>
         </Box>
@@ -704,101 +709,115 @@ function TutorialContent() {
                     ))}
                 </TableBody> */}
                 <TableBody>
-                  {(updatedSubtopics.length > 0
-                    ? updatedSubtopics
-                    : tutorialContentData
-                  ).map((row: tutorial, index: number) => (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell align="left">
-                        {(page - 1) * rowsPerPage + index + 1}
-                      </TableCell>
-                      <TableCell align="left">
-                        <Link
-                          to={`/tutorial-content/subtopic-write-content/${row.subTopicName
-                            .split(' ')
-                            .join('-')}/${row.id}`}
-                        >
-                          {row.subTopicName}
-                        </Link>
-                      </TableCell>
-                      <TableCell align="center">
-                        {row.topicInfo.topicName}
-                      </TableCell>
-                      <TableCell align="center">
-                        {row.tutorialInfo.tutorialName}
-                      </TableCell>
-                      <TableCell align="center">
-                        {row.writerInfo
-                          ? row.writerInfo.fullName
-                          : 'Not Assigned'}
-                      </TableCell>
-                      <TableCell align="center">
-                        {row.reviewerInfo
-                          ? row.reviewerInfo.fullName
-                          : 'Not Assigned'}
-                      </TableCell>
-                      <TableCell align="center">
-                        <Chip
-                          label={
-                            row.status === 'TO_ASSIGN'
-                              ? 'Not Assigned'
-                              : row.status === 'CONTENT_ASSIGNED'
-                                ? 'Content Assigned'
+                  {updatedSubtopics.length > 0 ||
+                  tutorialContentData.length > 0 ? (
+                    (updatedSubtopics.length > 0
+                      ? updatedSubtopics
+                      : tutorialContentData
+                    ).map((row: tutorial, index: number) => (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={row.id}
+                      >
+                        <TableCell align="left">
+                          {(page - 1) * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell align="left">
+                          <Link
+                            to={`/tutorial-content/subtopic-write-content/${row.subTopicName
+                              .split(' ')
+                              .join('-')}/${row.id}`}
+                          >
+                            {row.subTopicName}
+                          </Link>
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.topicInfo.topicName}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.tutorialInfo.tutorialName}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.writerInfo
+                            ? row.writerInfo.fullName
+                            : 'Not Assigned'}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.reviewerInfo
+                            ? row.reviewerInfo.fullName
+                            : 'Not Assigned'}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            label={
+                              row.status === 'TO_ASSIGN'
+                                ? 'Not Assigned'
+                                : row.status === 'CONTENT_ASSIGNED'
+                                  ? 'Content Assigned'
+                                  : row.status === 'CONTENT_DONE'
+                                    ? 'Content Done'
+                                    : row.status === 'REVIEW_ASSIGNED'
+                                      ? 'Review Assigned'
+                                      : row.status === 'CHANGES_NEEDED'
+                                        ? 'Changes Needed'
+                                        : row.status === 'READY_TO_PUBLISH'
+                                          ? 'Ready To Publish'
+                                          : row.status === 'PUBLISHED'
+                                            ? 'Published'
+                                            : row.status === 'NOT_PUBLISHED'
+                                              ? 'Unpublished'
+                                              : row.status
+                            }
+                            color={
+                              row.status === 'CONTENT_ASSIGNED'
+                                ? 'default'
                                 : row.status === 'CONTENT_DONE'
-                                  ? 'Content Done'
+                                  ? 'primary'
                                   : row.status === 'REVIEW_ASSIGNED'
-                                    ? 'Review Assigned'
+                                    ? 'default'
                                     : row.status === 'CHANGES_NEEDED'
-                                      ? 'Changes Needed'
+                                      ? 'warning'
                                       : row.status === 'READY_TO_PUBLISH'
-                                        ? 'Ready To Publish'
+                                        ? 'info'
                                         : row.status === 'PUBLISHED'
-                                          ? 'Published'
+                                          ? 'success'
                                           : row.status === 'NOT_PUBLISHED'
-                                            ? 'Unpublished'
-                                            : row.status
-                          }
-                          color={
-                            row.status === 'CONTENT_ASSIGNED'
-                              ? 'default'
-                              : row.status === 'CONTENT_DONE'
-                                ? 'primary'
-                                : row.status === 'REVIEW_ASSIGNED'
-                                  ? 'default'
-                                  : row.status === 'CHANGES_NEEDED'
-                                    ? 'warning'
-                                    : row.status === 'READY_TO_PUBLISH'
-                                      ? 'info'
-                                      : row.status === 'PUBLISHED'
-                                        ? 'success'
-                                        : row.status === 'NOT_PUBLISHED'
-                                          ? 'error'
-                                          : 'default'
-                          }
-                          style={{
-                            fontWeight: 'bold',
-                            padding: '6px 12px',
-                            borderRadius: '20px',
-                            width: '180px',
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <Switch
-                          {...label}
-                          checked={row.status === 'PUBLISHED'}
-                          disabled={
-                            row.status !== 'READY_TO_PUBLISH' &&
-                            row.status !== 'PUBLISHED' &&
-                            row.status !== 'NOT_PUBLISHED'
-                          }
-                          onChange={() =>
-                            handleSubtopicStatusChange(row.id, row.status)
-                          }
-                        />
+                                            ? 'error'
+                                            : 'default'
+                            }
+                            style={{
+                              fontWeight: 'bold',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              width: '180px',
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Switch
+                            {...label}
+                            checked={row.status === 'PUBLISHED'}
+                            disabled={
+                              row.status !== 'READY_TO_PUBLISH' &&
+                              row.status !== 'PUBLISHED' &&
+                              row.status !== 'NOT_PUBLISHED'
+                            }
+                            onChange={() =>
+                              handleSubtopicStatusChange(row.id, row.status)
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={Columndata.length} align="center">
+                        No Content Match the Filter you have applied
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             )}

@@ -281,6 +281,7 @@ function Tutorials() {
       setFilterStatus(null)
       setPage(0)
       setShowFilterBox(null)
+      setCategoryInputValue('')
 
       // Fetch all tutorials
       const response = await listAllTutorials(1, rowsPerPage)
@@ -311,6 +312,7 @@ function Tutorials() {
 
   const handleFilterCancel = () => {
     setFilterCategoryId(null)
+    setCategoryInputValue('')
     setFilterStatus(null)
     setShowFilterBox(null)
   }
@@ -597,59 +599,67 @@ function Tutorials() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {tutorials.map((tutorial, index) => (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={tutorial.ID}
-                    >
-                      <TableCell align="left">
-                        {page * rowsPerPage + index + 1}
-                      </TableCell>
-                      <TableCell align="left">
-                        {tutorial.tutorialName}
-                      </TableCell>
-                      <TableCell align="center">
-                        {tutorial.categoryName}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        sx={{ display: 'flex', justifyContent: 'center' }}
+                  {tutorials.length > 0 ? (
+                    tutorials.map((tutorial, index) => (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={tutorial.ID}
                       >
-                        <p
-                          style={{
-                            backgroundColor:
-                              tutorial.status === 'LISTED'
-                                ? 'darkgreen'
-                                : 'darkred',
-                            color: 'white',
-                            fontWeight: 'bold',
-                            padding: 3,
-                            borderRadius: 20,
-                            width: 100,
-                          }}
+                        <TableCell align="left">
+                          {page * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell align="left">
+                          {tutorial.tutorialName}
+                        </TableCell>
+                        <TableCell align="center">
+                          {tutorial.categoryName}
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{ display: 'flex', justifyContent: 'center' }}
                         >
-                          {tutorial.status}
-                        </p>
-                      </TableCell>
-                      <TableCell align="center">
-                        <BorderColorIcon
-                          onClick={() => handleEditClick(tutorial.ID)}
-                          sx={{ cursor: 'pointer', color: 'blue' }}
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <Switch
-                          checked={tutorial.status === 'LISTED'}
-                          onChange={(event) =>
-                            handleSwitchChange(event, tutorial.ID)
-                          }
-                          {...label}
-                        />
+                          <p
+                            style={{
+                              backgroundColor:
+                                tutorial.status === 'LISTED'
+                                  ? 'darkgreen'
+                                  : 'darkred',
+                              color: 'white',
+                              fontWeight: 'bold',
+                              padding: 3,
+                              borderRadius: 20,
+                              width: 100,
+                            }}
+                          >
+                            {tutorial.status}
+                          </p>
+                        </TableCell>
+                        <TableCell align="center">
+                          <BorderColorIcon
+                            onClick={() => handleEditClick(tutorial.ID)}
+                            sx={{ cursor: 'pointer', color: 'blue' }}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Switch
+                            checked={tutorial.status === 'LISTED'}
+                            onChange={(event) =>
+                              handleSwitchChange(event, tutorial.ID)
+                            }
+                            {...label}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        No Content Match the Filter you have applied
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             )}
