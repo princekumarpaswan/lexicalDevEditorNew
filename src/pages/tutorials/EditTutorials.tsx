@@ -13,6 +13,12 @@ import {
   Theme,
   Divider,
   SelectChangeEvent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  CircularProgress,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState } from 'react'
@@ -23,12 +29,13 @@ import {
   createTopicInfo,
   deleteSubTopicInfo,
   deleteTopicInfo,
+  deleteTutorialInfo,
   getTutorialDetails,
   updateSubTopicInfo,
   updateTopicInfo,
   updateTutorialInfo,
 } from '../../api/tutorialAPI'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import SnackbarComponent from '../../components/SnackBar'
 // import { accessToken } from '../../constants/ApiConstant'
 
@@ -84,6 +91,7 @@ function getStyles(
 }
 
 function EditTutorials() {
+  const navigate = useNavigate()
   const { tutorialId = '' } = useParams<{ tutorialId: string }>()
   const [topics, setTopics] = useState<Topic[]>([
     {
@@ -114,6 +122,30 @@ function EditTutorials() {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [isLoading, setLoading] = useState(true)
+
+  const [openDeleteTutorialModal, setOpenDeleteTutorialModal] = useState(false)
+
+  const handleDeleteTutorial = async () => {
+    try {
+      await deleteTutorialInfo(tutorialId)
+      setSnackbarOpen(true)
+      setSnackbarMessage('Tutorial Deleted Successfully')
+      navigate(`/tutorials`)
+    } catch (error) {
+      setSnackbarOpen(true)
+      setErrorMsg('Cannot delete the Tutorial')
+      console.error('Error deleting tutorial:', error)
+    }
+    setOpenDeleteTutorialModal(false)
+  }
+
+  const handleOpenDeleteTutorialMoadal = () => {
+    setOpenDeleteTutorialModal(true)
+  }
+  const handleClose = () => {
+    setOpenDeleteTutorialModal(false)
+  }
 
   // const handleChange = (
   //   event: SelectChangeEvent<typeof selectedCategories>,
@@ -145,9 +177,10 @@ function EditTutorials() {
   useEffect(() => {
     const fetchTutorialDetails = async () => {
       try {
+        setLoading(true)
         const response = await getTutorialDetails(tutorialId)
         const { data } = response
-
+        setLoading(false)
         setTutorialTitle(data.tutorialName)
         setTutorialDescription(data.tutorialDescription)
         setSelectedCategories([data.categoryInfo.categoryName])
@@ -415,7 +448,7 @@ function EditTutorials() {
     } catch (error) {
       console.error('Error deleting sub-topic info:', error)
       setSnackbarOpen(true)
-      setErrorMsg('Something Went Wrong')
+      setErrorMsg('Cannot Delete Published Sub- Topic')
     }
   }
 
@@ -430,11 +463,6 @@ function EditTutorials() {
           return updatedTopics
         })
       } else {
-        if (topicToDelete.subTopics.length > 0) {
-          alert('Please delete all sub-topics before deleting the topic.')
-          return
-        }
-
         await deleteTopicInfo(topicToDelete.topicId)
 
         setTopics((prevTopics) => {
@@ -448,7 +476,9 @@ function EditTutorials() {
     } catch (error) {
       console.error('Error deleting topic info:', error)
       setSnackbarOpen(true)
-      setErrorMsg('Something Went Wrong')
+      setErrorMsg(
+        'Cannot delete Topic , because some of its Sub-topics are in published state',
+      )
     }
   }
 
@@ -553,110 +583,84 @@ function EditTutorials() {
           <Typography variant="h5" component="h5" pb={1}>
             Edit Tutorial information
           </Typography>
-          {/* <Button variant="contained" sx={{ backgroundColor: 'darkred' }}>
-            Delete Tutorial
-          </Button> */}
+          <DeleteIcon
+            aria-label="delete"
+            onClick={handleOpenDeleteTutorialMoadal}
+            sx={{ color: 'red', cursor: 'pointer', fontSize: 32 }}
+          />
         </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            border: 1,
-            padding: 4,
-            borderRadius: 4,
-            borderColor: 'darkgray',
-            boxShadow: 0.7,
-          }}
-        >
-          <TextField
-            label="Tutorial Title"
-            required
-            value={tutorialTitle}
-            onChange={handleTutorialTitleChange}
-          />
+        {openDeleteTutorialModal && (
+          <Dialog
+            open={openDeleteTutorialModal}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {'Delete  Tutorial'}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Are you sure, you want to delete the whole Tutorial <br />
+                <span style={{ color: 'red', fontSize: 13, marginTop: 9 }}>
+                  Note: Deleting Tutorial will delete all its respective Topics
+                  and Sub-Topics, if none of them are in Published state.
+                </span>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Cancel</Button>
+              <Button
+                variant="contained"
+                onClick={handleDeleteTutorial}
+                autoFocus
+              >
+                Yes, Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
 
-          <TextField
-            required
-            label="Tutorial Description"
-            multiline
-            rows={3}
-            value={tutorialDescription}
-            onChange={handleTutorialDescriptionChange}
-          />
+        {isLoading ? (
           <Box
             sx={{
               display: 'flex',
-              justifyContent: 'space-between',
+              justifyContent: 'center',
               alignItems: 'center',
+              height: 570,
             }}
           >
-            <FormControl sx={{ width: '100%' }}>
-              <Select
-                displayEmpty
-                value={selectedCategories}
-                onChange={handleCategoryChange}
-                input={<OutlinedInput />}
-                renderValue={(selected) => {
-                  if (selected.length === 0) {
-                    return <em>Select Category</em>
-                  }
-
-                  return selected.join(', ')
-                }}
-                MenuProps={MenuProps}
-                inputProps={{ 'aria-label': 'Without label' }}
-              >
-                <MenuItem disabled value="">
-                  <em>Select Category</em>
-                </MenuItem>
-                {categories.map((category) => (
-                  <MenuItem
-                    key={category.id}
-                    value={category.categoryName}
-                    style={getStyles(
-                      category.categoryName,
-                      selectedCategories,
-                      theme,
-                    )}
-                  >
-                    {category.categoryName}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <CircularProgress />
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}>
-            <Button
-              variant="contained"
-              onClick={handleSaveTutorialInfo}
-              disabled={!tutorialChanges}
-            >
-              Update Tutorial Info
-            </Button>
-          </Box>
-        </Box>
-        <Divider />
-        <Typography variant="h5" component="h5" pb={1}>
-          Edit Topic and Sub-topic information
-        </Typography>
-
-        {topics &&
-          topics.length > 0 &&
-          topics.map((topic, topicIndex) => (
+        ) : (
+          <Box>
             <Box
-              key={topicIndex}
-              mt={topicIndex !== 0 ? 2 : 0}
-              mb={topicIndex === topics.length - 1 ? 2 : 0}
               sx={{
-                border: 1.7,
-                padding: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                border: 1,
+                padding: 4,
                 borderRadius: 4,
                 borderColor: 'darkgray',
                 boxShadow: 0.7,
-                boxSizing: 'border-box',
               }}
             >
+              <TextField
+                label="Tutorial Title"
+                required
+                value={tutorialTitle}
+                onChange={handleTutorialTitleChange}
+              />
+
+              <TextField
+                required
+                label="Tutorial Description"
+                multiline
+                rows={3}
+                value={tutorialDescription}
+                onChange={handleTutorialDescriptionChange}
+              />
               <Box
                 sx={{
                   display: 'flex',
@@ -664,149 +668,239 @@ function EditTutorials() {
                   alignItems: 'center',
                 }}
               >
-                <Typography variant="h5" component="h5" pb={1}>
-                  Topic {topicIndex + 1}
-                </Typography>
-                {topics.length > 1 && (
-                  <DeleteIcon
-                    aria-label="delete"
-                    onClick={() => handleDeleteTopic(topicIndex)}
-                    sx={{ color: 'red', cursor: 'pointer' }}
-                  />
-                )}
+                <FormControl sx={{ width: '100%' }}>
+                  <Select
+                    displayEmpty
+                    value={selectedCategories}
+                    onChange={handleCategoryChange}
+                    input={<OutlinedInput />}
+                    renderValue={(selected) => {
+                      if (selected.length === 0) {
+                        return <em>Select Category</em>
+                      }
+
+                      return selected.join(', ')
+                    }}
+                    MenuProps={MenuProps}
+                    inputProps={{ 'aria-label': 'Without label' }}
+                  >
+                    <MenuItem disabled value="">
+                      <em>Select Category</em>
+                    </MenuItem>
+                    {categories.map((category) => (
+                      <MenuItem
+                        key={category.id}
+                        value={category.categoryName}
+                        style={getStyles(
+                          category.categoryName,
+                          selectedCategories,
+                          theme,
+                        )}
+                      >
+                        {category.categoryName}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
-              <TextField
-                label="Topic Name"
-                value={topic.topicName || ''}
-                onChange={(e) =>
-                  handleTopicNameChange(topicIndex, e.target.value)
-                }
-                fullWidth
-                sx={{ marginTop: 2 }}
-              />
-              <TextField
-                label="Topic Description"
-                sx={{ marginTop: 1.5 }}
-                value={topic.topicDescription || ''}
-                onChange={(e) =>
-                  handleTopicDescriptionChange(topicIndex, e.target.value)
-                }
-                fullWidth
-              />
               <Box
                 sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}
               >
                 <Button
                   variant="contained"
-                  onClick={() => handleUpdateTopicInfo(topicIndex)}
-                  disabled={!topicChanges[topicIndex]}
+                  onClick={handleSaveTutorialInfo}
+                  disabled={!tutorialChanges}
                 >
-                  {topic.topicId ? 'Update Topic Info' : 'Create Topic Info'}
-                </Button>
-              </Box>
-              {topic.subTopics &&
-                topic.subTopics.length > 0 &&
-                topic.subTopics.map((subTopic, subTopicIndex) => (
-                  <Box
-                    key={subTopicIndex}
-                    ml={4}
-                    mt={subTopicIndex !== 0 ? 3 : 1}
-                    mb={subTopicIndex === topic.subTopics.length - 1 ? 1 : 1}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        marginTop: 3,
-                      }}
-                    >
-                      <Typography variant="subtitle1" component="h6" pb={1}>
-                        {subTopicIndex + 1}-
-                      </Typography>
-                      <Box sx={{ width: '100%' }}>
-                        <TextField
-                          label="Sub-Topic Name"
-                          value={subTopic.subTopicName}
-                          onChange={(e) =>
-                            handleSubTopicNameChange(
-                              topicIndex,
-                              subTopicIndex,
-                              e.target.value,
-                            )
-                          }
-                          fullWidth
-                        />
-                        <TextField
-                          label="Sub-Topic Description"
-                          multiline
-                          sx={{ marginTop: 0.8 }}
-                          value={subTopic.subTopicDescription}
-                          onChange={(e) =>
-                            handleSubTopicDescriptionChange(
-                              topicIndex,
-                              subTopicIndex,
-                              e.target.value,
-                            )
-                          }
-                          fullWidth
-                        />
-                      </Box>
-
-                      <DeleteIcon
-                        aria-label="delete"
-                        onClick={() =>
-                          handleDeleteSubTopic(topicIndex, subTopicIndex)
-                        }
-                        sx={{ color: 'red', cursor: 'pointer' }}
-                      />
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: 2,
-                      }}
-                    >
-                      <Button
-                        variant="contained"
-                        onClick={() =>
-                          handleUpdateSubTopicInfo(topicIndex, subTopicIndex)
-                        }
-                        sx={{ mt: 2 }}
-                        disabled={!subTopicChanges[topicIndex][subTopicIndex]}
-                      >
-                        {subTopic.subTopicId
-                          ? 'Update Sub-Topic'
-                          : 'Create Sub-Topic'}
-                      </Button>
-                    </Box>
-                  </Box>
-                ))}
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  marginTop: 2,
-                }}
-              >
-                <Button
-                  variant="contained"
-                  onClick={() => handleAddSubTopic(topicIndex)}
-                >
-                  Add Sub-Topic
+                  Update Tutorial Info
                 </Button>
               </Box>
             </Box>
-          ))}
+            <Divider />
+            <Typography variant="h5" component="h5" pb={1}>
+              Edit Topic and Sub-topic information
+            </Typography>
 
-        <Box>
-          <Button variant="contained" onClick={handleAddTopic}>
-            Add Topic
-          </Button>
-        </Box>
+            {topics &&
+              topics.length > 0 &&
+              topics.map((topic, topicIndex) => (
+                <Box
+                  key={topicIndex}
+                  mt={topicIndex !== 0 ? 2 : 0}
+                  mb={topicIndex === topics.length - 1 ? 2 : 0}
+                  sx={{
+                    border: 1.7,
+                    padding: 2,
+                    borderRadius: 4,
+                    borderColor: 'darkgray',
+                    boxShadow: 0.7,
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography variant="h5" component="h5" pb={1}>
+                      Topic {topicIndex + 1}
+                    </Typography>
+                    {topics.length > 1 && (
+                      <DeleteIcon
+                        aria-label="delete"
+                        onClick={() => handleDeleteTopic(topicIndex)}
+                        sx={{ color: 'red', cursor: 'pointer' }}
+                      />
+                    )}
+                  </Box>
+                  <TextField
+                    label="Topic Name"
+                    value={topic.topicName || ''}
+                    onChange={(e) =>
+                      handleTopicNameChange(topicIndex, e.target.value)
+                    }
+                    fullWidth
+                    sx={{ marginTop: 2 }}
+                  />
+                  <TextField
+                    label="Topic Description"
+                    sx={{ marginTop: 1.5 }}
+                    value={topic.topicDescription || ''}
+                    onChange={(e) =>
+                      handleTopicDescriptionChange(topicIndex, e.target.value)
+                    }
+                    fullWidth
+                  />
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      marginTop: 3,
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      onClick={() => handleUpdateTopicInfo(topicIndex)}
+                      disabled={!topicChanges[topicIndex]}
+                    >
+                      {topic.topicId
+                        ? 'Update Topic Info'
+                        : 'Create Topic Info'}
+                    </Button>
+                  </Box>
+                  {topic.subTopics &&
+                    topic.subTopics.length > 0 &&
+                    topic.subTopics.map((subTopic, subTopicIndex) => (
+                      <Box
+                        key={subTopicIndex}
+                        ml={4}
+                        mt={subTopicIndex !== 0 ? 3 : 1}
+                        mb={
+                          subTopicIndex === topic.subTopics.length - 1 ? 1 : 1
+                        }
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            marginTop: 3,
+                          }}
+                        >
+                          <Typography variant="subtitle1" component="h6" pb={1}>
+                            {subTopicIndex + 1}-
+                          </Typography>
+                          <Box sx={{ width: '100%' }}>
+                            <TextField
+                              label="Sub-Topic Name"
+                              value={subTopic.subTopicName}
+                              onChange={(e) =>
+                                handleSubTopicNameChange(
+                                  topicIndex,
+                                  subTopicIndex,
+                                  e.target.value,
+                                )
+                              }
+                              fullWidth
+                            />
+                            <TextField
+                              label="Sub-Topic Description"
+                              multiline
+                              sx={{ marginTop: 0.8 }}
+                              value={subTopic.subTopicDescription}
+                              onChange={(e) =>
+                                handleSubTopicDescriptionChange(
+                                  topicIndex,
+                                  subTopicIndex,
+                                  e.target.value,
+                                )
+                              }
+                              fullWidth
+                            />
+                          </Box>
+
+                          <DeleteIcon
+                            aria-label="delete"
+                            onClick={() =>
+                              handleDeleteSubTopic(topicIndex, subTopicIndex)
+                            }
+                            sx={{ color: 'red', cursor: 'pointer' }}
+                          />
+                        </Box>
+
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginTop: 2,
+                          }}
+                        >
+                          <Button
+                            variant="contained"
+                            onClick={() =>
+                              handleUpdateSubTopicInfo(
+                                topicIndex,
+                                subTopicIndex,
+                              )
+                            }
+                            sx={{ mt: 2 }}
+                            disabled={
+                              !subTopicChanges[topicIndex][subTopicIndex]
+                            }
+                          >
+                            {subTopic.subTopicId
+                              ? 'Update Sub-Topic'
+                              : 'Create Sub-Topic'}
+                          </Button>
+                        </Box>
+                      </Box>
+                    ))}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      marginTop: 2,
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      onClick={() => handleAddSubTopic(topicIndex)}
+                    >
+                      Add Sub-Topic
+                    </Button>
+                  </Box>
+                </Box>
+              ))}
+
+            <Box>
+              <Button variant="contained" onClick={handleAddTopic}>
+                Add Topic
+              </Button>
+            </Box>
+          </Box>
+        )}
       </Box>
       <SnackbarComponent
         severity="success"

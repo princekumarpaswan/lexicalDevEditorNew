@@ -265,6 +265,25 @@ export const updateSubTopicInfo = async ({
   }
 }
 
+// API for deleting a Tutorial
+export const deleteTutorialInfo = async (tutorialId: string) => {
+  try {
+    const accessToken = getAccessToken()
+    const response = await axios.delete(
+      `${BASE_URL}/tutorials/delete/${tutorialId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error deleting tutorial info:', error)
+    throw error
+  }
+}
+
 // API to Delete Sub-topic :
 export const deleteSubTopicInfo = async (subTopicId: string) => {
   try {
