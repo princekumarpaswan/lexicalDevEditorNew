@@ -4,6 +4,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  Chip,
   FormControl,
   Grid,
   IconButton,
@@ -30,6 +31,7 @@ import {
   GetAdminUsersByRole,
   contentTutorial,
   searchSubTopics,
+  updateSubtopicStatus,
 } from '../../api/tutorialContentAPI'
 import { BaseLayout } from '../../components/BaseLayout'
 import { AuthContext } from '../../context/AuthContext/AuthContext'
@@ -52,7 +54,7 @@ interface tutorial {
   createdAt: string
   id: string
   reviewerAssignedAt: string | null
-  reviewerInfo: null | string
+  reviewerInfo: { id: string; fullName: string }
   status: string
   subTopicDescription: string
   subTopicName: string
@@ -67,7 +69,7 @@ interface tutorial {
   }
   updatedAt: string
   writerAssignedAt: string | null
-  writerInfo: null | string
+  writerInfo: { id: string; fullName: string }
 }
 
 interface AdminUser {
@@ -175,6 +177,38 @@ function TutorialContent() {
   const [filteredReviewers, setFilteredReviewers] = useState<
     { id: string; name: string }[]
   >([])
+
+  const [updatedSubtopics, setUpdatedSubtopics] = useState<tutorial[]>([])
+
+  const handleSubtopicStatusChange = async (id: string, status: string) => {
+    try {
+      let newStatus: string
+      switch (status) {
+        case 'PUBLISHED':
+          newStatus = 'NOT_PUBLISHED'
+          break
+        case 'NOT_PUBLISHED':
+          newStatus = 'PUBLISHED'
+          break
+        case 'READY_TO_PUBLISH':
+          newStatus = 'PUBLISHED'
+          break
+        default:
+          return // Do nothing for other statuses
+      }
+
+      await updateSubtopicStatus(id, newStatus)
+      // Update the subtopic status in the local state
+      const updatedSubtopics = tutorialContentData.map((subtopic) =>
+        subtopic.id === id ? { ...subtopic, status: newStatus } : subtopic,
+      )
+      setUpdatedSubtopics(updatedSubtopics)
+      // You can also update the server data if needed
+      steTutorialContentData(updatedSubtopics)
+    } catch (error) {
+      console.error('Error updating subtopic status:', error)
+    }
+  }
 
   useEffect(() => {
     const handleSearchByContentName = async (value: string) => {
@@ -496,7 +530,7 @@ function TutorialContent() {
                           <MenuItem value="READY_TO_PUBLISH">
                             Ready To Publish
                           </MenuItem>
-                          <MenuItem value="UNPUBLISHED">Unpublished</MenuItem>
+                          <MenuItem value="NOT_PUBLISHED">Unpublished</MenuItem>
                           <MenuItem value="PUBLISHED">Published</MenuItem>
                         </TextField>
                       </Grid>
@@ -582,7 +616,7 @@ function TutorialContent() {
                     ))}
                   </TableRow>
                 </TableHead>
-                <TableBody>
+                {/* <TableBody>
                   {tutorialContentData.length > 0 &&
                     tutorialContentData.map((row: tutorial, index: number) => (
                       <TableRow
@@ -608,19 +642,163 @@ function TutorialContent() {
                           {row.tutorialInfo.tutorialName}
                         </TableCell>
                         <TableCell align="center">
-                          {row.writerInfo ? 'row.writerInfo ' : 'Not Assigned'}
+                          {row.writerInfo
+                            ? row.writerInfo.fullName
+                            : 'Not Assigned'}
                         </TableCell>
                         <TableCell align="center">
                           {row.reviewerInfo
-                            ? 'row.reviewerInfo'
+                            ? row.reviewerInfo.fullName
                             : 'Not Assigned'}
                         </TableCell>
-                        <TableCell align="center">{row.status}</TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            label={
+                              row.status === 'TO_ASSIGN'
+                                ? 'Not Assigned'
+                                : row.status === 'CONTENT_ASSIGNED'
+                                  ? 'Content Assigned'
+                                  : row.status === 'CONTENT_DONE'
+                                    ? 'Content Done'
+                                    : row.status === 'REVIEW_ASSIGNED'
+                                      ? 'Review Assigned'
+                                      : row.status === 'CHANGES_NEEDED'
+                                        ? 'Changes Needed'
+                                        : row.status === 'READY_TO_PUBLISH'
+                                          ? 'Ready To Publish'
+                                          : row.status === 'PUBLISHED'
+                                            ? 'Published'
+                                            : row.status === 'UNPUBLISHED'
+                                              ? 'Unpublished'
+                                              : row.status
+                            }
+                            color={
+                              row.status === 'CONTENT_ASSIGNED'
+                                ? 'default'
+                                : row.status === 'CONTENT_DONE'
+                                  ? 'primary'
+                                  : row.status === 'REVIEW_ASSIGNED'
+                                    ? 'default'
+                                    : row.status === 'CHANGES_NEEDED'
+                                      ? 'warning'
+                                      : row.status === 'READY_TO_PUBLISH'
+                                        ? 'info'
+                                        : row.status === 'PUBLISHED'
+                                          ? 'success'
+                                          : row.status === 'UNPUBLISHED'
+                                            ? 'error'
+                                            : 'default'
+                            }
+                            style={{
+                              fontWeight: 'bold',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              width: '180px',
+                            }}
+                          />
+                        </TableCell>
                         <TableCell align="center">
                           {<Switch {...label} />}
                         </TableCell>
                       </TableRow>
                     ))}
+                </TableBody> */}
+                <TableBody>
+                  {(updatedSubtopics.length > 0
+                    ? updatedSubtopics
+                    : tutorialContentData
+                  ).map((row: tutorial, index: number) => (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                      <TableCell align="left">
+                        {(page - 1) * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell align="left">
+                        <Link
+                          to={`/tutorial-content/subtopic-write-content/${row.subTopicName
+                            .split(' ')
+                            .join('-')}/${row.id}`}
+                        >
+                          {row.subTopicName}
+                        </Link>
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.topicInfo.topicName}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.tutorialInfo.tutorialName}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.writerInfo
+                          ? row.writerInfo.fullName
+                          : 'Not Assigned'}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.reviewerInfo
+                          ? row.reviewerInfo.fullName
+                          : 'Not Assigned'}
+                      </TableCell>
+                      <TableCell align="center">
+                        <Chip
+                          label={
+                            row.status === 'TO_ASSIGN'
+                              ? 'Not Assigned'
+                              : row.status === 'CONTENT_ASSIGNED'
+                                ? 'Content Assigned'
+                                : row.status === 'CONTENT_DONE'
+                                  ? 'Content Done'
+                                  : row.status === 'REVIEW_ASSIGNED'
+                                    ? 'Review Assigned'
+                                    : row.status === 'CHANGES_NEEDED'
+                                      ? 'Changes Needed'
+                                      : row.status === 'READY_TO_PUBLISH'
+                                        ? 'Ready To Publish'
+                                        : row.status === 'PUBLISHED'
+                                          ? 'Published'
+                                          : row.status === 'NOT_PUBLISHED'
+                                            ? 'Unpublished'
+                                            : row.status
+                          }
+                          color={
+                            row.status === 'CONTENT_ASSIGNED'
+                              ? 'default'
+                              : row.status === 'CONTENT_DONE'
+                                ? 'primary'
+                                : row.status === 'REVIEW_ASSIGNED'
+                                  ? 'default'
+                                  : row.status === 'CHANGES_NEEDED'
+                                    ? 'warning'
+                                    : row.status === 'READY_TO_PUBLISH'
+                                      ? 'info'
+                                      : row.status === 'PUBLISHED'
+                                        ? 'success'
+                                        : row.status === 'NOT_PUBLISHED'
+                                          ? 'error'
+                                          : 'default'
+                          }
+                          style={{
+                            fontWeight: 'bold',
+                            padding: '6px 12px',
+                            borderRadius: '20px',
+                            width: '180px',
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <Switch
+                          {...label}
+                          checked={row.status === 'PUBLISHED'}
+                          disabled={
+                            row.status !== 'READY_TO_PUBLISH' &&
+                            row.status !== 'PUBLISHED' &&
+                            row.status !== 'NOT_PUBLISHED'
+                          }
+                          onChange={() =>
+                            handleSubtopicStatusChange(row.id, row.status)
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             )}

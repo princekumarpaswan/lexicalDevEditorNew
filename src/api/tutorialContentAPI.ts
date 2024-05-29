@@ -267,3 +267,26 @@ export const getTopicsAndSubTopicsFileUploadAI = async (id: string) => {
     throw error
   }
 }
+
+// API to update the Subtopic Status
+export const updateSubtopicStatus = async (
+  id: string,
+  newSubTopicStatus: string ,
+) => {
+  try {
+    const accessToken = getAccessToken()
+    const response = await axios.patch(
+      `${BASE_URL}/subtopics/update/status/${id}`,
+      { newSubTopicStatus },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error updating subtopic status:', error)
+    throw error
+  }
+}
