@@ -43,6 +43,7 @@ import { EmbedConfigs } from '../../plugin/AutoEmbedPlugin'
 import { INSERT_EMBED_COMMAND } from '@lexical/react/LexicalAutoEmbedPlugin'
 import { InsertTableDialog } from '../../plugin/TablePlugin'
 import useModal from '../../../../hooks/useModal'
+import { InsertEquationDialog } from '../../plugin/EquationsPlugin'
 
 const LowPriority = 3
 
@@ -80,14 +81,13 @@ export default function ToolbarPlugin() {
     return editor.registerCommand(
       SELECTION_CHANGE_COMMAND,
       (_payload, newEditor) => {
-        $updateToolbar();
-        setActiveEditor(newEditor);
-        return false;
+        $updateToolbar()
+        setActiveEditor(newEditor)
+        return false
       },
       COMMAND_PRIORITY_CRITICAL,
-    );
-  }, [editor, $updateToolbar]);
-
+    )
+  }, [editor, $updateToolbar])
 
   useEffect(() => {
     return mergeRegister(
@@ -406,13 +406,27 @@ export default function ToolbarPlugin() {
         <button
           onClick={() => {
             showModal('Insert Table', (onClose) => (
-              <InsertTableDialog activeEditor={activeEditor} onClose={onClose} />
+              <InsertTableDialog
+                activeEditor={activeEditor}
+                onClose={onClose}
+              />
             ))
           }}
-          className="item"
         >
-          <i className="icon table" />
           <span className="text">Table</span>
+        </button>
+
+        <button
+          onClick={() => {
+            showModal('Insert Equation', (onClose) => (
+              <InsertEquationDialog
+                activeEditor={activeEditor}
+                onClose={onClose}
+              />
+            ))
+          }}
+        >
+          <span className="text">Equation</span>
         </button>
         {isLink &&
           createPortal(

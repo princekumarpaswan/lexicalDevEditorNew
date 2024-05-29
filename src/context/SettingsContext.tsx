@@ -1,4 +1,3 @@
-
 import type {SettingName} from '../appSettings';
 
 import * as React from 'react';
@@ -48,7 +47,6 @@ export const SettingsContext = ({
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useSettings = (): SettingsContextShape => {
   return useContext(Context);
 };

@@ -1,7 +1,7 @@
 // import lexicalEditorTheme from '../../theme/lexicalEditorTheme'
 
 import { AutoLinkNode, LinkNode } from '@lexical/link'
-import { HeadingNode, QuoteNode } from '@lexical/rich-text'
+import { HeadingNode } from '@lexical/rich-text'
 import { CodeHighlightNode, CodeNode } from '@lexical/code'
 import { TableNode, TableCellNode, TableRowNode } from '@lexical/table'
 import { ListNode, ListItemNode } from '@lexical/list'
@@ -11,10 +11,8 @@ import { YouTubeNode } from './nodes/youtubeNode/YouTubeNode'
 import { TweetNode } from './nodes/TweetNode/TweetNode'
 import { FigmaNode } from './nodes/figmaNode/FigmaNode'
 import PlaygroundEditorTheme from '../../../../themes/PlaygroundEditorTheme'
+import { EquationNode } from './nodes/EquationNode'
 
-// Catch any errors that occur during Lexical updates and log them
-// or throw them as needed. If you don't throw them, Lexical will
-// try to recover gracefully without losing user data.
 function onError(error: Error) {
   // eslint-disable-next-line no-console
   console.error(error)
@@ -28,12 +26,9 @@ const lexicalEditorConfig = {
     HeadingNode,
     ListNode,
     ListItemNode,
-    QuoteNode,
+    // QuoteNode,
     CodeNode,
     CodeHighlightNode,
-    TableNode,
-    TableCellNode,
-    TableRowNode,
     AutoLinkNode,
     LinkNode,
     ImageNode,
@@ -41,8 +36,9 @@ const lexicalEditorConfig = {
     YouTubeNode,
     TweetNode,
     FigmaNode,
-    TableNode,
+    EquationNode,
     TableCellNode,
+    TableNode,
     TableRowNode,
   ],
 }
