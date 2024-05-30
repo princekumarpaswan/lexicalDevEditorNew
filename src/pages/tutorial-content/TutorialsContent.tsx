@@ -41,6 +41,8 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useDebounce } from '../../hooks/useDebounce'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { ThemeContext } from '../../ThemeContext'
+import { IThemeMode } from '../../ThemeContext/types'
 
 interface ColumnData {
   id: string
@@ -150,6 +152,18 @@ function TutorialContent() {
   const navigate = useNavigate()
   const { state } = useContext(AuthContext)
   const role = state.user?.role
+
+  const themeContext = useContext(ThemeContext)
+
+  if (!themeContext) {
+    throw new Error('YourComponent must be used within a ThemeContextProvider')
+  }
+
+  const { themeMode } = themeContext
+
+  const linkStyle = {
+    color: themeMode === IThemeMode.DARK ? 'lightblue' : 'darkblue',
+  }
 
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -729,6 +743,7 @@ function TutorialContent() {
                             to={`/tutorial-content/subtopic-write-content/${row.subTopicName
                               .split(' ')
                               .join('-')}/${row.id}`}
+                            style={linkStyle}
                           >
                             {row.subTopicName}
                           </Link>
