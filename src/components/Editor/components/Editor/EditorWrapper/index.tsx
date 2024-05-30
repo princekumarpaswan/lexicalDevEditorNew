@@ -30,6 +30,7 @@ import { useSettings } from '../../../../../context/SettingsContext'
 import TableOfContentsPlugin from '../plugin/TableOfContentsPlugin'
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin'
 import EquationsPlugin from '../plugin/EquationsPlugin'
+import CommentPlugin from '../plugin/CommentPlugin'
 
 // import Toolbar from '../Toolbar'
 // import NewToolbar from '../NewToolbar'
@@ -87,7 +88,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
                 placeholder={<Box sx={placeHolderSx}>Enter your text here</Box>}
                 ErrorBoundary={LexicalErrorBoundary}
               />
-
+              <CommentPlugin />
               <HistoryPlugin />
               <HistoryPlugin />
               <ImagesPlugin captionsEnabled={false} />
@@ -103,7 +104,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
                 hasCellBackgroundColor={tableCellBackgroundColor}
               />
               <TableCellResizer />
-              <EquationsPlugin/>
+              <EquationsPlugin />
               <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
             </Box>
           </>

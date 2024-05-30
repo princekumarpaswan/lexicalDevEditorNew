@@ -12,6 +12,7 @@ import { TweetNode } from './nodes/TweetNode/TweetNode'
 import { FigmaNode } from './nodes/figmaNode/FigmaNode'
 import PlaygroundEditorTheme from '../../../../themes/PlaygroundEditorTheme'
 import { EquationNode } from './nodes/EquationNode'
+import { MarkNode } from '@lexical/mark'
 
 function onError(error: Error) {
   // eslint-disable-next-line no-console
@@ -40,6 +41,7 @@ const lexicalEditorConfig = {
     TableCellNode,
     TableNode,
     TableRowNode,
+    MarkNode,
   ],
 }
 
