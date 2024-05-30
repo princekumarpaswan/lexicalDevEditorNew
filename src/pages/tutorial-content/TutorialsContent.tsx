@@ -168,31 +168,106 @@ function TutorialContent() {
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [showFilterBox, setShowFilterBox] = useState<null | HTMLElement>(null)
-  const [selectedWriter, setSelectedWriter] = useState<string>('')
-  const [selectedReviewer, setSelectedReviewer] = useState<string>('')
-  const [contentWriters, setContentWriters] = useState<
-    { id: string; name: string }[]
-  >([])
-  const [contentReviewers, setContentReviewers] = useState<
-    { id: string; name: string }[]
-  >([])
   const [selectedStatus, setSelectedStatus] = useState<string>('')
-
   const [tutorialContentData, steTutorialContentData] = useState<tutorial[]>([])
-
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
-
   const [isLoading, setLoading] = useState(true)
-
-  const [filteredWriters, setFilteredWriters] = useState<
-    { id: string; name: string }[]
-  >([])
-  const [filteredReviewers, setFilteredReviewers] = useState<
-    { id: string; name: string }[]
-  >([])
-
   const [updatedSubtopics, setUpdatedSubtopics] = useState<tutorial[]>([])
+  //
+  //
+  //
+  const [contentWriters, setContentWriters] = useState<AdminUser[]>([])
+  const [contentReviewers, setContentReviewers] = useState<AdminUser[]>([])
+  const [writerInputValue, setWriterInputValue] = useState('')
+  const [filteredWriters, setFilteredWriters] = useState<any[]>([])
+  const [reviewerInputValue, setReviewerInputValue] = useState('')
+  const [filteredReviewers, setFilteredReviewers] = useState<any[]>([])
+  // const [selectedWriter, setSelectedWriter] = useState<string>('')
+  // const [selectedReviewer, setSelectedReviewer] = useState<string>('')
+
+  // const [contentWriters, setContentWriters] = useState<
+  //   { id: string; name: string }[]
+  // >([])
+  // const [contentReviewers, setContentReviewers] = useState<
+  //   { id: string; name: string }[]
+  // >([])
+
+  // const [filteredWriters, setFilteredWriters] = useState<
+  //   { id: string; name: string }[]
+  // >([])
+  // const [filteredReviewers, setFilteredReviewers] = useState<
+  //   { id: string; name: string }[]
+  // >([])
+
+  useEffect(() => {
+    const fetchAdminUsers = async () => {
+      try {
+        const writersResponse = await GetAdminUsersByRole('CONTENT_WRITER')
+        const reviewersResponse = await GetAdminUsersByRole('CONTENT_REVIEWER')
+        const writers = writersResponse.data
+        const reviewers = reviewersResponse.data
+        console.log('Reviewers:', reviewers)
+        setContentWriters(writers)
+        setContentReviewers(reviewers)
+      } catch (error) {
+        console.error('Error fetching admin users:', error)
+      }
+    }
+
+    fetchAdminUsers()
+  }, [])
+
+  useEffect(() => {
+    if (writerInputValue.trim() === '') {
+      setFilteredWriters([])
+    } else {
+      const filtered = contentWriters.filter((writer) =>
+        writer.fullName.toLowerCase().includes(writerInputValue.toLowerCase()),
+      )
+      setFilteredWriters(filtered.map((writer) => writer.fullName))
+    }
+  }, [writerInputValue, contentWriters])
+
+  useEffect(() => {
+    if (reviewerInputValue.trim() === '') {
+      setFilteredReviewers([])
+    } else {
+      const filtered = contentReviewers.filter((reviewer) =>
+        reviewer.fullName
+          .toLowerCase()
+          .includes(reviewerInputValue.toLowerCase()),
+      )
+      setFilteredReviewers(filtered.map((reviewer) => reviewer.fullName))
+    }
+  }, [reviewerInputValue, contentReviewers])
+  ///
+  ///
+  //
+
+  // const fetchAdminUsers = async () => {
+  //   try {
+  //     const writersResponse = await GetAdminUsersByRole('CONTENT_WRITER')
+  //     const writers = writersResponse.data.map((writer: AdminUser) => ({
+  //       id: writer.id,
+  //       name: writer.fullName,
+  //     }))
+  //     setContentWriters(writers)
+
+  //     const reviewersResponse = await GetAdminUsersByRole('CONTENT_REVIEWER')
+  //     const reviewers = reviewersResponse.data.map((reviewer: AdminUser) => ({
+  //       id: reviewer.id,
+  //       name: reviewer.fullName,
+  //     }))
+  //     setContentReviewers(reviewers)
+  //   } catch (error) {
+  //     console.error('Error fetching admin users:', error)
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   fetchAdminUsers()
+  // }, [])
 
   const handleSubtopicStatusChange = async (id: string, status: string) => {
     try {
@@ -267,30 +342,6 @@ function TutorialContent() {
   //   }
   // }
 
-  const fetchAdminUsers = async () => {
-    try {
-      const writersResponse = await GetAdminUsersByRole('CONTENT_WRITER')
-      const writers = writersResponse.data.map((writer: AdminUser) => ({
-        id: writer.id,
-        name: writer.fullName,
-      }))
-      setContentWriters(writers)
-
-      const reviewersResponse = await GetAdminUsersByRole('CONTENT_REVIEWER')
-      const reviewers = reviewersResponse.data.map((reviewer: AdminUser) => ({
-        id: reviewer.id,
-        name: reviewer.fullName,
-      }))
-      setContentReviewers(reviewers)
-    } catch (error) {
-      console.error('Error fetching admin users:', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchAdminUsers()
-  }, [])
-
   const toggleFilterBox = (event: React.MouseEvent<HTMLElement>) => {
     setShowFilterBox(showFilterBox ? null : event.currentTarget)
   }
@@ -318,29 +369,29 @@ function TutorialContent() {
 
   const handleFilterFetch = async () => {
     const selectedWriterId = contentWriters.find(
-      (writer) => writer.name === selectedWriter,
+      (writer) => writer.fullName === writerInputValue,
     )?.id
     const selectedReviewerId = contentReviewers.find(
-      (reviewer) => reviewer.name === selectedReviewer,
+      (reviewer) => reviewer.fullName === reviewerInputValue,
     )?.id
 
     fetchTutorialContent(selectedStatus, selectedReviewerId, selectedWriterId)
     setShowFilterBox(null)
   }
 
-  const handleFilterCancel = () => {
-    setShowFilterBox(null)
-    setSelectedWriter('')
-    setSelectedReviewer('')
-    setSelectedStatus('')
-  }
-
   const handleFilterReset = async () => {
-    setSelectedWriter('')
-    setSelectedReviewer('')
+    setWriterInputValue('')
+    setReviewerInputValue('')
     setSelectedStatus('')
     fetchTutorialContent()
     setShowFilterBox(null)
+  }
+
+  const handleFilterCancel = () => {
+    setShowFilterBox(null)
+    setWriterInputValue('')
+    setReviewerInputValue('')
+    setSelectedStatus('')
   }
 
   useEffect(() => {
@@ -457,6 +508,24 @@ function TutorialContent() {
                         {(role === 'ADMIN' || role === 'CONTENT_REVIEWER') && (
                           <Autocomplete
                             freeSolo
+                            options={filteredWriters}
+                            inputValue={writerInputValue}
+                            onInputChange={(_event, value) => {
+                              setWriterInputValue(value)
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Content Writer"
+                                variant="outlined"
+                              />
+                            )}
+                            sx={{ width: 240 }}
+                          />
+                        )}
+                        {/* {(role === 'ADMIN' || role === 'CONTENT_REVIEWER') && (
+                          <Autocomplete
+                            freeSolo
                             id="search-content-writers"
                             options={filteredWriters.map(
                               (writer) => writer.name,
@@ -487,8 +556,26 @@ function TutorialContent() {
                             )}
                             sx={{ width: 280 }}
                           />
-                        )}
+                        )} */}
                         {(role === 'ADMIN' || role === 'CONTENT_WRITER') && (
+                          <Autocomplete
+                            freeSolo
+                            options={filteredReviewers}
+                            inputValue={reviewerInputValue}
+                            onInputChange={(_event, value) => {
+                              setReviewerInputValue(value)
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Content Reviewer"
+                                variant="outlined"
+                              />
+                            )}
+                            sx={{ width: 240 }}
+                          />
+                        )}
+                        {/* {(role === 'ADMIN' || role === 'CONTENT_WRITER') && (
                           <Autocomplete
                             freeSolo
                             id="search-content-reviewers"
@@ -520,7 +607,7 @@ function TutorialContent() {
                             )}
                             sx={{ width: 280 }}
                           />
-                        )}
+                        )} */}
                       </Grid>
                       <Grid item>
                         <TextField
