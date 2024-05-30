@@ -1,11 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -81,6 +73,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createDOM(_config: EditorConfig): HTMLElement {
     const element = document.createElement(this.__inline ? 'span' : 'div');
     // EquationNodes should implement `user-action:none` in their CSS to avoid issues with deletion on Android.

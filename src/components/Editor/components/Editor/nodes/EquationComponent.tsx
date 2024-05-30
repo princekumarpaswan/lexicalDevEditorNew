@@ -1,10 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
@@ -17,12 +10,11 @@ import {
   NodeKey,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import * as React from 'react';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ErrorBoundary} from 'react-error-boundary';
 
-import EquationEditor from '../ui/EquationEditor';
-import KatexRenderer from '../ui/KatexRenderer';
+import EquationEditor from '../../ui/EquationEditor';
+import KatexRenderer from '../../ui/KatexRenderer';
 import {$isEquationNode} from './EquationNode';
 
 type EquationComponentProps = {

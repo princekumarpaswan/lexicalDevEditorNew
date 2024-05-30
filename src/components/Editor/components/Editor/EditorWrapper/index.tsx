@@ -29,6 +29,7 @@ import TableCellResizer from '../plugin/TableCellResizer'
 import { useSettings } from '../../../../../context/SettingsContext'
 import TableOfContentsPlugin from '../plugin/TableOfContentsPlugin'
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin'
+import EquationsPlugin from '../plugin/EquationsPlugin'
 
 // import Toolbar from '../Toolbar'
 // import NewToolbar from '../NewToolbar'
@@ -102,6 +103,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
                 hasCellBackgroundColor={tableCellBackgroundColor}
               />
               <TableCellResizer />
+              <EquationsPlugin/>
               <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
             </Box>
           </>
