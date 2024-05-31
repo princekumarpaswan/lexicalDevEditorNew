@@ -104,7 +104,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
                 hasCellBackgroundColor={tableCellBackgroundColor}
               />
               <TableCellResizer />
-              <EquationsPlugin />
+              <EquationsPlugin/>
               <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
             </Box>
           </>

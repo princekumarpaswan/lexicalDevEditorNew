@@ -267,3 +267,24 @@ export const getTopicsAndSubTopicsFileUploadAI = async (id: string) => {
     throw error
   }
 }
+
+export const getComments = async (
+  id = 'aab3469c-8c0f-4fb9-97f8-c755b5dc90ef',
+) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.get(
+      `${BASE_URL}/subtopics/thread/${id}`,
+      config,
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error fetching topics and subtopics:', error)
+    throw error
+  }
+}

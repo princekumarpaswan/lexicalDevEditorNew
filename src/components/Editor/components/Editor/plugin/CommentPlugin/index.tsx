@@ -61,6 +61,7 @@ import {
   CommentStore,
   createComment,
   createThread,
+  fetchCommentsAndAddToStore,
   Thread,
   useCommentStore,
 } from '../../../../../../commenting'
@@ -734,6 +735,11 @@ export default function CommentPlugin({
       return commentStore.registerCollaboration(provider)
     }
   }, [commentStore, providerFactory, yjsDocMap])
+
+    useEffect(() => {
+    // Fetch comments data and add it to the store
+    fetchCommentsAndAddToStore(commentStore, 'your_api_endpoint_here');
+  }, []);
 
   const cancelAddComment = useCallback(() => {
     editor.update(() => {
