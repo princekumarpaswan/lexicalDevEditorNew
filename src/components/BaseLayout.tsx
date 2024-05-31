@@ -18,7 +18,7 @@ import ListItemText from '@mui/material/ListItemText'
 import SchoolIcon from '@mui/icons-material/School'
 import SourceIcon from '@mui/icons-material/Source'
 import GroupIcon from '@mui/icons-material/Group'
-import { Button, Container } from '@mui/material'
+import { Button, Chip, Container } from '@mui/material'
 import ToggleTheme from './ToggleTheme/ToggleTheme'
 
 import { useNavigate } from 'react-router-dom'
@@ -230,7 +230,10 @@ export const BaseLayout: React.FC<{
                   ? '../../images/euronlogo.png'
                   : '../../images/Euron-darkmode-logo.png'
               }
-              style={{ width: 140 }}
+              style={{
+                width: theme.palette.mode === 'light' ? 135 : 135,
+                height: theme.palette.mode === 'light' ? 65 : 30,
+              }}
               alt="Logo"
             />
 
@@ -305,19 +308,19 @@ export const BaseLayout: React.FC<{
               }}
             >
               {open && (
-                <Button
-                  variant="text"
-                  color="primary"
-                  style={{ color: 'red' }}
+                <Chip
+                  color="error"
+                  label={'LOGOUT'}
+                  variant="outlined"
                   onClick={() => {
                     // LocalStorage.clear()
                     handleLogout()
                   }}
-                >
-                  LOGOUT
-                </Button>
+                  style={{ fontWeight: 500, fontSize: 15 }}
+                />
               )}
-              <Button style={{ color: 'red' }}>
+
+              <Button style={{ fontWeight: 800, color: 'red' }}>
                 {open == false && <ExitToAppIcon />}
               </Button>
             </ListItemButton>

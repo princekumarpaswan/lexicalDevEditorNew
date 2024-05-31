@@ -693,7 +693,7 @@ function TutorialContent() {
       </Box>
       <Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: 550 }}>
+          <TableContainer sx={{ maxHeight: 580 }}>
             {isLoading ? (
               <Box
                 sx={{
@@ -873,21 +873,23 @@ function TutorialContent() {
                                               : row.status
                             }
                             color={
-                              row.status === 'CONTENT_ASSIGNED'
-                                ? 'default'
-                                : row.status === 'CONTENT_DONE'
-                                  ? 'primary'
-                                  : row.status === 'REVIEW_ASSIGNED'
-                                    ? 'default'
-                                    : row.status === 'CHANGES_NEEDED'
-                                      ? 'warning'
-                                      : row.status === 'READY_TO_PUBLISH'
-                                        ? 'info'
-                                        : row.status === 'PUBLISHED'
-                                          ? 'success'
-                                          : row.status === 'NOT_PUBLISHED'
-                                            ? 'error'
-                                            : 'default'
+                              row.status == 'TO_ASSIGN'
+                                ? 'secondary'
+                                : row.status === 'CONTENT_ASSIGNED'
+                                  ? 'default'
+                                  : row.status === 'CONTENT_DONE'
+                                    ? 'primary'
+                                    : row.status === 'REVIEW_ASSIGNED'
+                                      ? 'default'
+                                      : row.status === 'CHANGES_NEEDED'
+                                        ? 'warning'
+                                        : row.status === 'READY_TO_PUBLISH'
+                                          ? 'info'
+                                          : row.status === 'PUBLISHED'
+                                            ? 'success'
+                                            : row.status === 'NOT_PUBLISHED'
+                                              ? 'error'
+                                              : 'default'
                             }
                             style={{
                               fontWeight: 'bold',

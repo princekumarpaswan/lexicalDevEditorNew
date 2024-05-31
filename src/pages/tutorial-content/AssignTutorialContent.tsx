@@ -90,8 +90,21 @@ function AssignTutorialContent() {
   useEffect(() => {
     if (selectedValue?.id) {
       const getGroupedValue = async () => {
-        const data = await getTutorialDetail(selectedValue?.id)
-        setTutorialDetail(data.data)
+        try {
+          const data = await getTutorialDetail(selectedValue?.id)
+          setTutorialDetail(data.data)
+          if (
+            data.data.topics.length === 0 ||
+            data.data.topics.every(
+              (topic: { subTopics: string }) => topic.subTopics.length === 0,
+            )
+          ) {
+            setErrorMsg('There are no topics in the selected tutorial')
+          }
+        } catch (error) {
+          console.error('Error fetching tutorial details:', error)
+          setErrorMsg('Failed to fetch tutorial details')
+        }
       }
       getGroupedValue()
     }
@@ -140,6 +153,7 @@ function AssignTutorialContent() {
   const handleSelectedValue = (
     value: string | { label: string; id: string } | null,
   ) => {
+    setErrorMsg('')
     if (typeof value === 'string') {
       setSelectedValue({ label: value, id: value })
     } else {
@@ -168,6 +182,14 @@ function AssignTutorialContent() {
   >([])
   const [adminInputValue, setAdminInputValue] = useState('')
 
+  const formatRole = (role: string) => {
+    return role
+      .toLowerCase()
+      .split('_')
+      .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+
   const filterAdmins = (query: string) => {
     if (query) {
       const filteredAdmins = allAdminData.filter(
@@ -179,7 +201,7 @@ function AssignTutorialContent() {
         (admin) => admin.role === 'CONTENT_WRITER' || admin.role === 'ADMIN',
       )
       const options = contentWritersAndAdmins.map((admin) => ({
-        label: `${admin.fullName} - ${admin.role}`,
+        label: `${admin.fullName} - ${formatRole(admin.role)}`,
         id: admin.id,
       }))
       setAdminOptions(options)
@@ -229,14 +251,27 @@ function AssignTutorialContent() {
         </FormControl>
 
         <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel htmlFor="grouped-native-select">Grouping</InputLabel>
+          <InputLabel htmlFor="grouped-native-select">
+            Select Sub-Topic
+          </InputLabel>
           <Select
             native
             defaultValue=""
+            value={selectedSubTopic || ''}
+            onFocus={() => {
+              if (
+                !selectedSubTopic &&
+                tutorialDetail &&
+                tutorialDetail.topics?.length > 0
+              ) {
+                setSelectedSubTopic(' ')
+              }
+            }}
             id="grouped-native-select"
             label="Grouping"
             onChange={(e) => handleSelectedSubTopic(e.target.value)}
           >
+            <option aria-label="" value="Selct item" />
             {tutorialDetail?.topics?.map((topic) => (
               <optgroup label={topic?.topicName} key={topic.id}>
                 {topic?.subTopics?.map((subTopic) => (
