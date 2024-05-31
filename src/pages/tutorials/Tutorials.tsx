@@ -339,7 +339,9 @@ function Tutorials() {
       setSnackbarOpen(true)
     } catch (error) {
       console.error('Error updating tutorial status:', error)
-      setErrorMsg('Cannot Update Tutorial Status')
+      setErrorMsg(
+        'Cannot Update Tutorial Status as, None of its  subtopic is in published state',
+      )
     }
   }
 
