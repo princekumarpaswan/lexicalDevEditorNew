@@ -19,6 +19,7 @@ import {
   DialogContentText,
   DialogActions,
   CircularProgress,
+  IconButton,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState } from 'react'
@@ -37,6 +38,7 @@ import {
 } from '../../api/tutorialAPI'
 import { useNavigate, useParams } from 'react-router-dom'
 import SnackbarComponent from '../../components/SnackBar'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 // import { accessToken } from '../../constants/ApiConstant'
 
 const getAccessToken = (): string => {
@@ -580,9 +582,25 @@ function EditTutorials() {
         autoComplete="off"
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="h5" component="h5" pb={1}>
-            Edit Tutorial information
-          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              marginBottom: 6,
+            }}
+          >
+            <IconButton
+              onClick={() => navigate(-1)}
+              color="inherit"
+              size="large"
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" component="h5">
+              Edit Tutorial information
+            </Typography>
+          </Box>
           <DeleteIcon
             aria-label="delete"
             onClick={handleOpenDeleteTutorialMoadal}

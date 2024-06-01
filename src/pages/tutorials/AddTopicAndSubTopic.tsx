@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { BaseLayout } from '../../components/BaseLayout'
 import {
@@ -55,6 +55,7 @@ const AddTopicAndSubTopic: React.FC = () => {
 
   const [textInput, setTextInput] = useState('')
   const [fileInput, setFileInput] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
@@ -101,7 +102,9 @@ const AddTopicAndSubTopic: React.FC = () => {
           )
           setLoading(false)
           setSnackbarOpen(true)
-          setErrorMsg('Something Went Wrong , please try again later')
+          setErrorMsg(
+            'Error generating Topics and Sub-Topics, Please try again',
+          )
         }
       } else {
         // Generate topics and subtopics using file input
@@ -132,6 +135,10 @@ const AddTopicAndSubTopic: React.FC = () => {
             error,
           )
           setLoading(false)
+          setSnackbarOpen(true)
+          setErrorMsg(
+            'Error generating Topics and Sub-Topics, Please try again',
+          )
         }
       }
     } catch (error) {
@@ -166,13 +173,14 @@ const AddTopicAndSubTopic: React.FC = () => {
           setSnackbarOpen(true)
           setSnackbarMessage('Topics and Subtopics Generated Successfully')
         } else {
-          console.error('Topics data is not an array:', response.data)
           setTimeout(() => pollForData(id), 30000)
         }
       }
     } catch (error) {
-      console.error('Error fetching topics and subtopics:', error)
-      setTimeout(() => pollForData(id), 30000)
+      setLoading(false)
+      console.error('Error Generating topics and subtopics:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Error generating Topics and Sub-Topics, Please try again')
     }
   }
 
@@ -191,12 +199,29 @@ const AddTopicAndSubTopic: React.FC = () => {
     setOpenModal(true)
   }
 
+  const handleClearTextInput = () => {
+    setTextInput('')
+  }
+  const handleClearFileInput = () => {
+    setFileInput(null)
+    setFileError(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handleResetFeildsInGenerateUsingAiModal = () => {
+    handleClearTextInput()
+    handleClearFileInput()
+  }
+
   const handleCloseModal = () => {
     setOpenModal(false)
   }
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    fileInputRef.current = e.target
     if (file) {
       // Check file extension
       const allowedExtensions = ['.pdf']
@@ -425,7 +450,7 @@ const AddTopicAndSubTopic: React.FC = () => {
             />
 
             <Typography sx={{ fontSize: 13, mt: 1 }}>
-              {`Uploda the  Content Index File - ( .pdf only )`}
+              {`Uplod the Content Index File - ( .pdf only )`}
             </Typography>
             {fileError && (
               <Typography sx={{ fontSize: 13, color: 'red', mt: 1 }}>
@@ -443,6 +468,13 @@ const AddTopicAndSubTopic: React.FC = () => {
             >
               <Button onClick={handleCloseModal} sx={{ mr: 2 }}>
                 Cancel
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleResetFeildsInGenerateUsingAiModal}
+                sx={{ mr: 2 }}
+              >
+                Reset
               </Button>
               <Button variant="contained" onClick={handleGenerate}>
                 Generate
