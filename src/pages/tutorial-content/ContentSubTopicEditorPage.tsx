@@ -19,8 +19,8 @@ const ContentSubTopicEditorPage = () => {
   useEffect(() => {
     const callData = async () => {
       const data = await getWritterContent(url.id);
-      if (data?.data?.content) {
-        setEditorData(data.data.content);
+      if (data?.data) {
+        setEditorData(data.data);
       }
     };
 

@@ -47,7 +47,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
     namespace: 'Editor',
     theme: PlaygroundEditorTheme,
     onError: (error: unknown) => console.log(error),
-    editorState: initialContent,
+    editorState: initialContent && initialContent.content,
     nodes: [
       HeadingNode,
       ListNode,
@@ -85,7 +85,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
     : isRichText
       ? 'Enter some rich text...'
       : 'Enter some plain text...'
-      
+
   return (
     <>
       <LexicalComposer initialConfig={initialConfig}>
