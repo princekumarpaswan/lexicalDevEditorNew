@@ -218,6 +218,7 @@ function CommentInputBox({
   const [content, setContent] = useState('')
   const [canSubmit, setCanSubmit] = useState(false)
   const boxRef = useRef<HTMLDivElement>(null)
+
   const selectionState = useMemo(
     () => ({
       container: document.createElement('div'),
@@ -338,6 +339,8 @@ function CommentInputBox({
   }
 
   const onChange = useOnChange(setContent, setCanSubmit)
+
+
 
   return (
     <div className="CommentPlugin_CommentInputBox" ref={boxRef}>
@@ -708,7 +711,9 @@ function CommentsPanel({
 function useCollabAuthorName(): string {
   const collabContext = useCollaborationContext()
   const { yjsDocMap, name } = collabContext
-  return yjsDocMap.has('comments') ? name : 'Playground User'
+  const userData = localStorage.getItem('userData')
+  const { email, role } = JSON.parse(userData)
+  return yjsDocMap.has('comments') ? name : `${email} - ${role}`
 }
 
 export default function CommentPlugin({
@@ -736,10 +741,12 @@ export default function CommentPlugin({
     }
   }, [commentStore, providerFactory, yjsDocMap])
 
-    useEffect(() => {
+  useEffect(() => {
     // Fetch comments data and add it to the store
-    fetchCommentsAndAddToStore(commentStore, 'your_api_endpoint_here');
-  }, []);
+    // fetchCommentsAndAddToStore(commentStore, 'your_api_endpoint_here')
+      fetchCommentsAndAddToStore(commentStore)
+
+  }, [])
 
   const cancelAddComment = useCallback(() => {
     editor.update(() => {

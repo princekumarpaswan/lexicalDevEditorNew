@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { LexicalEditor } from 'lexical'
 
 import { Provider, TOGGLE_CONNECT_COMMAND } from '@lexical/yjs'
@@ -10,7 +12,7 @@ import {
   YArrayEvent,
   YEvent,
 } from 'yjs'
-import { getComments } from '../api/tutorialContentAPI'
+import { getComments, submitComment } from '../api/tutorialContentAPI'
 
 export type Comment = {
   author: string
@@ -115,6 +117,28 @@ export class CommentStore {
     return this._comments
   }
 
+  async _submitCommentsToAPI(): Promise<void> {
+    const comments = this.getComments()
+    const id = localStorage.getItem('subTopicID')
+    try {
+      await submitComment(comments, id)
+      await this._fetchAndUpdateComments()
+    } catch (error) {
+      console.error('Error submitting comments:', error)
+    }
+  }
+
+  async _fetchAndUpdateComments(): Promise<void> {
+    const id = localStorage.getItem('subTopicID')
+    try {
+      const data = await getComments(id)
+      this._comments = data?.data?.comments || []
+      triggerOnChange(this)
+    } catch (error) {
+      console.error('Error fetching comments:', error)
+    }
+  }
+
   addComment(
     commentOrThread: Comment | Thread,
     thread?: Thread,
@@ -156,6 +180,8 @@ export class CommentStore {
     }
     this._comments = nextComments
     triggerOnChange(this)
+    triggerOnChange(this)
+    this._submitCommentsToAPI()
   }
 
   deleteCommentOrThread(
@@ -197,6 +223,9 @@ export class CommentStore {
     }
     this._comments = nextComments
     triggerOnChange(this)
+
+    triggerOnChange(this)
+    this._submitCommentsToAPI()
 
     if (commentOrThread.type === 'comment') {
       return {
@@ -424,33 +453,122 @@ export class CommentStore {
     }
   }
 }
+function getUniqueComments(comments: Comments): Comments {
+  const uniqueCommentsMap = new Map()
+  comments.forEach((comment) => uniqueCommentsMap.set(comment.id, comment))
+  return Array.from(uniqueCommentsMap.values())
+}
 
 export function useCommentStore(commentStore: CommentStore): Comments {
-  const [comments, setComments] = useState<Comments>(commentStore.getComments())
+  const [newcomments, setComments] = useState<Comments>(
+    commentStore.getComments(),
+  )
 
   useEffect(() => {
     return commentStore.registerOnChange(() => {
       setComments(commentStore.getComments())
     })
-  }, [commentStore])
+  }, [])
+
+  const comments = getUniqueComments(newcomments)
+  // localStorage.setItem('comments', comments)
+  // const id = localStorage.getItem('subTopicID')
+
+  // useEffect(() => {
+  //   if (comments.length > 0 ) {
+  //     submitComment(comments, id)
+  //   }
+  // }, [comments])
+
+    useEffect(() => {
+    const id = localStorage.getItem('subTopicID');
+    if (comments.length > 0 && id) {
+      submitComment(comments, id)
+        .then(() => commentStore._fetchAndUpdateComments())
+        .catch(error => console.error('Error submitting comments:', error));
+    }
+  }, []);
 
   return comments
 }
 
-export async function fetchCommentsAndAddToStore(
-  commentStore: CommentStore,
-  apiUrl: string,
-): Promise<void> {
-  try {
-    const response = await fetch(apiUrl)
-    if (!response.ok) {
-      throw new Error('Failed to fetch comments')
-    }
-    const data: Comments = await getComments()
+// export async function fetchCommentsAndAddToStore(
+//   commentStore: CommentStore,
+//   apiUrl: string,
+// ): Promise<void> {
+//   try {
+//     const response = await fetch(apiUrl)
+//     if (!response.ok) {
+//       throw new Error('Failed to fetch comments')
+//     }
+//     const id = localStorage.getItem('subTopicID')
+//     const data: Comments = await getComments(id)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data?.data.comments.forEach((item: { type: string; quote: string; comments: any[]; id: string | undefined; content: string; author: string; timeStamp: number | undefined; deleted: boolean | undefined }) => {
+//     data?.data?.comments.forEach(
+//       (item: {
+//         type: string
+//         quote: string
+//         comments: any[]
+//         id: string | undefined
+//         content: string
+//         author: string
+//         timeStamp: number | undefined
+//         deleted: boolean | undefined
+//       }) => {
+//         if (item.type === 'thread') {
+//           const thread = createThread(
+//             item.quote,
+//             item.comments.map(
+//               (comment: {
+//                 content: string
+//                 author: string
+//                 id: string | undefined
+//                 timeStamp: number | undefined
+//                 deleted: boolean | undefined
+//               }) =>
+//                 createComment(
+//                   comment.content,
+//                   comment.author,
+//                   comment.id,
+//                   comment.timeStamp,
+//                   comment.deleted,
+//                 ),
+//             ),
+//             item.id,
+//           )
+//           commentStore.addComment(thread)
+//         } else {
+//           const comment = createComment(
+//             item.content,
+//             item.author,
+//             item.id,
+//             item.timeStamp,
+//             item.deleted,
+//           )
+//           commentStore.addComment(comment)
+//         }
+//       },
+//     )
+//   } catch (error) {
+//     // eslint-disable-next-line no-console
+//     console.error('Error fetching comments:', error)
+//   }
+// }
+
+
+
+export async function fetchCommentsAndAddToStore(commentStore: CommentStore): Promise<void> {
+  try {
+    const id = localStorage.getItem('subTopicID');
+    const data: Comments = await getComments(id);
+
+    console.log({ data });
+
+    data?.data?.comments.forEach((item: { type: string; quote: string; comments: any[]; id: string | undefined; content: string; author: string; timeStamp: number | undefined; deleted: boolean | undefined }) => {
+  
+     
       if (item.type === 'thread') {
+        
         const thread = createThread(
           item.quote,
           item.comments.map((comment: { content: string; author: string; id: string | undefined; timeStamp: number | undefined; deleted: boolean | undefined }) =>
@@ -463,8 +581,9 @@ export async function fetchCommentsAndAddToStore(
             ),
           ),
           item.id,
-        )
-        commentStore.addComment(thread)
+        );
+           console.log('here');
+        commentStore.addComment(thread);
       } else {
         const comment = createComment(
           item.content,
@@ -472,12 +591,12 @@ export async function fetchCommentsAndAddToStore(
           item.id,
           item.timeStamp,
           item.deleted,
-        )
-        commentStore.addComment(comment)
+        );
+        commentStore.addComment(comment);
       }
-    })
+    });
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error fetching comments:', error)
+    console.error('Error fetching comments:', error);
   }
 }
+

@@ -149,6 +149,8 @@ function TutorialContent() {
   const { state } = useContext(AuthContext)
   const role = state.user?.role
 
+  localStorage.setItem('userData', JSON.stringify(state?.user))
+
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [showFilterBox, setShowFilterBox] = useState<null | HTMLElement>(null)
@@ -563,7 +565,9 @@ function TutorialContent() {
                           {(page - 1) * rowsPerPage + index + 1}
                         </TableCell>
                         <TableCell align="left">
-                           <Link to={`/tutorial-content/subtopic-write-content/${row.subTopicName.split(' ').join('-')}/${row.id}`}>
+                          <Link
+                            to={`/tutorial-content/subtopic-write-content/${row.subTopicName.split(' ').join('-')}/${row.id}`}
+                          >
                             {row.subTopicName}
                           </Link>
                         </TableCell>

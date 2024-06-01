@@ -20,6 +20,7 @@ function onError(error: Error) {
 }
 
 const lexicalEditorConfig = {
+  
   namespace: 'MyEditor',
   theme: PlaygroundEditorTheme,
   onError,

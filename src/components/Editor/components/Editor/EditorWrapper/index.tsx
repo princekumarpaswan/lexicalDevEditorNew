@@ -1,23 +1,15 @@
-// EditorWrapper.tsx
-// import { $getRoot } from 'lexical'
-import { useState } from 'react'
+/* eslint-disable no-console */
 import { useEffect } from 'react'
-
 import './styles.css'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
-// import { ContentEditable } from '@lexical/react/LexicalContentEditable'
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
-// import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary'
 import { MuiContentEditable, placeHolderSx } from './styles'
 import { Box } from '@mui/material'
 import { ListPlugin } from '@lexical/react/LexicalListPlugin'
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin'
-// import Toolbar from '../Toolbar'
-// import lexicalEditorTheme from '../../../theme/lexicalEditorTheme'
-import lexicalEditorConfig from '../config'
 import ImagesPlugin from '../plugin/ImagePlugin'
 import { ClearEditorPlugin } from '../plugin/LexicalClearEditorPlugin'
 import ToolbarPlugin from './newToolbar/index'
@@ -31,22 +23,52 @@ import TableOfContentsPlugin from '../plugin/TableOfContentsPlugin'
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin'
 import EquationsPlugin from '../plugin/EquationsPlugin'
 import CommentPlugin from '../plugin/CommentPlugin'
+import { AutoLinkNode, LinkNode } from '@lexical/link'
+import { HeadingNode } from '@lexical/rich-text'
+import { CodeHighlightNode, CodeNode } from '@lexical/code'
+import { TableNode, TableCellNode, TableRowNode } from '@lexical/table'
+import { ListNode, ListItemNode } from '@lexical/list'
+import { ImageNode } from '../nodes/ImageNode'
+import { ExcalidrawNode } from '../nodes/ExcalidrawNode'
+import { YouTubeNode } from '../nodes/youtubeNode/YouTubeNode'
+import { TweetNode } from '../nodes/TweetNode/TweetNode'
+import { FigmaNode } from '../nodes/figmaNode/FigmaNode'
+import PlaygroundEditorTheme from '../../../../../themes/PlaygroundEditorTheme'
+import { EquationNode } from '../nodes/EquationNode'
+import { MarkNode } from '@lexical/mark'
 
-// import Toolbar from '../Toolbar'
-// import NewToolbar from '../NewToolbar'
 type EditorWrapperProps = {
   onEditorChange: (editorStateJSONString: string) => void
-  initialContent?: string // Accept initial JSON content as prop
+  initialContent?: string
 }
 
 function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
-  const [editorState, setEditorState] = useState(initialContent)
-
-  useEffect(() => {
-    if (initialContent) {
-      setEditorState(JSON.parse(initialContent))
-    }
-  }, [initialContent])
+  const initialConfig = {
+    namespace: 'Editor',
+    theme: PlaygroundEditorTheme,
+    onError: (error: unknown) => console.log(error),
+    editorState: initialContent,
+    nodes: [
+      HeadingNode,
+      ListNode,
+      ListItemNode,
+      // QuoteNode,
+      CodeNode,
+      CodeHighlightNode,
+      AutoLinkNode,
+      LinkNode,
+      ImageNode,
+      ExcalidrawNode,
+      YouTubeNode,
+      TweetNode,
+      FigmaNode,
+      EquationNode,
+      TableCellNode,
+      TableNode,
+      TableRowNode,
+      MarkNode,
+    ],
+  }
 
   const {
     settings: {
@@ -57,21 +79,19 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
       tableCellBackgroundColor,
     },
   } = useSettings()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const text = isCollab
     ? 'Enter some collaborative rich text...'
     : isRichText
       ? 'Enter some rich text...'
       : 'Enter some plain text...'
+      
   return (
     <>
-      <LexicalComposer
-        initialConfig={{ ...lexicalEditorConfig, editorState: editorState }}
-      >
+      <LexicalComposer initialConfig={initialConfig}>
         <TableContext>
           <>
             <ToolbarPlugin />
-            {/* <Toolbar/> */}
             <Box
               sx={{
                 position: 'relative',
@@ -90,7 +110,6 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
               />
               <CommentPlugin />
               <HistoryPlugin />
-              <HistoryPlugin />
               <ImagesPlugin captionsEnabled={false} />
               <ExcalidrawPlugin />
               <YouTubePlugin />
@@ -104,8 +123,8 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
                 hasCellBackgroundColor={tableCellBackgroundColor}
               />
               <TableCellResizer />
-              <EquationsPlugin/>
-              <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
+              <EquationsPlugin />
+              {showTableOfContents && <TableOfContentsPlugin />}
             </Box>
           </>
         </TableContext>
