@@ -95,8 +95,10 @@ interface TutorialData {
 
 function Tutorials() {
   const navigate = useNavigate()
-  const [page, setPage] = useState(0)
+
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+
   const [tutorials, setTutorials] = useState<TutorialData[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
@@ -156,8 +158,12 @@ function Tutorials() {
       try {
         setLoading(true)
         const response = debouncedSearchQuery
-          ? await searchTutorials(debouncedSearchQuery)
-          : await listAllTutorials(page + 1, rowsPerPage)
+          ? await searchTutorials(
+              debouncedSearchQuery,
+              currentPage,
+              rowsPerPage,
+            )
+          : await listAllTutorials(currentPage, rowsPerPage)
 
         if (response.success) {
           const data = response.data.map(
@@ -187,7 +193,7 @@ function Tutorials() {
     }
 
     fetchTutorials()
-  }, [page, rowsPerPage, debouncedSearchQuery])
+  }, [rowsPerPage, debouncedSearchQuery, currentPage])
 
   interface Category {
     id: string
@@ -207,36 +213,6 @@ function Tutorials() {
     fetchCategories()
   }, [])
 
-  // const handleSearchByTutorialName = async (_event: any, value: string) => {
-  //   setSearchQuery(value)
-  //   try {
-  //     const results =
-  //       value.trim() === ''
-  //         ? await listAllTutorials(1, rowsPerPage)
-  //         : await searchTutorials(value)
-  //     if (results.success) {
-  //       const data = results.data.map(
-  //         (tutorial: {
-  //           tutorialName: any
-  //           id: any
-  //           categoryName: any
-  //           status: any
-  //         }) => ({
-  //           tutorialName: tutorial.tutorialName,
-  //           SNo: 0,
-  //           ID: tutorial.id,
-  //           categoryName: tutorial.categoryName,
-  //           status: tutorial.status,
-  //         }),
-  //       )
-  //       setTutorials(data)
-  //     } else {
-  //       console.error('Failed to search tutorials')
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to search tutorials', error)
-  //   }
-  // }
   const handleSearchByTutorialName = (_event: any, value: string) => {
     setSearchQuery(value)
   }
@@ -279,7 +255,6 @@ function Tutorials() {
     try {
       setFilterCategoryId(null)
       setFilterStatus(null)
-      setPage(0)
       setShowFilterBox(null)
       setCategoryInputValue('')
 
@@ -354,15 +329,12 @@ function Tutorials() {
     console.log(tutorialId)
   }
 
-  // const handleChangePage = (_event: unknown, newPage: number) => {
-  //   setPage(newPage)
-  // }
-  // const handleChangeRowsPerPage = (
-  //   event: React.ChangeEvent<HTMLInputElement>,
-  // ) => {
-  //   setRowsPerPage(+event.target.value)
-  //   setPage(0)
-  // }
+  const handleChangePage = (
+    _event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number,
+  ) => {
+    setCurrentPage(newPage + 1)
+  }
 
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
 
@@ -610,7 +582,7 @@ function Tutorials() {
                         key={tutorial.ID}
                       >
                         <TableCell align="left">
-                          {page * rowsPerPage + index + 1}
+                          {(currentPage - 1) * rowsPerPage + index + 1}
                         </TableCell>
                         <TableCell align="left">
                           {tutorial.tutorialName}
@@ -699,17 +671,19 @@ function Tutorials() {
             </Box>
             <Box>
               <IconButton
-                onClick={() => setPage(() => (page === 0 ? 1 : page - 1))}
-                disabled={page === 0}
+                onClick={(event) =>
+                  handleChangePage(event, Math.max(currentPage - 2, 0))
+                }
+                disabled={currentPage === 1}
               >
                 <ArrowBackIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
               </IconButton>
               <IconButton
-                onClick={() => setPage(() => page + 1)}
+                onClick={(event) => handleChangePage(event, currentPage)}
                 disabled={tutorials.length < rowsPerPage}
               >
                 <ArrowForwardIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
-                <span style={{ fontSize: 16 }}>{page + 1}</span>
+                <span style={{ fontSize: 16 }}>{currentPage}</span>
               </IconButton>
             </Box>
           </Stack>
