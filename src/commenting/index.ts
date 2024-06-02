@@ -4,7 +4,7 @@ import type { LexicalEditor } from 'lexical'
 
 import { Provider, TOGGLE_CONNECT_COMMAND } from '@lexical/yjs'
 import { COMMAND_PRIORITY_LOW } from 'lexical'
-import { useEffect, useState } from 'react'
+import {  useEffect, useState } from 'react'
 import {
   Array as YArray,
   Map as YMap,
@@ -12,7 +12,6 @@ import {
   YArrayEvent,
   YEvent,
 } from 'yjs'
-import { getCommentFromApi } from '../api/tutorialContentAPI'
 
 export type Comment = {
   author: string
@@ -429,13 +428,11 @@ export class CommentStore {
 
 export function useCommentStore(commentStore: CommentStore): Comments {
   const [comments, setComments] = useState<Comments>(commentStore.getComments())
-
   useEffect(() => {
     return commentStore.registerOnChange(() => {
       setComments(commentStore.getComments())
     })
   }, [commentStore])
-
   return comments
 }
 
@@ -453,45 +450,4 @@ export function useCommentStore(commentStore: CommentStore): Comments {
 //   return uniqueThreads
 // }
 
-
-const id = localStorage.getItem('subTopicID')
-const data2 = await getCommentFromApi(id)
-
-export async function loadCommentsFromAPI(
-  commentStore: CommentStore,
-): Promise<void> {
-  if (data2.data.comments) {
-    console.log(data2.data)
-
-    data2.data.comments.forEach(
-      (item: {
-        type: string
-        comments: any[]
-        quote: string
-        id: string | undefined
-        content: string
-        author: string
-        timeStamp: number | undefined
-        deleted: boolean | undefined
-      }) => {
-        if (item.type === 'thread') {
-          const threadComments = item.comments.map((comment) =>
-            createComment(
-              comment.content,
-              comment.author,
-              comment.id,
-              comment.timeStamp,
-              comment.deleted,
-            ),
-          )
-          const thread = createThread(item.quote, threadComments, item.id)
-          localStorage.setItem('thread', JSON.stringify(thread))
-        }
-      },
-    )
-  }
-  const data =  localStorage.getItem('thread')
- if (data) {
-   commentStore.addComment(JSON.parse(data))
- }
-}
+// const commentContect = createContext(comments)

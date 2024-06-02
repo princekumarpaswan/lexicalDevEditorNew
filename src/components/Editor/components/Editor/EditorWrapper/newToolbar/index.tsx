@@ -53,7 +53,7 @@ import ExposureIcon from '@mui/icons-material/Exposure'
 const LowPriority = 3
 
 function Divider() {
-  return <div  className="divider" />
+  return <div className="divider" />
 }
 
 export default function ToolbarPlugin() {
@@ -419,7 +419,7 @@ export default function ToolbarPlugin() {
             // className="item"
           >
             {/* {embedConfig.icon} */}
-             <Divider />
+            <Divider />
             <YouTubeIcon sx={{ mr: 1 }} />
             <span className="text">{embedConfig.contentName}</span>
           </IconButton>

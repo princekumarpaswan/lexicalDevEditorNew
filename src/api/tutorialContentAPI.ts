@@ -78,7 +78,6 @@ export const assignContentWritter = async (
   subTopicId: string,
   payload: string,
 ) => {
-  console.log({ subTopicId, payload })
   try {
     const accessToken = getAccessToken()
     const config = {
@@ -271,7 +270,7 @@ export const getTopicsAndSubTopicsFileUploadAI = async (id: string) => {
 // API to update the Subtopic Status
 export const updateSubtopicStatus = async (
   id: string,
-  newSubTopicStatus: string ,
+  newSubTopicStatus: string,
 ) => {
   try {
     const accessToken = getAccessToken()
@@ -310,29 +309,27 @@ export const getCommentFromApi = async (id: string | null) => {
   }
 }
 
-export const submitComment = async (comments: any, id: string | null) => {
+export const submitCommentApi = async (comments: any, id: string | null) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    }
 
-  // try {
-  //   const accessToken = getAccessToken()
-  //   const config = {
-  //     headers: {
-  //       Authorization: `Bearer ${accessToken}`,
-  //       'Content-Type': 'application/json',
-  //     },
-  //   }
-
-  //   const response = await axios.post(
-  //     `${BASE_URL}/subtopics/comment/${id}`,
-  //     { comments: comments },
-  //     config,
-  //   )
-  //   return response.data
-  // } catch (error) {
-  //   console.error('Error creating topics and subtopics:', error)
-  //   throw error
-  // }
+    const response = await axios.post(
+      `${BASE_URL}/subtopics/comment/${id}`,
+      { comments: comments },
+      config,
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error creating topics and subtopics:', error)
+    throw error
+  }
 }
-
 
 export const writeContent = async (
   subTopicId: string | undefined,
@@ -364,10 +361,7 @@ export const getWritterContent = async (id: string | null | undefined) => {
         Authorization: `Bearer ${accessToken}`,
       },
     }
-    const response = await axios.get(
-      `${BASE_URL}/subtopics/info/${id}`,
-      config,
-    )
+    const response = await axios.get(`${BASE_URL}/subtopics/info/${id}`, config)
     return response.data
   } catch (error) {
     console.error('Error fetching topics and subtopics:', error)

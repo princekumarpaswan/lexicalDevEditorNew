@@ -84,6 +84,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
       
   return (
     <>
+    
       <LexicalComposer initialConfig={initialConfig}>
         <TableContext>
           <Box
