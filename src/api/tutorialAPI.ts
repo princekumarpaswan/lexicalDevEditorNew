@@ -71,7 +71,6 @@ export const createTopicsAndSubTopics = async (tutorialData: any) => {
 }
 
 // API for listing all tutorials
-// API for listing all tutorials
 export const listAllTutorials = async (page = 1, limit = 10) => {
   try {
     const accessToken = getAccessToken()
@@ -91,10 +90,30 @@ export const listAllTutorials = async (page = 1, limit = 10) => {
   }
 }
 
-// Api for Search Tutorial using Tutorial Name
-export const searchTutorials = async (query: string) => {
+interface SearchTutorialsResponse {
+  data: {
+    map(arg0: (tutorial: { tutorialName: any; id: any; categoryName: any; status: any }) => { tutorialName: any; SNo: number; ID: any; categoryName: any; status: any }): unknown
+    tutorials: {
+      tutorialName: string
+      id: string
+      categoryName: string
+      status: string
+    }[]
+    totalPages: number
+    currentPage: number
+  }
+  success: boolean
+}
+
+export const searchTutorials = async (
+  query: string,
+  page: number,
+  limit: number,
+): Promise<SearchTutorialsResponse> => {
   try {
-    const response = await axios.get(`${BASE_URL}/tutorials/search?q=${query}`)
+    const response = await axios.get(
+      `${BASE_URL}/tutorials/search?q=${query}&page=${page}&limit=${limit}`,
+    )
     return response.data
   } catch (error) {
     console.error('Failed to search tutorials', error)
@@ -102,23 +121,47 @@ export const searchTutorials = async (query: string) => {
   }
 }
 
-// Api for Filter Tutorials
+// Api for Search Tutorial using Tutorial Name
+// export const searchTutorials = async (query: string) => {
+//   try {
+//     const response = await axios.get(`${BASE_URL}/tutorials/search?q=${query}`)
+//     return response.data
+//   } catch (error) {
+//     console.error('Failed to search tutorials', error)
+//     throw error
+//   }
+// }
+
+//
+//
+//
 interface FilterParams {
   categoryId?: string
   status?: string
+  page?: number
+  limit?: number
 }
-export const filterTutorials = async ({ categoryId, status }: FilterParams) => {
+
+export const filterTutorials = async ({
+  categoryId,
+  status,
+  page = 1,
+  limit = 10,
+}: FilterParams) => {
   let url = `${BASE_URL}/tutorials/filter`
 
   if (categoryId && status) {
-    url = `${url}/?categoryId=${categoryId}&status=${status}`
+    url = `${url}/?categoryId=${categoryId}&status=${status}&page=${page}&limit=${limit}`
     console.log('both url', url)
   } else if (categoryId && !status) {
-    url = `${url}/?categoryId=${categoryId}`
+    url = `${url}/?categoryId=${categoryId}&page=${page}&limit=${limit}`
     console.log('only category', url)
   } else if (!categoryId && status) {
-    url = `${url}/?status=${status}`
+    url = `${url}/?status=${status}&page=${page}&limit=${limit}`
     console.log('only status', url)
+  } else {
+    url = `${url}/?page=${page}&limit=${limit}`
+    console.log('no filter', url)
   }
 
   try {
@@ -129,6 +172,34 @@ export const filterTutorials = async ({ categoryId, status }: FilterParams) => {
     throw error
   }
 }
+
+// Api for Filter Tutorials
+// interface FilterParams {
+//   categoryId?: string
+//   status?: string
+// }
+// export const filterTutorials = async ({ categoryId, status }: FilterParams) => {
+//   let url = `${BASE_URL}/tutorials/filter`
+
+//   if (categoryId && status) {
+//     url = `${url}/?categoryId=${categoryId}&status=${status}`
+//     console.log('both url', url)
+//   } else if (categoryId && !status) {
+//     url = `${url}/?categoryId=${categoryId}`
+//     console.log('only category', url)
+//   } else if (!categoryId && status) {
+//     url = `${url}/?status=${status}`
+//     console.log('only status', url)
+//   }
+
+//   try {
+//     const response = await axios.get(url)
+//     return response.data
+//   } catch (error) {
+//     console.error('Failed to fetch filtered tutorials', error)
+//     throw error
+//   }
+// }
 
 // Api for Updating Tutorial Status (LISTED / DELISTED)
 export const updateTutorialStatus = async (
@@ -261,6 +332,25 @@ export const updateSubTopicInfo = async ({
     return response.data
   } catch (error) {
     console.error('Error updating sub-topic info:', error)
+    throw error
+  }
+}
+
+// API for deleting a Tutorial
+export const deleteTutorialInfo = async (tutorialId: string) => {
+  try {
+    const accessToken = getAccessToken()
+    const response = await axios.delete(
+      `${BASE_URL}/tutorials/delete/${tutorialId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error deleting tutorial info:', error)
     throw error
   }
 }

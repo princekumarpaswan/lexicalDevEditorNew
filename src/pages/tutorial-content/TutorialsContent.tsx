@@ -4,6 +4,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  Chip,
   FormControl,
   Grid,
   IconButton,
@@ -30,6 +31,7 @@ import {
   GetAdminUsersByRole,
   contentTutorial,
   searchSubTopics,
+  updateSubtopicStatus,
 } from '../../api/tutorialContentAPI'
 import { BaseLayout } from '../../components/BaseLayout'
 import { AuthContext } from '../../context/AuthContext/AuthContext'
@@ -39,6 +41,8 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useDebounce } from '../../hooks/useDebounce'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { ThemeContext } from '../../ThemeContext'
+import { IThemeMode } from '../../ThemeContext/types'
 
 interface ColumnData {
   id: string
@@ -52,7 +56,7 @@ interface tutorial {
   createdAt: string
   id: string
   reviewerAssignedAt: string | null
-  reviewerInfo: null | string
+  reviewerInfo: { id: string; fullName: string }
   status: string
   subTopicDescription: string
   subTopicName: string
@@ -67,7 +71,7 @@ interface tutorial {
   }
   updatedAt: string
   writerAssignedAt: string | null
-  writerInfo: null | string
+  writerInfo: { id: string; fullName: string }
 }
 
 interface AdminUser {
@@ -149,27 +153,151 @@ function TutorialContent() {
   const { state } = useContext(AuthContext)
   const role = state.user?.role
 
-  localStorage.setItem('userData', JSON.stringify(state?.user))
+  const themeContext = useContext(ThemeContext)
+
+  if (!themeContext) {
+    throw new Error('YourComponent must be used within a ThemeContextProvider')
+  }
+
+  const { themeMode } = themeContext
+
+  const linkStyle = {
+    color: themeMode === IThemeMode.DARK ? 'lightblue' : 'darkblue',
+  }
 
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [showFilterBox, setShowFilterBox] = useState<null | HTMLElement>(null)
-  const [selectedWriter, setSelectedWriter] = useState<string>('')
-  const [selectedReviewer, setSelectedReviewer] = useState<string>('')
-  const [contentWriters, setContentWriters] = useState<
-    { id: string; name: string }[]
-  >([])
-  const [contentReviewers, setContentReviewers] = useState<
-    { id: string; name: string }[]
-  >([])
   const [selectedStatus, setSelectedStatus] = useState<string>('')
-
   const [tutorialContentData, steTutorialContentData] = useState<tutorial[]>([])
-
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
-
   const [isLoading, setLoading] = useState(true)
+  const [updatedSubtopics, setUpdatedSubtopics] = useState<tutorial[]>([])
+  //
+  //
+  //
+  const [contentWriters, setContentWriters] = useState<AdminUser[]>([])
+  const [contentReviewers, setContentReviewers] = useState<AdminUser[]>([])
+  const [writerInputValue, setWriterInputValue] = useState('')
+  const [filteredWriters, setFilteredWriters] = useState<any[]>([])
+  const [reviewerInputValue, setReviewerInputValue] = useState('')
+  const [filteredReviewers, setFilteredReviewers] = useState<any[]>([])
+  // const [selectedWriter, setSelectedWriter] = useState<string>('')
+  // const [selectedReviewer, setSelectedReviewer] = useState<string>('')
+
+  // const [contentWriters, setContentWriters] = useState<
+  //   { id: string; name: string }[]
+  // >([])
+  // const [contentReviewers, setContentReviewers] = useState<
+  //   { id: string; name: string }[]
+  // >([])
+
+  // const [filteredWriters, setFilteredWriters] = useState<
+  //   { id: string; name: string }[]
+  // >([])
+  // const [filteredReviewers, setFilteredReviewers] = useState<
+  //   { id: string; name: string }[]
+  // >([])
+
+  useEffect(() => {
+    const fetchAdminUsers = async () => {
+      try {
+        const writersResponse = await GetAdminUsersByRole('CONTENT_WRITER')
+        const reviewersResponse = await GetAdminUsersByRole('CONTENT_REVIEWER')
+        const writers = writersResponse.data
+        const reviewers = reviewersResponse.data
+        console.log('Reviewers:', reviewers)
+        setContentWriters(writers)
+        setContentReviewers(reviewers)
+      } catch (error) {
+        console.error('Error fetching admin users:', error)
+      }
+    }
+
+    fetchAdminUsers()
+  }, [])
+
+  useEffect(() => {
+    if (writerInputValue.trim() === '') {
+      setFilteredWriters([])
+    } else {
+      const filtered = contentWriters.filter((writer) =>
+        writer.fullName.toLowerCase().includes(writerInputValue.toLowerCase()),
+      )
+      setFilteredWriters(filtered.map((writer) => writer.fullName))
+    }
+  }, [writerInputValue, contentWriters])
+
+  useEffect(() => {
+    if (reviewerInputValue.trim() === '') {
+      setFilteredReviewers([])
+    } else {
+      const filtered = contentReviewers.filter((reviewer) =>
+        reviewer.fullName
+          .toLowerCase()
+          .includes(reviewerInputValue.toLowerCase()),
+      )
+      setFilteredReviewers(filtered.map((reviewer) => reviewer.fullName))
+    }
+  }, [reviewerInputValue, contentReviewers])
+  ///
+  ///
+  //
+
+  // const fetchAdminUsers = async () => {
+  //   try {
+  //     const writersResponse = await GetAdminUsersByRole('CONTENT_WRITER')
+  //     const writers = writersResponse.data.map((writer: AdminUser) => ({
+  //       id: writer.id,
+  //       name: writer.fullName,
+  //     }))
+  //     setContentWriters(writers)
+
+  //     const reviewersResponse = await GetAdminUsersByRole('CONTENT_REVIEWER')
+  //     const reviewers = reviewersResponse.data.map((reviewer: AdminUser) => ({
+  //       id: reviewer.id,
+  //       name: reviewer.fullName,
+  //     }))
+  //     setContentReviewers(reviewers)
+  //   } catch (error) {
+  //     console.error('Error fetching admin users:', error)
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   fetchAdminUsers()
+  // }, [])
+
+  const handleSubtopicStatusChange = async (id: string, status: string) => {
+    try {
+      let newStatus: string
+      switch (status) {
+        case 'PUBLISHED':
+          newStatus = 'NOT_PUBLISHED'
+          break
+        case 'NOT_PUBLISHED':
+          newStatus = 'PUBLISHED'
+          break
+        case 'READY_TO_PUBLISH':
+          newStatus = 'PUBLISHED'
+          break
+        default:
+          return // Do nothing for other statuses
+      }
+
+      await updateSubtopicStatus(id, newStatus)
+      // Update the subtopic status in the local state
+      const updatedSubtopics = tutorialContentData.map((subtopic) =>
+        subtopic.id === id ? { ...subtopic, status: newStatus } : subtopic,
+      )
+      setUpdatedSubtopics(updatedSubtopics)
+      // You can also update the server data if needed
+      steTutorialContentData(updatedSubtopics)
+    } catch (error) {
+      console.error('Error updating subtopic status:', error)
+    }
+  }
 
   useEffect(() => {
     const handleSearchByContentName = async (value: string) => {
@@ -214,30 +342,6 @@ function TutorialContent() {
   //   }
   // }
 
-  const fetchAdminUsers = async () => {
-    try {
-      const writersResponse = await GetAdminUsersByRole('CONTENT_WRITER')
-      const writers = writersResponse.data.map((writer: AdminUser) => ({
-        id: writer.id,
-        name: writer.fullName,
-      }))
-      setContentWriters(writers)
-
-      const reviewersResponse = await GetAdminUsersByRole('CONTENT_REVIEWER')
-      const reviewers = reviewersResponse.data.map((reviewer: AdminUser) => ({
-        id: reviewer.id,
-        name: reviewer.fullName,
-      }))
-      setContentReviewers(reviewers)
-    } catch (error) {
-      console.error('Error fetching admin users:', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchAdminUsers()
-  }, [])
-
   const toggleFilterBox = (event: React.MouseEvent<HTMLElement>) => {
     setShowFilterBox(showFilterBox ? null : event.currentTarget)
   }
@@ -265,27 +369,29 @@ function TutorialContent() {
 
   const handleFilterFetch = async () => {
     const selectedWriterId = contentWriters.find(
-      (writer) => writer.name === selectedWriter,
+      (writer) => writer.fullName === writerInputValue,
     )?.id
     const selectedReviewerId = contentReviewers.find(
-      (reviewer) => reviewer.name === selectedReviewer,
+      (reviewer) => reviewer.fullName === reviewerInputValue,
     )?.id
 
     fetchTutorialContent(selectedStatus, selectedReviewerId, selectedWriterId)
+    setShowFilterBox(null)
+  }
+
+  const handleFilterReset = async () => {
+    setWriterInputValue('')
+    setReviewerInputValue('')
+    setSelectedStatus('')
+    fetchTutorialContent()
+    setShowFilterBox(null)
   }
 
   const handleFilterCancel = () => {
     setShowFilterBox(null)
-    setSelectedWriter('')
-    setSelectedReviewer('')
+    setWriterInputValue('')
+    setReviewerInputValue('')
     setSelectedStatus('')
-  }
-
-  const handleFilterReset = async () => {
-    setSelectedWriter('')
-    setSelectedReviewer('')
-    setSelectedStatus('')
-    fetchTutorialContent()
   }
 
   useEffect(() => {
@@ -403,43 +509,106 @@ function TutorialContent() {
                         {(role === 'ADMIN' || role === 'CONTENT_REVIEWER') && (
                           <Autocomplete
                             freeSolo
+                            options={filteredWriters}
+                            inputValue={writerInputValue}
+                            onInputChange={(_event, value) => {
+                              setWriterInputValue(value)
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Content Writer"
+                                variant="outlined"
+                              />
+                            )}
+                            sx={{ width: 240 }}
+                          />
+                        )}
+                        {/* {(role === 'ADMIN' || role === 'CONTENT_REVIEWER') && (
+                          <Autocomplete
+                            freeSolo
                             id="search-content-writers"
-                            options={contentWriters.map(
+                            options={filteredWriters.map(
                               (writer) => writer.name,
                             )}
                             value={selectedWriter}
+                            onInputChange={async (_event, newInputValue) => {
+                              console.log('Writer Input:', newInputValue)
+                              if (newInputValue) {
+                                const filtered = contentWriters.filter(
+                                  (writer) =>
+                                    writer.name
+                                      .toLowerCase()
+                                      .includes(newInputValue.toLowerCase()),
+                                )
+                                setFilteredWriters(filtered)
+                              } else {
+                                setFilteredWriters([])
+                              }
+                            }}
                             onChange={(_event, newValue) =>
                               setSelectedWriter(newValue || '')
                             }
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                label="Filter by Content Writer Name"
+                                label="Search Content Writer Name"
                               />
                             )}
                             sx={{ width: 280 }}
                           />
-                        )}
+                        )} */}
                         {(role === 'ADMIN' || role === 'CONTENT_WRITER') && (
                           <Autocomplete
                             freeSolo
+                            options={filteredReviewers}
+                            inputValue={reviewerInputValue}
+                            onInputChange={(_event, value) => {
+                              setReviewerInputValue(value)
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Content Reviewer"
+                                variant="outlined"
+                              />
+                            )}
+                            sx={{ width: 240 }}
+                          />
+                        )}
+                        {/* {(role === 'ADMIN' || role === 'CONTENT_WRITER') && (
+                          <Autocomplete
+                            freeSolo
                             id="search-content-reviewers"
-                            options={contentReviewers.map(
+                            options={filteredReviewers.map(
                               (reviewer) => reviewer.name,
                             )}
                             value={selectedReviewer}
+                            onInputChange={async (_event, newInputValue) => {
+                              if (newInputValue) {
+                                const filtered = contentReviewers.filter(
+                                  (reviewer) =>
+                                    reviewer.name
+                                      .toLowerCase()
+                                      .includes(newInputValue.toLowerCase()),
+                                )
+                                setFilteredReviewers(filtered)
+                              } else {
+                                setFilteredReviewers([])
+                              }
+                            }}
                             onChange={(_event, newValue) =>
                               setSelectedReviewer(newValue || '')
                             }
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                label="Filter by Content Reviewer Name"
+                                label="Search Content Reviewer Name"
                               />
                             )}
                             sx={{ width: 280 }}
                           />
-                        )}
+                        )} */}
                       </Grid>
                       <Grid item>
                         <TextField
@@ -466,7 +635,7 @@ function TutorialContent() {
                           <MenuItem value="READY_TO_PUBLISH">
                             Ready To Publish
                           </MenuItem>
-                          <MenuItem value="UNPUBLISHED">Unpublished</MenuItem>
+                          <MenuItem value="NOT_PUBLISHED">Unpublished</MenuItem>
                           <MenuItem value="PUBLISHED">Published</MenuItem>
                         </TextField>
                       </Grid>
@@ -509,28 +678,30 @@ function TutorialContent() {
                 )}
               />
 
-              <Button
-                variant="contained"
-                onClick={() =>
-                  navigate('/tutorial-content/assign-tutorial-content')
-                }
-              >
-                Assign Tutorial Content
-              </Button>
+              {role == 'ADMIN' && (
+                <Button
+                  variant="contained"
+                  onClick={() =>
+                    navigate('/tutorial-content/assign-tutorial-content')
+                  }
+                >
+                  Assign Tutorial Content
+                </Button>
+              )}
             </div>
           </div>
         </Box>
       </Box>
       <Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: 550 }}>
+          <TableContainer sx={{ maxHeight: 580 }}>
             {isLoading ? (
               <Box
                 sx={{
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  height: '100%',
+                  height: 570,
                 }}
               >
                 <CircularProgress />
@@ -552,7 +723,7 @@ function TutorialContent() {
                     ))}
                   </TableRow>
                 </TableHead>
-                <TableBody>
+                {/* <TableBody>
                   {tutorialContentData.length > 0 &&
                     tutorialContentData.map((row: tutorial, index: number) => (
                       <TableRow
@@ -578,19 +749,180 @@ function TutorialContent() {
                           {row.tutorialInfo.tutorialName}
                         </TableCell>
                         <TableCell align="center">
-                          {row.writerInfo ? 'row.writerInfo ' : 'Not Assigned'}
+                          {row.writerInfo
+                            ? row.writerInfo.fullName
+                            : 'Not Assigned'}
                         </TableCell>
                         <TableCell align="center">
                           {row.reviewerInfo
-                            ? 'row.reviewerInfo'
+                            ? row.reviewerInfo.fullName
                             : 'Not Assigned'}
                         </TableCell>
-                        <TableCell align="center">{row.status}</TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            label={
+                              row.status === 'TO_ASSIGN'
+                                ? 'Not Assigned'
+                                : row.status === 'CONTENT_ASSIGNED'
+                                  ? 'Content Assigned'
+                                  : row.status === 'CONTENT_DONE'
+                                    ? 'Content Done'
+                                    : row.status === 'REVIEW_ASSIGNED'
+                                      ? 'Review Assigned'
+                                      : row.status === 'CHANGES_NEEDED'
+                                        ? 'Changes Needed'
+                                        : row.status === 'READY_TO_PUBLISH'
+                                          ? 'Ready To Publish'
+                                          : row.status === 'PUBLISHED'
+                                            ? 'Published'
+                                            : row.status === 'UNPUBLISHED'
+                                              ? 'Unpublished'
+                                              : row.status
+                            }
+                            color={
+                              row.status === 'CONTENT_ASSIGNED'
+                                ? 'default'
+                                : row.status === 'CONTENT_DONE'
+                                  ? 'primary'
+                                  : row.status === 'REVIEW_ASSIGNED'
+                                    ? 'default'
+                                    : row.status === 'CHANGES_NEEDED'
+                                      ? 'warning'
+                                      : row.status === 'READY_TO_PUBLISH'
+                                        ? 'info'
+                                        : row.status === 'PUBLISHED'
+                                          ? 'success'
+                                          : row.status === 'UNPUBLISHED'
+                                            ? 'error'
+                                            : 'default'
+                            }
+                            style={{
+                              fontWeight: 'bold',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              width: '180px',
+                            }}
+                          />
+                        </TableCell>
                         <TableCell align="center">
                           {<Switch {...label} />}
                         </TableCell>
                       </TableRow>
                     ))}
+                </TableBody> */}
+                <TableBody>
+                  {updatedSubtopics.length > 0 ||
+                  tutorialContentData.length > 0 ? (
+                    (updatedSubtopics.length > 0
+                      ? updatedSubtopics
+                      : tutorialContentData
+                    ).map((row: tutorial, index: number) => (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={row.id}
+                      >
+                        <TableCell align="left">
+                          {(page - 1) * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell align="left">
+                          <Link
+                            to={`/tutorial-content/subtopic-write-content/${row.subTopicName
+                              .split(' ')
+                              .join('-')}/${row.id}`}
+                            style={linkStyle}
+                          >
+                            {row.subTopicName}
+                          </Link>
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.topicInfo.topicName}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.tutorialInfo.tutorialName}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.writerInfo
+                            ? row.writerInfo.fullName
+                            : 'Not Assigned'}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.reviewerInfo
+                            ? row.reviewerInfo.fullName
+                            : 'Not Assigned'}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            label={
+                              row.status === 'TO_ASSIGN'
+                                ? 'Not Assigned'
+                                : row.status === 'CONTENT_ASSIGNED'
+                                  ? 'Content Assigned'
+                                  : row.status === 'CONTENT_DONE'
+                                    ? 'Content Done'
+                                    : row.status === 'REVIEW_ASSIGNED'
+                                      ? 'Review Assigned'
+                                      : row.status === 'CHANGES_NEEDED'
+                                        ? 'Changes Needed'
+                                        : row.status === 'READY_TO_PUBLISH'
+                                          ? 'Ready To Publish'
+                                          : row.status === 'PUBLISHED'
+                                            ? 'Published'
+                                            : row.status === 'NOT_PUBLISHED'
+                                              ? 'Unpublished'
+                                              : row.status
+                            }
+                            color={
+                              row.status == 'TO_ASSIGN'
+                                ? 'secondary'
+                                : row.status === 'CONTENT_ASSIGNED'
+                                  ? 'default'
+                                  : row.status === 'CONTENT_DONE'
+                                    ? 'primary'
+                                    : row.status === 'REVIEW_ASSIGNED'
+                                      ? 'default'
+                                      : row.status === 'CHANGES_NEEDED'
+                                        ? 'warning'
+                                        : row.status === 'READY_TO_PUBLISH'
+                                          ? 'info'
+                                          : row.status === 'PUBLISHED'
+                                            ? 'success'
+                                            : row.status === 'NOT_PUBLISHED'
+                                              ? 'error'
+                                              : 'default'
+                            }
+                            style={{
+                              fontWeight: 'bold',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              width: '180px',
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Switch
+                            {...label}
+                            checked={row.status === 'PUBLISHED'}
+                            disabled={
+                              row.status !== 'READY_TO_PUBLISH' &&
+                              row.status !== 'PUBLISHED' &&
+                              row.status !== 'NOT_PUBLISHED'
+                            }
+                            onChange={() =>
+                              handleSubtopicStatusChange(row.id, row.status)
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={Columndata.length} align="center">
+                        No Content Match the Filter you have applied
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             )}

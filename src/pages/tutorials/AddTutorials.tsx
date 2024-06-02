@@ -1,12 +1,18 @@
 /* eslint-disable no-console */
 import React, { useState, useEffect, useContext } from 'react'
 import { BaseLayout } from '../../components/BaseLayout'
-import { Box, Button, TextField, Theme, Typography } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import MenuItem from '@mui/material/MenuItem'
+import {
+  Autocomplete,
+  Box,
+  Button,
+  IconButton,
+  TextField,
+  // Theme,
+  Typography,
+} from '@mui/material'
+// import { useTheme } from '@mui/material/styles'
+
 import FormControl from '@mui/material/FormControl'
-import Select, { SelectChangeEvent } from '@mui/material/Select'
 import { useNavigate } from 'react-router-dom'
 import {
   TutorialContext,
@@ -14,17 +20,18 @@ import {
 } from '../../context/TutorialContext/TutorialContext'
 import { getAllCategories, createTutorial } from '../../api/tutorialAPI'
 import SnackbarComponent from '../../components/SnackBar'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
-const ITEM_HEIGHT = 48
-const ITEM_PADDING_TOP = 8
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-}
+// const ITEM_HEIGHT = 48
+// const ITEM_PADDING_TOP = 8
+// const MenuProps = {
+//   PaperProps: {
+//     style: {
+//       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+//       width: 250,
+//     },
+//   },
+// }
 
 interface Category {
   name: string
@@ -32,22 +39,22 @@ interface Category {
   categoryName: string
 }
 
-function getStyles(
-  name: string,
-  selectedCategories: readonly string[],
-  theme: Theme,
-) {
-  return {
-    fontWeight:
-      selectedCategories.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  }
-}
+// function getStyles(
+//   name: string,
+//   selectedCategories: readonly string[],
+//   theme: Theme,
+// ) {
+//   return {
+//     fontWeight:
+//       selectedCategories.indexOf(name) === -1
+//         ? theme.typography.fontWeightRegular
+//         : theme.typography.fontWeightMedium,
+//   }
+// }
 
 function AddTutorials() {
   const navigate = useNavigate()
-  const theme = useTheme()
+  // const theme = useTheme()
   const [selectedCategories, setSelectedCategories] = React.useState<string[]>(
     [],
   )
@@ -79,15 +86,6 @@ function AddTutorials() {
 
     fetchCategories()
   }, [])
-
-  const handleChange = (
-    event: SelectChangeEvent<typeof selectedCategories>,
-  ) => {
-    const {
-      target: { value },
-    } = event
-    setSelectedCategories(typeof value === 'string' ? value.split(',') : value)
-  }
 
   const handleSaveTutorial = async () => {
     try {
@@ -217,38 +215,35 @@ function AddTutorials() {
             }}
           >
             <FormControl sx={{ width: '100%' }}>
-              <Select
-                displayEmpty
-                value={selectedCategories}
-                onChange={handleChange}
-                input={<OutlinedInput />}
-                renderValue={(selected) => {
-                  if (selected.length === 0) {
-                    return <em>Select Category</em>
+              <Autocomplete
+                id="categories-autocomplete"
+                options={categories.map((category) => category.categoryName)}
+                value={selectedCategories[0] || null}
+                onChange={(_event, newValue) => {
+                  setSelectedCategories(newValue ? [newValue] : [])
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    placeholder="Search Category Name"
+                  />
+                )}
+                filterOptions={(options, params) => {
+                  const filtered = options.filter((option) => {
+                    return option
+                      .toLowerCase()
+                      .includes(params.inputValue.toLowerCase())
+                  })
+
+                  // Display all options when the input is empty
+                  if (params.inputValue === '') {
+                    return []
                   }
 
-                  return selected.join(', ')
+                  return filtered
                 }}
-                MenuProps={MenuProps}
-                inputProps={{ 'aria-label': 'Without label' }}
-              >
-                <MenuItem disabled value="">
-                  <em>Select Category</em>
-                </MenuItem>
-                {categories.map((category) => (
-                  <MenuItem
-                    key={category.id}
-                    value={category.categoryName}
-                    style={getStyles(
-                      category.categoryName,
-                      selectedCategories,
-                      theme,
-                    )}
-                  >
-                    {category.categoryName}
-                  </MenuItem>
-                ))}
-              </Select>
+              />
             </FormControl>
           </Box>
         </Box>

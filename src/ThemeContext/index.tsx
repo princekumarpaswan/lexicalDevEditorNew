@@ -6,7 +6,6 @@ import { Theme, ThemeProvider, useMediaQuery } from '@mui/material'
 export const ThemeContext = createContext<IThemeContext | null>(null)
 
 export const ThemeContextProvider: React.FC<React.PropsWithChildren> = ({
-  // eslint-disable-next-line react/prop-types
   children,
 }) => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
@@ -14,14 +13,17 @@ export const ThemeContextProvider: React.FC<React.PropsWithChildren> = ({
   const [theme, setTheme] = useState<Theme>(AppLightTheme)
 
   useEffect(() => {
-    const initialTheme = prefersDarkMode ? IThemeMode.DARK : IThemeMode.LIGHT
+    const initialTheme =
+      (localStorage.getItem('theme') as IThemeMode) ||
+      (prefersDarkMode ? IThemeMode.DARK : IThemeMode.LIGHT)
     setThemeMode(initialTheme)
-    setTheme(prefersDarkMode ? AppDarkTheme : AppLightTheme)
+    setTheme(initialTheme === IThemeMode.DARK ? AppDarkTheme : AppLightTheme)
   }, [prefersDarkMode])
 
   const switchThemeMode = (mode: IThemeMode) => {
     setThemeMode(mode)
     setTheme(mode === IThemeMode.DARK ? AppDarkTheme : AppLightTheme)
+    localStorage.setItem('theme', mode)
   }
 
   return (
