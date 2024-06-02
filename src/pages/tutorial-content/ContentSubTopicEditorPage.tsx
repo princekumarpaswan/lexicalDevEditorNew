@@ -27,9 +27,13 @@ const ContentSubTopicEditorPage = () => {
   const handleClickOpenAssignReviewerModal = () => {
     setOpenAssignReviewerModal(true)
   }
-  const handleClose = () => {
+
+
+
+   const handleClose = () => {
     setOpenAssignReviewerModal(false)
   }
+
   useEffect(() => {
     const callData = async () => {
       const data = await getWritterContent(url.id)

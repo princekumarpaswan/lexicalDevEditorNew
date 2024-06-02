@@ -81,6 +81,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
     : isRichText
       ? 'Enter some rich text...'
       : 'Enter some plain text...'
+      
   return (
     <>
       <LexicalComposer initialConfig={initialConfig}>

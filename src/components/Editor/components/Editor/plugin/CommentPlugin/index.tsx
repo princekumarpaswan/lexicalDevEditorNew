@@ -61,6 +61,7 @@ import {
   CommentStore,
   createComment,
   createThread,
+  loadCommentsFromAPI,
   // fetchCommentsAndAddToStore,
   Thread,
   useCommentStore,
@@ -547,6 +548,7 @@ function CommentsPanelList({
   const [editor] = useLexicalComposerContext()
   const [counter, setCounter] = useState(0)
   const [modal, showModal] = useModal()
+  const [newCommets , setNewCommnt] = useState<unknown>()
   const rtf = useMemo(
     () =>
       new Intl.RelativeTimeFormat('en', {
@@ -568,9 +570,32 @@ function CommentsPanelList({
     }
   }, [counter])
 
+//   function filterUniqueThreads(threads) {
+//   const uniqueThreadIds = new Set();
+//   const uniqueThreads = [];
+
+//   threads.forEach(thread => {
+//     if (!uniqueThreadIds.has(thread.id)) {
+//       uniqueThreadIds.add(thread.id);
+//       uniqueThreads.push(thread);
+//     }
+//   });
+
+//   return uniqueThreads;
+// }
+  useEffect(() => {
+  //  const data = filterUniqueThreads(comments)
+   setNewCommnt(comments)
+  },[comments])
+
+  console.log('comment comment pannel');
+  console.log(comments);
+  
+  
+
   return (
     <ul className="CommentPlugin_CommentsPanel_List" ref={listRef}>
-      {comments.map((commentOrThread) => {
+      {comments?.map((commentOrThread) => {
         const id = commentOrThread.id
         if (commentOrThread.type === 'thread') {
           const handleClickThread = () => {
@@ -633,7 +658,7 @@ function CommentsPanelList({
                 {modal}
               </div>
               <ul className="CommentPlugin_CommentsPanel_List_Thread_Comments">
-                {commentOrThread.comments.map((comment) => (
+                {commentOrThread.comments.map((comment: { id: any; author?: string; content?: string; deleted?: boolean; timeStamp?: number; type?: "comment" }) => (
                   <CommentsPanelListComment
                     key={comment.id}
                     comment={comment}
@@ -742,11 +767,9 @@ export default function CommentPlugin({
   }, [commentStore, providerFactory, yjsDocMap])
 
   useEffect(() => {
-    // Fetch comments data and add it to the store
-    // fetchCommentsAndAddToStore(commentStore, 'your_api_endpoint_here')
-      // fetchCommentsAndAddToStore(commentStore)
+    loadCommentsFromAPI(commentStore)
+  },[])
 
-  }, [])
 
   const cancelAddComment = useCallback(() => {
     editor.update(() => {
