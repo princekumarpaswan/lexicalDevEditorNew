@@ -36,18 +36,16 @@ import { FigmaNode } from '../nodes/figmaNode/FigmaNode'
 import PlaygroundEditorTheme from '../../../../../themes/PlaygroundEditorTheme'
 import { EquationNode } from '../nodes/EquationNode'
 import { MarkNode } from '@lexical/mark'
-
 type EditorWrapperProps = {
   onEditorChange: (editorStateJSONString: string) => void
   initialContent?: string
 }
-
 function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
   const initialConfig = {
     namespace: 'Editor',
     theme: PlaygroundEditorTheme,
     onError: (error: unknown) => console.log(error),
-    editorState: initialContent && initialContent.content,
+    editorState: initialContent && initialContent?.content,
     nodes: [
       HeadingNode,
       ListNode,
@@ -69,7 +67,6 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
       MarkNode,
     ],
   }
-
   const {
     settings: {
       isCollab,
@@ -79,18 +76,23 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
       tableCellBackgroundColor,
     },
   } = useSettings()
-
   const text = isCollab
     ? 'Enter some collaborative rich text...'
     : isRichText
       ? 'Enter some rich text...'
       : 'Enter some plain text...'
-
   return (
     <>
       <LexicalComposer initialConfig={initialConfig}>
         <TableContext>
-          <>
+          <Box
+            sx={{
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              borderRadius: 2,
+              border: 1,
+              borderColor: 'lightgray',
+            }}
+          >
             <ToolbarPlugin />
             <Box
               sx={{
@@ -99,7 +101,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
                 color: 'black',
                 width: '100%',
                 margin: 'auto',
-                border: 1,
+                padding: 1,
                 minHeight: '450px',
               }}
             >
@@ -126,22 +128,18 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
               <EquationsPlugin />
               {showTableOfContents && <TableOfContentsPlugin />}
             </Box>
-          </>
+          </Box>
         </TableContext>
       </LexicalComposer>
     </>
   )
 }
-
 export default EditorWrapper
-
 interface MyOnChangePluginProps {
   onChange: (editorStateJSONString: string) => void
 }
-
 function MyOnChangePlugin({ onChange }: MyOnChangePluginProps) {
   const [editor] = useLexicalComposerContext()
-
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
       const editorStateJSON = editorState.toJSON()
@@ -149,6 +147,5 @@ function MyOnChangePlugin({ onChange }: MyOnChangePluginProps) {
       onChange(editorStateJSONString)
     })
   }, [editor, onChange])
-
   return null
 }

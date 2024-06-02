@@ -29,6 +29,7 @@ import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight'
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter'
 import {
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -44,11 +45,15 @@ import { INSERT_EMBED_COMMAND } from '@lexical/react/LexicalAutoEmbedPlugin'
 import { InsertTableDialog } from '../../plugin/TablePlugin'
 import useModal from '../../../../hooks/useModal'
 import { InsertEquationDialog } from '../../plugin/EquationsPlugin'
+import DrawIcon from '@mui/icons-material/Draw'
+import YouTubeIcon from '@mui/icons-material/YouTube'
+import BackupTableIcon from '@mui/icons-material/BackupTable'
+import ExposureIcon from '@mui/icons-material/Exposure'
 
 const LowPriority = 3
 
 function Divider() {
-  return <div style={{ margin: '10px' }} className="divider" />
+  return <div  className="divider" />
 }
 
 export default function ToolbarPlugin() {
@@ -136,30 +141,39 @@ export default function ToolbarPlugin() {
 
   return (
     <>
-      <div className="toolbar" ref={toolbarRef}>
-        <button
-          style={{ width: '60px' }}
+      <div
+        className="toolbar"
+        ref={toolbarRef}
+        style={{
+          border: 1,
+          borderStyle: 'solid',
+          borderColor: 'lightgray',
+          padding: 5,
+        }}
+      >
+        <IconButton
+          style={{ width: 60, borderRadius: 10 }}
           disabled={!canUndo}
           onClick={() => {
             editor.dispatchCommand(UNDO_COMMAND, undefined)
           }}
         >
           <UndoIcon />
-        </button>
-        <button
-          style={{ width: '60px', marginLeft: '7px' }}
+        </IconButton>
+        <IconButton
+          style={{ width: 60, borderRadius: 10 }}
           disabled={!canRedo}
           onClick={() => {
             editor.dispatchCommand(REDO_COMMAND, undefined)
           }}
         >
           <RedoIcon />
-        </button>
+        </IconButton>
         <Divider />
         <FormControl
-          sx={{ minWidth: '140px', borderRadius: '5px', width: 'auto' }}
+          sx={{ minWidth: '150px', borderRadius: '5px', width: 'auto' }}
         >
-          <InputLabel id="demo-simple-select-labe">Type</InputLabel>
+          <InputLabel id="demo-simple-select-label">Select</InputLabel>
           <Select
             labelId="demo-simple-select-labe"
             id="demo-simple-select"
@@ -275,26 +289,29 @@ export default function ToolbarPlugin() {
         </FormControl>
         <Divider />
         {pluginsList.map((plugin) => (
-          <button style={{ width: '60px', marginLeft: '7px' }} key={plugin.id}>
+          <IconButton
+            style={{ width: '60px', borderRadius: 10 }}
+            key={plugin.id}
+          >
             <plugin.Icon onClick={() => onClick(plugin.event)} />
-          </button>
+          </IconButton>
         ))}
-        <button
-          style={{ width: '60px', marginLeft: '7px' }}
+        <IconButton
+          style={{ width: '60px', borderRadius: 10 }}
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
           }}
         >
           <FormatStrikethroughIcon />
-        </button>
-        <button
-          style={{ width: '60px', marginLeft: '7px' }}
+        </IconButton>
+        <IconButton
+          style={{ width: '60px', borderRadius: 10 }}
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')
           }}
         >
           <CodeIcon />
-        </button>
+        </IconButton>
         <Divider />
         <FormControl
           sx={{ minWidth: '140px', borderRadius: '5px', width: 'auto' }}
@@ -384,15 +401,17 @@ export default function ToolbarPlugin() {
           </Select>
         </FormControl>
         <Divider />
-        <button
+        <IconButton
+          sx={{ borderRadius: 2, padding: 2, fontSize: 20 }}
           onClick={() => {
             editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined)
           }}
         >
-          Exclidraw
-        </button>
+          <DrawIcon sx={{ mr: 1 }} /> Exclidraw
+        </IconButton>
         {EmbedConfigs.map((embedConfig) => (
-          <button
+          <IconButton
+            sx={{ borderRadius: 2, padding: 2, fontSize: 20 }}
             key={embedConfig.type}
             onClick={() => {
               editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type)
@@ -400,10 +419,13 @@ export default function ToolbarPlugin() {
             // className="item"
           >
             {/* {embedConfig.icon} */}
+             <Divider />
+            <YouTubeIcon sx={{ mr: 1 }} />
             <span className="text">{embedConfig.contentName}</span>
-          </button>
+          </IconButton>
         ))}
-        <button
+        <IconButton
+          sx={{ borderRadius: 2, padding: 2, fontSize: 20 }}
           onClick={() => {
             showModal('Insert Table', (onClose) => (
               <InsertTableDialog
@@ -413,10 +435,11 @@ export default function ToolbarPlugin() {
             ))
           }}
         >
-          <span className="text">Table</span>
-        </button>
+          <BackupTableIcon sx={{ mr: 1 }} /> <span className="text">Table</span>
+        </IconButton>
 
-        <button
+        <IconButton
+          sx={{ borderRadius: 2, padding: 2, fontSize: 20 }}
           onClick={() => {
             showModal('Insert Equation', (onClose) => (
               <InsertEquationDialog
@@ -426,8 +449,8 @@ export default function ToolbarPlugin() {
             ))
           }}
         >
-          <span className="text">Equation</span>
-        </button>
+          <ExposureIcon sx={{ mr: 1 }} /> <span className="text">Equation</span>
+        </IconButton>
         {isLink &&
           createPortal(
             <FloatingLinkEditor editor={hookEditor} />,

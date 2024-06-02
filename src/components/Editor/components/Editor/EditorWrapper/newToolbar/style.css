@@ -319,7 +319,6 @@ pre::-webkit-scrollbar-thumb {
 .toolbar {
   display: flex;
   margin-bottom: 1px;
-  background: #fff;
   padding: 4px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -373,8 +372,9 @@ pre::-webkit-scrollbar-thumb {
 
 .toolbar .divider {
   width: 1px;
-  background-color: #eee;
-  margin: 0 4px;
+  /* background-color: #ffffff; */
+  margin: 0 16px;
+  height: '2%';
 }
 
 .toolbar .toolbar-item .text {

@@ -61,7 +61,7 @@ import {
   CommentStore,
   createComment,
   createThread,
-  fetchCommentsAndAddToStore,
+  // fetchCommentsAndAddToStore,
   Thread,
   useCommentStore,
 } from '../../../../../../commenting'
@@ -712,8 +712,8 @@ function useCollabAuthorName(): string {
   const collabContext = useCollaborationContext()
   const { yjsDocMap, name } = collabContext
   const userData = localStorage.getItem('userData')
-  const { email, role } = JSON.parse(userData)
-  return yjsDocMap.has('comments') ? name : `${email} - ${role}`
+  // const { email, role } = JSON.parse(userData)
+  return yjsDocMap.has('comments') ? name : `playground`
 }
 
 export default function CommentPlugin({
@@ -744,7 +744,7 @@ export default function CommentPlugin({
   useEffect(() => {
     // Fetch comments data and add it to the store
     // fetchCommentsAndAddToStore(commentStore, 'your_api_endpoint_here')
-      fetchCommentsAndAddToStore(commentStore)
+      // fetchCommentsAndAddToStore(commentStore)
 
   }, [])
 

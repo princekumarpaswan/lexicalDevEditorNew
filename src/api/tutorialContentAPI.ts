@@ -291,23 +291,23 @@ export const updateSubtopicStatus = async (
   }
 }
 
-export const getComments = async (id: string | null) => {
-  // try {
-  //   const accessToken = getAccessToken()
-  //   const config = {
-  //     headers: {
-  //       Authorization: `Bearer ${accessToken}`,
-  //     },
-  //   }
-  //   const response = await axios.get(
-  //     `${BASE_URL}/subtopics/thread/${id}`,
-  //     config,
-  //   )
-  //   return response.data
-  // } catch (error) {
-  //   console.error('Error fetching topics and subtopics:', error)
-  //   throw error
-  // }
+export const getCommentFromApi = async (id: string | null) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.get(
+      `${BASE_URL}/subtopics/thread/${id}`,
+      config,
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error fetching topics and subtopics:', error)
+    throw error
+  }
 }
 
 export const submitComment = async (comments: any, id: string | null) => {

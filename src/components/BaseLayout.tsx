@@ -20,20 +20,17 @@ import SourceIcon from '@mui/icons-material/Source'
 import GroupIcon from '@mui/icons-material/Group'
 import { Button, Chip, Container } from '@mui/material'
 import ToggleTheme from './ToggleTheme/ToggleTheme'
-
 import { useNavigate } from 'react-router-dom'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { AuthContext } from '../context/AuthContext/AuthContext'
 import { useState, useContext } from 'react'
-
 interface SidebarElement {
   id: number
   title: string
   icon: JSX.Element
   href: string
 }
-
 const sidebarElements: SidebarElement[] = [
   {
     id: 1,
@@ -60,9 +57,7 @@ const sidebarElements: SidebarElement[] = [
     href: '/admin-users',
   },
 ]
-
 const drawerWidth = 240
-
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -71,7 +66,6 @@ const openedMixin = (theme: Theme): CSSObject => ({
   }),
   overflowX: 'hidden',
 })
-
 const closedMixin = (theme: Theme): CSSObject => ({
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
@@ -83,7 +77,6 @@ const closedMixin = (theme: Theme): CSSObject => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 })
-
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -92,11 +85,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }))
-
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean
 }
-
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })<AppBarProps>(({ theme, open }) => ({
@@ -114,7 +105,6 @@ const AppBar = styled(MuiAppBar, {
     }),
   }),
 }))
-
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
@@ -131,7 +121,6 @@ const Drawer = styled(MuiDrawer, {
     '& .MuiDrawer-paper': closedMixin(theme),
   }),
 }))
-
 export const BaseLayout: React.FC<{
   children: React.ReactNode
   title: string
@@ -140,9 +129,7 @@ export const BaseLayout: React.FC<{
   const [open, setOpen] = useState(true)
   const { state } = useContext(AuthContext)
   const { user } = state
-
   const { dispatch } = useContext(AuthContext)
-
   const filterSidebarElements = () => {
     if (user && user.role === 'ADMIN') {
       return sidebarElements
@@ -158,7 +145,6 @@ export const BaseLayout: React.FC<{
       return []
     }
   }
-
   // Function to handle logout
   const handleLogout = () => {
     // Dispatch a logout action to clear the authentication state
@@ -166,16 +152,13 @@ export const BaseLayout: React.FC<{
     // Redirect to the login page or perform any other action after logout
     // Example: history.push('/login');
   }
-
   const handleDrawerOpen = () => {
     setOpen(true)
   }
-
   const handleDrawerClose = () => {
     setOpen(false)
   }
   const navigate = useNavigate()
-
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -236,7 +219,6 @@ export const BaseLayout: React.FC<{
               }}
               alt="Logo"
             />
-
             <IconButton onClick={handleDrawerClose}>
               {theme.direction === 'rtl' ? (
                 <ChevronRightIcon />
@@ -296,7 +278,6 @@ export const BaseLayout: React.FC<{
             </List>
             <Divider />
           </Box>
-
           <List>
             <ListItemButton
               sx={{
@@ -319,7 +300,6 @@ export const BaseLayout: React.FC<{
                   style={{ fontWeight: 500, fontSize: 15 }}
                 />
               )}
-
               <Button style={{ fontWeight: 800, color: 'red' }}>
                 {open == false && <ExitToAppIcon />}
               </Button>
@@ -327,13 +307,13 @@ export const BaseLayout: React.FC<{
           </List>
         </Box>
       </Drawer>
-
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           height: '100vh',
           overflow: 'auto',
+          backgroundColor: theme.palette.contrastColor.main,
         }}
       >
         <Toolbar />
