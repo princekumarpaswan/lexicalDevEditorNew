@@ -272,7 +272,7 @@ export const getTopicsAndSubTopicsFileUploadAI = async (id: string) => {
 // API to update the Subtopic Status
 export const updateSubtopicStatus = async (
   id: string,
-  newSubTopicStatus: string ,
+  newSubTopicStatus: string,
 ) => {
   try {
     const accessToken = getAccessToken()
@@ -312,7 +312,6 @@ export const getCommentFromApi = async (id: string | null) => {
 }
 
 export const submitComment = async (_comments: any, _id: string | null) => {
-
   // try {
   //   const accessToken = getAccessToken()
   //   const config = {
@@ -321,7 +320,6 @@ export const submitComment = async (_comments: any, _id: string | null) => {
   //       'Content-Type': 'application/json',
   //     },
   //   }
-
   //   const response = await axios.post(
   //     `${BASE_URL}/subtopics/comment/${id}`,
   //     { comments: comments },
@@ -333,7 +331,6 @@ export const submitComment = async (_comments: any, _id: string | null) => {
   //   throw error
   // }
 }
-
 
 export const writeContent = async (
   subTopicId: string | undefined,
@@ -365,13 +362,61 @@ export const getWritterContent = async (id: string | null | undefined) => {
         Authorization: `Bearer ${accessToken}`,
       },
     }
-    const response = await axios.get(
-      `${BASE_URL}/subtopics/info/${id}`,
+    const response = await axios.get(`${BASE_URL}/subtopics/info/${id}`, config)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching topics and subtopics:', error)
+    throw error
+  }
+}
+
+// API for Assign Content Reviewer
+// export const assignContentReviewer = async (reviewerId: string) => {
+//   try {
+//     const accessToken = getAccessToken()
+//     const config = {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//     }
+//     const payload = {
+//       reviewerId: reviewerId,
+//     }
+//     const response = await axios.patch(
+//       `${BASE_URL}/subtopics/assign/reviewer/${reviewerId}`,
+//       payload,
+//       config,
+//     )
+//     return response.data
+//   } catch (error) {
+//     throw error
+//   }
+// }
+export const assignReviewer = async (
+  subtopicId: string,
+  reviewerId: string,
+) => {
+  const accessToken = getAccessToken()
+
+  const config = {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  }
+
+  const payload = {
+    reviewerId,
+  }
+
+  try {
+    const response = await axios.patch(
+      `${BASE_URL}/subtopics/assign/reviewer/${subtopicId}`,
+      payload,
       config,
     )
     return response.data
   } catch (error) {
-    console.error('Error fetching topics and subtopics:', error)
+    console.error('Error assigning reviewer:', error)
     throw error
   }
 }

@@ -232,7 +232,7 @@ function AssignTutorialContent() {
         >
           <IconButton onClick={() => navigate(-1)} color="inherit" size="large">
             <ArrowBackIcon />
-          </IconButton>
+          </IconButton> 
           <Typography variant="h5" component="h5">
             Assign Tutorial Content
           </Typography>
