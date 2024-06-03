@@ -68,6 +68,7 @@ const ContentSubTopicEditorPage = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [triggerEffect, setTriggerEffect] = useState(false)
 
   const formatRole = (role: string) => {
     return role
@@ -132,6 +133,7 @@ const ContentSubTopicEditorPage = () => {
         setIsLoading(false)
         setSnackbarOpen(true)
         setSnackbarMessage('Reviewer Assigned Successfully')
+        setTriggerEffect((prev) => !prev) // Toggle the triggerEffect state
       } else if (!selectedReviewer) {
         console.error('No reviewer selected')
         setIsLoading(false)
@@ -181,7 +183,7 @@ const ContentSubTopicEditorPage = () => {
       }
     }
     callData()
-  }, [url.id])
+  }, [url.id, triggerEffect])
 
   useEffect(() => {
     const storedStatus = localStorage.getItem('subtopicStatus') || ''
@@ -195,6 +197,10 @@ const ContentSubTopicEditorPage = () => {
       setSnackbarOpen(true)
       setSnackbarMessage('Content Done Successfully')
       setIsLoading(false)
+
+      setSubtopicStatus('CONTENT_DONE') // Update the subtopicStatus here
+      localStorage.setItem('subtopicStatus', 'CONTENT_DONE')
+      setTriggerEffect((prev) => !prev) // Toggle the triggerEffect state
     } catch (error) {
       setSnackbarOpen(true)
       setErrorMsg('Error Submitting Content')
