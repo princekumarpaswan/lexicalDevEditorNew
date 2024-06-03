@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import type { Provider } from '@lexical/yjs'
 import type {
   EditorState,
@@ -339,8 +342,6 @@ function CommentInputBox({
   }
 
   const onChange = useOnChange(setContent, setCanSubmit)
-
-
 
   return (
     <div className="CommentPlugin_CommentInputBox" ref={boxRef}>
@@ -711,7 +712,7 @@ function CommentsPanel({
 function useCollabAuthorName(): string {
   const collabContext = useCollaborationContext()
   const { yjsDocMap, name } = collabContext
-  const userData = localStorage.getItem('userData')
+  // const userData = localStorage.getItem('userData')
   // const { email, role } = JSON.parse(userData)
   return yjsDocMap.has('comments') ? name : `playground`
 }
@@ -744,8 +745,7 @@ export default function CommentPlugin({
   useEffect(() => {
     // Fetch comments data and add it to the store
     // fetchCommentsAndAddToStore(commentStore, 'your_api_endpoint_here')
-      // fetchCommentsAndAddToStore(commentStore)
-
+    // fetchCommentsAndAddToStore(commentStore)
   }, [])
 
   const cancelAddComment = useCallback(() => {

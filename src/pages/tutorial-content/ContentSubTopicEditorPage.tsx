@@ -7,15 +7,19 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   TextField,
   Typography,
 } from '@mui/material'
 import { BaseLayout } from '../../components/BaseLayout'
 import EditorWrapper from '../../components/Editor/components/Editor/EditorWrapper'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getWritterContent, writeContent } from '../../api/tutorialContentAPI'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+
 const ContentSubTopicEditorPage = () => {
+  const navigate = useNavigate()
   const url = useParams()
   useEffect(() => {
     if (url.id) {
@@ -24,6 +28,7 @@ const ContentSubTopicEditorPage = () => {
   }, [url])
   const [editorData, setEditorData] = useState<string | undefined>()
   const [openAssignReviewerModal, setOpenAssignReviewerModal] = useState(false)
+
   const handleClickOpenAssignReviewerModal = () => {
     setOpenAssignReviewerModal(true)
   }
@@ -46,15 +51,42 @@ const ContentSubTopicEditorPage = () => {
     <BaseLayout title="Content Editor">
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography
-            sx={{
-              display: 'flex',
-              justifyContent: 'start',
-              fontWeight: 550,
-            }}
-          >
-            {url && url.suntopicname?.toUpperCase()}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <IconButton
+              onClick={() => navigate(-1)}
+              color="inherit"
+              size="large"
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              <Typography
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'start',
+                  fontWeight: 550,
+                }}
+              >
+                Sub-topic Name : {url && url.suntopicname?.toUpperCase()}
+              </Typography>
+              {/* <Typography
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'start',
+                  fontWeight: 550,
+                }}
+              >
+                Tutorial Name : {url && url.suntopicname?.toUpperCase()}
+              </Typography> */}
+            </Box>
+          </Box>
           <Box sx={{ display: 'flex', gap: 3 }}>
             <Button
               variant="contained"

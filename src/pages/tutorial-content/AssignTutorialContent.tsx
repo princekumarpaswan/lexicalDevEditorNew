@@ -6,6 +6,7 @@ import {
   Button,
   CircularProgress,
   FormControl,
+  IconButton,
   InputLabel,
   Select,
   TextField,
@@ -44,6 +45,8 @@ interface Admin {
 }
 
 function AssignTutorialContent() {
+  const navigate = useNavigate()
+
   const [results, setResults] = useState<Tutorial[]>([])
   const [allAdminData, setAllAdminData] = useState<Admin[]>([])
   const [options, setOptions] = useState<{ label: string; id: string }[]>([])
@@ -221,9 +224,19 @@ function AssignTutorialContent() {
         }}
         autoComplete="off"
       >
-        <Typography variant="h5" component="h5" pb={1}>
-          Assign Tutorial Content
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <IconButton onClick={() => navigate(-1)} color="inherit" size="large">
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h5" component="h5">
+            Assign Tutorial Content
+          </Typography>
+        </Box>
 
         <FormControl fullWidth>
           <Autocomplete

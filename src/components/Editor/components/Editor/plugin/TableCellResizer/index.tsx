@@ -112,14 +112,14 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
     };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const onMouseDown = (event: MouseEvent) => {
+    const onMouseDown = (_event: MouseEvent) => {
       setTimeout(() => {
         updateIsMouseDown(true);
       }, 0);
     };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const onMouseUp = (event: MouseEvent) => {
+    const onMouseUp = (_event: MouseEvent) => {
       setTimeout(() => {
         updateIsMouseDown(false);
       }, 0);

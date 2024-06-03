@@ -180,7 +180,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
+  decorate(_editor: LexicalEditor, _config: EditorConfig): JSX.Element {
     return (
       <Suspense fallback={null}>
         <ExcalidrawComponent nodeKey={this.getKey()} data={this.__data} />

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-useless-catch */
@@ -310,7 +311,7 @@ export const getCommentFromApi = async (id: string | null) => {
   }
 }
 
-export const submitComment = async (comments: any, id: string | null) => {
+export const submitComment = async (_comments: any, _id: string | null) => {
 
   // try {
   //   const accessToken = getAccessToken()

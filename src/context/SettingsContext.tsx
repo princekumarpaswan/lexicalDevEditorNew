@@ -19,7 +19,7 @@ type SettingsContextShape = {
 
 const Context: React.Context<SettingsContextShape> = createContext({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setOption: (name: SettingName, value: boolean) => {
+  setOption: (_name: SettingName, _value: boolean) => {
     return;
   },
   settings: INITIAL_SETTINGS,
@@ -47,6 +47,7 @@ export const SettingsContext = ({
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSettings = (): SettingsContextShape => {
   return useContext(Context);
 };

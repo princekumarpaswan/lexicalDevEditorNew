@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import './styles.css'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
@@ -36,9 +37,11 @@ import { FigmaNode } from '../nodes/figmaNode/FigmaNode'
 import PlaygroundEditorTheme from '../../../../../themes/PlaygroundEditorTheme'
 import { EquationNode } from '../nodes/EquationNode'
 import { MarkNode } from '@lexical/mark'
+import { ThemeContext } from '../../../../../ThemeContext'
+import { IThemeMode } from '../../../../../ThemeContext/types'
 type EditorWrapperProps = {
   onEditorChange: (editorStateJSONString: string) => void
-  initialContent?: string
+  initialContent?: any
 }
 function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
   const initialConfig = {
@@ -69,18 +72,31 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
   }
   const {
     settings: {
-      isCollab,
-      isRichText,
+      // isCollab,
+      // isRichText,
       showTableOfContents,
       tableCellMerge,
       tableCellBackgroundColor,
     },
   } = useSettings()
-  const text = isCollab
-    ? 'Enter some collaborative rich text...'
-    : isRichText
-      ? 'Enter some rich text...'
-      : 'Enter some plain text...'
+
+  // const text = isCollab
+  //   ? 'Enter some collaborative rich text...'
+  //   : isRichText
+  //     ? 'Enter some rich text...'
+  //     : 'Enter some plain text...'
+
+  const themeContext = useContext(ThemeContext)
+
+  if (!themeContext) {
+    throw new Error('YourComponent must be used within a ThemeContextProvider')
+  }
+
+  const { themeMode } = themeContext
+
+  const toolbarStyle = {
+    backgroundColor: themeMode === IThemeMode.DARK ? 'ligthgray' : 'white',
+  }
   return (
     <>
       <LexicalComposer initialConfig={initialConfig}>
@@ -96,12 +112,11 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
             <ToolbarPlugin />
             <Box
               sx={{
+                ...toolbarStyle,
                 position: 'relative',
-                background: 'white',
-                color: 'black',
                 width: '100%',
                 margin: 'auto',
-                padding: 1,
+                padding: 0.5,
                 minHeight: '450px',
               }}
             >
