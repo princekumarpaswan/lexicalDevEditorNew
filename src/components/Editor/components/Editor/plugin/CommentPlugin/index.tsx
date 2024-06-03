@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
 import type { Provider } from '@lexical/yjs'
 import type {
   EditorState,
@@ -73,10 +72,36 @@ import CommentEditorTheme from '../../../../../../themes/CommentEditorTheme'
 import Button from '../../../ui/Button'
 import ContentEditable from '../../../ui/ContentEditable'
 import Placeholder from '../../../ui/Placeholder'
+import {
+  getCommentFromApi,
+  submitCommentApi,
+} from '../../../../../../api/tutorialContentAPI'
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
 )
+
+interface ThreadItem {
+  type: 'thread'
+  quote: string
+  comments: Array<{
+    content: string
+    author: string
+    id: string | undefined
+    timeStamp: number | undefined
+    deleted: boolean | undefined
+  }>
+  id?: string
+}
+
+interface CommentItem {
+  id: any
+  author: string
+  content: string
+  deleted: boolean
+  timeStamp: number
+  type: 'comment'
+}
 
 function AddCommentBox({
   anchorKey,
@@ -221,6 +246,8 @@ function CommentInputBox({
   const [content, setContent] = useState('')
   const [canSubmit, setCanSubmit] = useState(false)
   const boxRef = useRef<HTMLDivElement>(null)
+  // const [editor] = useLexicalComposerContext()
+  // const commentStore = useMemo(() => new CommentStore(editor), [editor])
 
   const selectionState = useMemo(
     () => ({
@@ -322,7 +349,7 @@ function CommentInputBox({
     return true
   }
 
-  const submitComment = () => {
+  const submitComment = async () => {
     if (canSubmit) {
       let quote = editor.getEditorState().read(() => {
         const selection = selectionRef.current
@@ -339,6 +366,12 @@ function CommentInputBox({
       )
       selectionRef.current = null
     }
+    // const id = localStorage.getItem('subTopicID')
+    // const comment = commentStore.getComments()
+    // console.log('in sbmit');
+    // console.log(comment);
+
+    // submitCommentApi(comment, id)
   }
 
   const onChange = useOnChange(setContent, setCanSubmit)
@@ -569,9 +602,14 @@ function CommentsPanelList({
     }
   }, [counter])
 
+  useEffect(() => {
+    const id = localStorage.getItem('subTopicID')
+    submitCommentApi(comments, id)
+  }, [comments])
+
   return (
     <ul className="CommentPlugin_CommentsPanel_List" ref={listRef}>
-      {comments.map((commentOrThread) => {
+      {comments?.map((commentOrThread) => {
         const id = commentOrThread.id
         if (commentOrThread.type === 'thread') {
           const handleClickThread = () => {
@@ -634,7 +672,7 @@ function CommentsPanelList({
                 {modal}
               </div>
               <ul className="CommentPlugin_CommentsPanel_List_Thread_Comments">
-                {commentOrThread.comments.map((comment) => (
+                {commentOrThread.comments.map((comment: CommentItem) => (
                   <CommentsPanelListComment
                     key={comment.id}
                     comment={comment}
@@ -712,7 +750,6 @@ function CommentsPanel({
 function useCollabAuthorName(): string {
   const collabContext = useCollaborationContext()
   const { yjsDocMap, name } = collabContext
-  // const userData = localStorage.getItem('userData')
   // const { email, role } = JSON.parse(userData)
   return yjsDocMap.has('comments') ? name : `playground`
 }
@@ -733,6 +770,8 @@ export default function CommentPlugin({
   const [activeIDs, setActiveIDs] = useState<Array<string>>([])
   const [showCommentInput, setShowCommentInput] = useState(false)
   const [showComments, setShowComments] = useState(false)
+  const [apiComments, setApiComment] = useState([])
+  const [apiThread, setApiThread] = useState<Thread[]>([])
   const { yjsDocMap } = collabContext
 
   useEffect(() => {
@@ -743,10 +782,59 @@ export default function CommentPlugin({
   }, [commentStore, providerFactory, yjsDocMap])
 
   useEffect(() => {
-    // Fetch comments data and add it to the store
-    // fetchCommentsAndAddToStore(commentStore, 'your_api_endpoint_here')
-    // fetchCommentsAndAddToStore(commentStore)
+    const handleApi = async () => {
+      try {
+        const id = localStorage.getItem('subTopicID')
+        if (id) {
+          const data2 = await getCommentFromApi(id)
+          if (data2.data && data2.data.comments) {
+            setApiComment(data2.data.comments)
+          } else {
+            console.log('No comments found.')
+          }
+        } else {
+          console.log('No subTopicID found in localStorage.')
+        }
+      } catch (error) {
+        console.error('Error fetching comments:', error)
+      }
+    }
+
+    handleApi()
   }, [])
+
+  useEffect(() => {
+    if (apiComments) {
+      apiComments.forEach((item: ThreadItem) => {
+        if (item.type === 'thread') {
+          const threadComments = item.comments.map((comment) =>
+            createComment(
+              comment.content,
+              comment.author,
+              comment.id,
+              comment.timeStamp,
+              comment.deleted,
+            ),
+          )
+          const thread = createThread(item.quote, threadComments, item.id)
+          setApiThread((prevThreads) => [...prevThreads, thread])
+        }
+      })
+
+      if (apiThread.length > 0) {
+        apiThread.map((e) => commentStore.addComment(e))
+      }
+    }
+  }, [apiComments])
+
+  // useEffect(() => {
+  //   console.log(commentStore.getComments());
+
+  //   // const id = localStorage.getItem('subTopicID')
+  //   // const commentse = commentStore.getComments()
+  //   // console.log({ commentse })
+  //   // // commentStore.registerOnChange(() => submitCommentApi(commentse,id))
+  // }, [commentStore])
 
   const cancelAddComment = useCallback(() => {
     editor.update(() => {

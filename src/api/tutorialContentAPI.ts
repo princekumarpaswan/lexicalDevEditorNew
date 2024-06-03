@@ -79,7 +79,6 @@ export const assignContentWritter = async (
   subTopicId: string,
   payload: string,
 ) => {
-  console.log({ subTopicId, payload })
   try {
     const accessToken = getAccessToken()
     const config = {
@@ -311,25 +310,26 @@ export const getCommentFromApi = async (id: string | null) => {
   }
 }
 
-export const submitComment = async (_comments: any, _id: string | null) => {
-  // try {
-  //   const accessToken = getAccessToken()
-  //   const config = {
-  //     headers: {
-  //       Authorization: `Bearer ${accessToken}`,
-  //       'Content-Type': 'application/json',
-  //     },
-  //   }
-  //   const response = await axios.post(
-  //     `${BASE_URL}/subtopics/comment/${id}`,
-  //     { comments: comments },
-  //     config,
-  //   )
-  //   return response.data
-  // } catch (error) {
-  //   console.error('Error creating topics and subtopics:', error)
-  //   throw error
-  // }
+export const submitCommentApi = async (comments: any, id: string | null) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    }
+
+    const response = await axios.post(
+      `${BASE_URL}/subtopics/comment/${id}`,
+      { comments: comments },
+      config,
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error creating topics and subtopics:', error)
+    throw error
+  }
 }
 
 export const writeContent = async (
