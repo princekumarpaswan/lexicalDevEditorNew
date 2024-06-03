@@ -4,6 +4,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -24,6 +25,8 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { getAdminBYRoll } from '../../api/tutorialContentAPI'
 import { AuthContext } from '../../context/AuthContext/AuthContext'
+import BorderColorIcon from '@mui/icons-material/BorderColor'
+import SnackbarComponent from '../../components/SnackBar'
 
 interface Admin {
   id: string
@@ -60,6 +63,11 @@ const ContentSubTopicEditorPage = () => {
   )
   const [reviewerName, setReviewerName] = useState<string>('')
   const [tutorialName, setTutorialName] = useState<string>('')
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const formatRole = (role: string) => {
     return role
@@ -108,6 +116,8 @@ const ContentSubTopicEditorPage = () => {
 
   const handleAssignReviewer = async () => {
     try {
+      handleClose()
+      setIsLoading(true)
       const subtopicId = localStorage.getItem('subTopicID') ?? ''
       if (subtopicId && selectedReviewer) {
         const response = await assignReviewer(subtopicId, selectedReviewer.id)
@@ -118,15 +128,27 @@ const ContentSubTopicEditorPage = () => {
         setSubtopicStatus('Review Assigned')
 
         localStorage.setItem('subtopicStatus', 'Review Assigned')
+
+        setIsLoading(false)
+        setSnackbarOpen(true)
+        setSnackbarMessage('Reviewer Assigned Successfully')
       } else if (!selectedReviewer) {
         console.error('No reviewer selected')
+        setIsLoading(false)
+        setSnackbarOpen(true)
+        setErrorMsg('Error Assigning Reviewer')
       } else {
         console.error('Subtopic ID not found in local storage')
+        setIsLoading(false)
+        setSnackbarOpen(true)
+        setErrorMsg('Error Assigning Reviewer')
       }
     } catch (error) {
       console.error('Error assigning reviewer:', error)
+      setIsLoading(false)
+      setSnackbarOpen(true)
+      setErrorMsg('Error Assigning Reviewer')
     }
-    handleClose()
   }
 
   const handleClose = () => {
@@ -136,6 +158,7 @@ const ContentSubTopicEditorPage = () => {
   useEffect(() => {
     const callData = async () => {
       try {
+        setIsLoading(true)
         const data = await getWritterContent(url.id)
         console.log('API Response:', data)
         if (data?.data) {
@@ -152,6 +175,7 @@ const ContentSubTopicEditorPage = () => {
           }
           console.log('status reponse:', subTopicStatus)
         }
+        setIsLoading(false)
       } catch (error) {
         console.error('Error fetching writer content:', error)
       }
@@ -165,70 +189,115 @@ const ContentSubTopicEditorPage = () => {
   }, [])
 
   const handleClick = async () => {
-    await writeContent(url.id, editorData)
+    try {
+      setIsLoading(true)
+      await writeContent(url.id, editorData)
+      setSnackbarOpen(true)
+      setSnackbarMessage('Content Done Successfully')
+      setIsLoading(false)
+    } catch (error) {
+      setSnackbarOpen(true)
+      setErrorMsg('Error Submitting Content')
+    }
   }
   return (
     <BaseLayout title="Content Editor">
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <IconButton
-              onClick={() => navigate(-1)}
-              color="inherit"
-              size="large"
-            >
-              <ArrowBackIcon />
-            </IconButton>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 1,
-              }}
-            >
-              <Typography
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'start',
-                  fontWeight: 550,
-                }}
-              >
-                Sub-topic Name : {url && url.suntopicname?.toUpperCase()}
-              </Typography>
-              <Typography
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'start',
-                  fontWeight: 550,
-                }}
-              >
-                Tutorial Name : {tutorialName?.toUpperCase()}
-              </Typography>
-            </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          // justifyContent: 'center',
+          gap: 5,
+          maxWidth: '1050px',
+          margin: 'auto',
+        }}
+      >
+        {isLoading ? (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 570,
+            }}
+          >
+            <CircularProgress />
           </Box>
-          <Box sx={{ display: 'flex', gap: 3 }}>
-            {role === 'ADMIN' && subtopicStatus === 'CONTENT_DONE' && (
-              <Button
-                variant="contained"
-                onClick={handleClickOpenAssignReviewerModal}
+        ) : (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <IconButton
+                onClick={() => navigate(-1)}
+                color="inherit"
+                size="large"
               >
-                Assign Content Reviewer
-              </Button>
-            )}
-            {subtopicStatus === 'REVIEW_ASSIGNED' && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography>Reviewer: {reviewerName}</Typography>
+                <ArrowBackIcon />
+              </IconButton>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'start',
+                    fontWeight: 550,
+                  }}
+                >
+                  Sub-topic Name : {url && url.suntopicname?.toUpperCase()}
+                </Typography>
+                <Typography
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'start',
+                    fontWeight: 550,
+                  }}
+                >
+                  Tutorial Name : {tutorialName?.toUpperCase()}
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 3 }}>
+              {role === 'ADMIN' && subtopicStatus === 'CONTENT_DONE' && (
                 <Button
                   variant="contained"
                   onClick={handleClickOpenAssignReviewerModal}
                 >
-                  Edit
+                  Assign Content Reviewer
                 </Button>
-              </Box>
-            )}
-            <Button variant="contained">Generate Content Using AI</Button>
+              )}
+              {role === 'ADMIN' && subtopicStatus === 'REVIEW_ASSIGNED' && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    border: 0.5,
+                    padding: 1,
+                    borderRadius: 3,
+                    borderColor: 'lightgray',
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 550 }}>
+                    Reviewer: {reviewerName}
+                  </Typography>
+                  <IconButton onClick={handleClickOpenAssignReviewerModal}>
+                    <BorderColorIcon />
+                  </IconButton>
+                </Box>
+              )}
+              {(role === 'CONTENT_WRITER' || role === 'ADMIN') && (
+                <Button variant="contained">Generate Content Using AI</Button>
+              )}
+            </Box>
           </Box>
-        </Box>
+        )}
+
         {/* //Dialog */}
         {openAssignReviewerModal && (
           <Dialog
@@ -275,22 +344,50 @@ const ContentSubTopicEditorPage = () => {
             </DialogActions>
           </Dialog>
         )}
-        <Box>
-          {editorData && (
-            <>
-              <EditorWrapper
-                onEditorChange={(e) => setEditorData(e)}
-                initialContent={editorData}
-              />
-            </>
-          )}
-        </Box>
+        {isLoading ? (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 570,
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Box>
+            {editorData && (
+              <>
+                <EditorWrapper
+                  onEditorChange={(e) => setEditorData(e)}
+                  initialContent={editorData}
+                />
+              </>
+            )}
+          </Box>
+        )}
+
         <Box sx={{ display: 'flex', gap: 5, justifyContent: 'flex-end' }}>
           <Button onClick={handleClick} variant="contained" sx={{ width: 200 }}>
             Submit Content
           </Button>
         </Box>
       </Box>
+      <SnackbarComponent
+        severity="success"
+        open={snackbarOpen}
+        message={snackbarMessage}
+        closeSnackbar={() => setSnackbarOpen(false)}
+      />
+      <SnackbarComponent
+        severity="error"
+        message={errorMsg}
+        open={!!errorMsg}
+        closeSnackbar={() => setErrorMsg('')}
+      />
     </BaseLayout>
   )
 }
