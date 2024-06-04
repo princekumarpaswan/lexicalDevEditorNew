@@ -613,7 +613,7 @@ function Tutorials() {
                               }
                             />
                           </p>
-                        </TableCell>
+                         </TableCell>
                         <TableCell align="center">
                           <BorderColorIcon
                             onClick={() => handleEditClick(tutorial.ID)}
