@@ -901,18 +901,26 @@ function TutorialContent() {
                           />
                         </TableCell>
                         <TableCell align="center">
-                          <Switch
-                            {...label}
-                            checked={row.status === 'PUBLISHED'}
-                            disabled={
-                              row.status !== 'READY_TO_PUBLISH' &&
-                              row.status !== 'PUBLISHED' &&
-                              row.status !== 'NOT_PUBLISHED'
-                            }
-                            onChange={() =>
-                              handleSubtopicStatusChange(row.id, row.status)
-                            }
-                          />
+                          {role === 'ADMIN' ? (
+                            <Switch
+                              {...label}
+                              checked={row.status === 'PUBLISHED'}
+                              disabled={
+                                row.status !== 'READY_TO_PUBLISH' &&
+                                row.status !== 'PUBLISHED' &&
+                                row.status !== 'NOT_PUBLISHED'
+                              }
+                              onChange={() =>
+                                handleSubtopicStatusChange(row.id, row.status)
+                              }
+                            />
+                          ) : (
+                            <Switch
+                              {...label}
+                              checked={row.status === 'PUBLISHED'}
+                              disabled 
+                            />
+                          )}
                         </TableCell>
                       </TableRow>
                     ))

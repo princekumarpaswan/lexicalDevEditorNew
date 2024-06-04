@@ -602,9 +602,7 @@ export default function ToolbarPlugin() {
               <text
                 className="text"
                 style={{
-                  fontWeight: 900,
-                  fontSize: 20,
-                  color: 'darkgray',
+                  fontSize: 17,
                 }}
               >
                 + Insert

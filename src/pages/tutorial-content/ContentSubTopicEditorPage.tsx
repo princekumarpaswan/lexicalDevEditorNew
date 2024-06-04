@@ -20,6 +20,7 @@ import { useContext, useEffect, useState } from 'react'
 import {
   assignReviewer,
   getWritterContent,
+  updateSubtopicStatus,
   writeContent,
 } from '../../api/tutorialContentAPI'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -198,14 +199,54 @@ const ContentSubTopicEditorPage = () => {
       setSnackbarMessage('Content Done Successfully')
       setIsLoading(false)
 
-      setSubtopicStatus('CONTENT_DONE') // Update the subtopicStatus here
+      setSubtopicStatus('CONTENT_DONE')
       localStorage.setItem('subtopicStatus', 'CONTENT_DONE')
-      setTriggerEffect((prev) => !prev) // Toggle the triggerEffect state
+      setTriggerEffect((prev) => !prev)
     } catch (error) {
       setSnackbarOpen(true)
       setErrorMsg('Error Submitting Content')
     }
   }
+
+  const handleReadyToPublish = async () => {
+    console.log('Ready to publish clicked')
+
+    try {
+      const subtopicId = localStorage.getItem('subTopicID') ?? ''
+      if (subtopicId) {
+        const response = await updateSubtopicStatus(
+          subtopicId,
+          'READY_TO_PUBLISH',
+        )
+        console.log(response)
+        setSubtopicStatus('READY_TO_PUBLISH')
+      } else {
+        console.error('Subtopic ID not found in local storage')
+      }
+    } catch (error) {
+      console.error('Error updating subtopic status:', error)
+    }
+  }
+  const handleChangesNeededClick = async () => {
+    console.log('Chnages needed clicked')
+
+    try {
+      const subtopicId = localStorage.getItem('subTopicID') ?? ''
+      if (subtopicId) {
+        const response = await updateSubtopicStatus(
+          subtopicId,
+          'CHANGES_NEEDED',
+        )
+        console.log(response)
+        setSubtopicStatus('CHANGES_NEEDED')
+      } else {
+        console.error('Subtopic ID not found in local storage')
+      }
+    } catch (error) {
+      console.error('Error updating subtopic status:', error)
+    }
+  }
+
   return (
     <BaseLayout title="Content Editor">
       <Box
@@ -226,7 +267,7 @@ const ContentSubTopicEditorPage = () => {
               gap: 4,
               justifyContent: 'center',
               alignItems: 'center',
-              height: 570,
+              height: 670,
             }}
           >
             <CircularProgress />
@@ -358,7 +399,7 @@ const ContentSubTopicEditorPage = () => {
               gap: 4,
               justifyContent: 'center',
               alignItems: 'center',
-              height: 570,
+              height: 670,
             }}
           >
             <CircularProgress />
@@ -375,12 +416,105 @@ const ContentSubTopicEditorPage = () => {
             )}
           </Box>
         )}
-
         <Box sx={{ display: 'flex', gap: 5, justifyContent: 'flex-end' }}>
-          <Button onClick={handleClick} variant="contained" sx={{ width: 200 }}>
-            Submit Content
-          </Button>
+          {/* CONTENT_WRITER */}
+          {role === 'CONTENT_WRITER' &&
+            (subtopicStatus === 'CONTENT_ASSIGNED' ||
+              subtopicStatus === 'CHANGES_NEEDED') && (
+              <Button
+                onClick={handleClick}
+                variant="contained"
+                sx={{ width: 200 }}
+              >
+                Submit Content
+              </Button>
+            )}
+
+          {/* ADMIN */}
+          {role === 'ADMIN' &&
+            (subtopicStatus === 'CHANGES_NEEDED' ||
+              subtopicStatus === 'CONTENT_ASSIGNED' ||
+              subtopicStatus === 'TO_ASSIGN') && (
+              <Button
+                onClick={handleClick}
+                variant="contained"
+                sx={{ width: 200 }}
+              >
+                Submit Content
+              </Button>
+            )}
+          {role === 'ADMIN' &&
+            (subtopicStatus === 'CONTENT_DONE' ||
+              subtopicStatus === 'REVIEW_ASSIGNED') && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={handleChangesNeededClick}
+                  sx={{ width: 200 }}
+                >
+                  Changes Needed
+                </Button>
+                <Button
+                  onClick={handleReadyToPublish}
+                  variant="contained"
+                  sx={{ width: 200 }}
+                >
+                  Ready To Publish
+                </Button>
+              </>
+            )}
+
+          {/* CONTENT_REVIEWER */}
+          {role === 'CONTENT_REVIEWER' &&
+            (subtopicStatus === 'CONTENT_DONE' ||
+              subtopicStatus === 'REVIEW_ASSIGNED') && (
+              <>
+                <Button
+                  onClick={handleChangesNeededClick}
+                  variant="contained"
+                  sx={{ width: 200 }}
+                >
+                  Changes Needed
+                </Button>
+                <Button
+                  onClick={handleReadyToPublish}
+                  variant="contained"
+                  sx={{ width: 200 }}
+                >
+                  Ready To Publish
+                </Button>
+              </>
+            )}
         </Box>
+        {/* <Box sx={{ display: 'flex', gap: 5, justifyContent: 'flex-end' }}>
+          {(role === 'ADMIN' || role === 'CONTENT_WRITER') && (
+            <Button
+              onClick={handleClick}
+              variant="contained"
+              sx={{ width: 200 }}
+            >
+              Submit Content
+            </Button>
+          )}
+          {(role === 'ADMIN' || role === 'CONTENT_WRITER') && (
+            <Button
+              onClick={handleClick}
+              variant="contained"
+              sx={{ width: 200 }}
+            >
+              Changes Needed
+            </Button>
+          )}
+          {(role === 'ADMIN' || role === 'CONTENT_REVIEWER') && (
+            <Button
+              onClick={handleReadyToPublish}
+              variant="contained"
+              sx={{ width: 200 }}
+            >
+              Ready To Publish
+            </Button>
+          )}
+        </Box> */}
       </Box>
       <SnackbarComponent
         severity="success"

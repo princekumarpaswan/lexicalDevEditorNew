@@ -615,7 +615,7 @@ function Tutorials() {
                         <TableCell align="center">
                           <BorderColorIcon
                             onClick={() => handleEditClick(tutorial.ID)}
-                            sx={{ cursor: 'pointer', color: 'blue' }}
+                            sx={{ cursor: 'pointer' }}
                           />
                         </TableCell>
                         <TableCell align="center">
