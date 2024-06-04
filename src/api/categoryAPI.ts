@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 /* eslint-disable no-useless-catch */
 import axios, { AxiosRequestConfig } from 'axios'
@@ -28,7 +29,13 @@ export const createCategory = async (categoryName: string) => {
 }
 
 // API for listing all categories
-export const getAllCategories = async () => {
+interface CategoryResponse {
+  data: any[]
+  page: any
+  limit: any
+}
+
+export const getAllCategories = async (page = 1, limit = 10) => {
   try {
     const accessToken = getAccessToken()
     const config: AxiosRequestConfig = {
@@ -37,12 +44,30 @@ export const getAllCategories = async () => {
       },
     }
 
-    const response = await axios.get(`${BASE_URL}/categories`, config)
+    const response = await axios.get<CategoryResponse>(
+      `${BASE_URL}/categories?page=${page}&limit=${limit}`,
+      config,
+    )
     return response.data
   } catch (error) {
     throw error
   }
 }
+// export const getAllCategories = async () => {
+//   try {
+//     const accessToken = getAccessToken()
+//     const config: AxiosRequestConfig = {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//     }
+
+//     const response = await axios.get(`${BASE_URL}/categories`, config)
+//     return response.data
+//   } catch (error) {
+//     throw error
+//   }
+// }
 
 // Api for update category name
 export const updateCategory = async (

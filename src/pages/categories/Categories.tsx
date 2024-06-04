@@ -10,7 +10,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
+  MenuItem,
+  Select,
+  Stack,
   TextField,
   Typography,
 } from '@mui/material'
@@ -20,7 +24,6 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import { BaseLayout } from '../../components/BaseLayout'
 import { DeleteOutline, EditOutlined } from '@mui/icons-material'
@@ -35,6 +38,8 @@ import { useDebounce } from '../../hooks/useDebounce'
 import SnackbarComponent from '../../components/SnackBar'
 import { useNavigate } from 'react-router-dom'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 
 interface Category {
   id: string
@@ -71,8 +76,8 @@ const Columndata: ColumnData[] = [
 ]
 
 function Categories() {
-  const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [categoryToAdd, setCategoryToAdd] = useState<Category>({
@@ -96,14 +101,13 @@ function Categories() {
   const [isLoading, setIsLoading] = useState(false)
 
   const navigate = useNavigate()
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setIsLoading(true)
         const response = debouncedSearchQuery
           ? await searchCategories(debouncedSearchQuery)
-          : await getAllCategories()
+          : await getAllCategories(currentPage, rowsPerPage)
         setCategories(response.data)
         setIsLoading(false)
       } catch (error) {
@@ -112,37 +116,36 @@ function Categories() {
     }
 
     fetchCategories()
-  }, [debouncedSearchQuery])
-
-  const handleSearchInput = (_event: any, value: string) => {
-    setSearchQuery(value)
-  }
+  }, [debouncedSearchQuery, currentPage, rowsPerPage])
 
   // useEffect(() => {
   //   const fetchCategories = async () => {
   //     try {
-  //       const response = await getAllCategories()
+  //       setIsLoading(true)
+  //       const response = debouncedSearchQuery
+  //         ? await searchCategories(debouncedSearchQuery)
+  //         : await getAllCategories()
   //       setCategories(response.data)
-  //       console.log(response.data)
+  //       setIsLoading(false)
   //     } catch (error) {
   //       console.error('Error fetching categories:', error)
   //     }
   //   }
 
   //   fetchCategories()
-  // }, [])
+  // }, [debouncedSearchQuery])
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage)
+  const handleSearchInput = (_event: any, value: string) => {
+    setSearchQuery(value)
   }
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
+  const handleChangePage = (
+    _event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number,
   ) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+    setCurrentPage(newPage + 1)
   }
 
+  
   const handleAddCategory = async () => {
     try {
       const response = await createCategory(categoryToAdd.categoryName)
@@ -249,7 +252,7 @@ function Categories() {
         </Box>
       </Box>
       <Box>
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+        <Paper sx={{ width: '100%', overflow: 'hidden', marginTop: 2 }}>
           <TableContainer sx={{ maxHeight: 600 }}>
             {isLoading ? (
               <Box
@@ -283,7 +286,9 @@ function Categories() {
                 <TableBody>
                   {Categories.map((category: Category, index: number) => (
                     <TableRow key={category.id}>
-                      <TableCell align="left">{index + 1}</TableCell>
+                      <TableCell align="left">
+                        {(currentPage - 1) * rowsPerPage + index + 1}
+                      </TableCell>
                       <TableCell align="left">
                         {category.categoryName}
                       </TableCell>
@@ -317,15 +322,55 @@ function Categories() {
               </Table>
             )}
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
-            count={setCategories.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          <Stack
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              marginRight: 3,
+              gap: 4,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 14 }}>Rows Per Page : </span>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 50 }}>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  displayEmpty
+                  value={rowsPerPage}
+                  onChange={(event: { target: { value: any } }) =>
+                    setRowsPerPage(Number(event.target.value))
+                  }
+                  sx={{ maxWidthidth: 90 }}
+                >
+                  {[10, 50, 100, 500].map((rows) => (
+                    <MenuItem key={rows} value={rows}>
+                      {rows}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <IconButton
+                onClick={(event) =>
+                  handleChangePage(event, Math.max(currentPage - 2, 0))
+                }
+                disabled={currentPage === 1}
+              >
+                <ArrowBackIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+              </IconButton>
+              <IconButton
+                onClick={(event) => handleChangePage(event, currentPage)}
+                disabled={Categories.length < rowsPerPage}
+              >
+                <ArrowForwardIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+                <span style={{ fontSize: 16 }}>{currentPage}</span>
+              </IconButton>
+            </Box>
+          </Stack>
         </Paper>
       </Box>
       <Dialog

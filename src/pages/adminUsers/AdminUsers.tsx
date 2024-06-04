@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as React from 'react'
+import React, { useState, useEffect } from 'react'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -23,6 +23,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Stack,
   TextField,
   Typography,
 } from '@mui/material'
@@ -36,6 +37,8 @@ import { deleteAdminUser } from '../../api/adminAPI'
 import SnackbarComponent from '../../components/SnackBar'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useNavigate } from 'react-router-dom'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 
 interface Column {
   id: 'S.No' | 'name' | 'email' | 'actions'
@@ -72,36 +75,36 @@ interface UpdateAdminPayload {
 }
 
 const AdminUsers = () => {
-  const [showModal, setShowModal] = React.useState(false)
-  const [showPassword, setShowPassword] = React.useState(true)
-  const [userData, setUserData] = React.useState<AdminUser | null>(null)
+  const [showModal, setShowModal] = useState(false)
+  const [showPassword, setShowPassword] = useState(true)
+  const [userData, setUserData] = useState<AdminUser | null>(null)
 
-  const [user, setUser] = React.useState<AdminUser & { password: string }>({
+  const [user, setUser] = useState<AdminUser & { password: string }>({
     id: '',
     fullName: '',
     email: '',
     password: '',
     role: 'ADMIN',
   })
-  const [isEditing, setIsEditing] = React.useState(false)
-  const [adminUsers, setAdminUsers] = React.useState<AdminUser[]>([])
-  // const [isLoading, setIsLoading] = React.useState(true)
-  const [error, setError] = React.useState<string | null>(null)
 
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false)
-  const [snackbarMessage, setSnackbarMessage] = React.useState('')
-  const [errorMsg, setErrorMsg] = React.useState('')
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [isEditing, setIsEditing] = useState(false)
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([])
+  const [error, setError] = useState<string | null>(null)
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const navigate = useNavigate()
-
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchAdminUsers = async () => {
       try {
         setIsLoading(true)
-        const response = await getAllAdminUsers()
-        const { data } = response
-        setAdminUsers(data)
+        const response = await getAllAdminUsers(currentPage, rowsPerPage)
+        setAdminUsers(response.data)
         setIsLoading(false)
       } catch (error) {
         setError('Error fetching admin users')
@@ -110,14 +113,31 @@ const AdminUsers = () => {
     }
 
     fetchAdminUsers()
-  }, [])
+  }, [currentPage, rowsPerPage])
 
-  console.log(adminUsers)
+  // useEffect(() => {
+  //   const fetchAdminUsers = async () => {
+  //     try {
+  //       setIsLoading(true)
+  //       const response = await getAllAdminUsers()
+  //       const { data } = response
+  //       setAdminUsers(data)
+  //       setIsLoading(false)
+  //     } catch (error) {
+  //       setError('Error fetching admin users')
+  //       console.error('Error fetching admin users:', error)
+  //     }
+  //   }
 
-  // Handle loading and error states
-  // if (isLoading) {
-  //   return <div>Loading...</div>
-  // }
+  //   fetchAdminUsers()
+  // }, [])
+
+  const handleChangePage = (
+    _event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number,
+  ) => {
+    setCurrentPage(newPage + 1)
+  }
 
   if (error) {
     return <div>{error}</div>
@@ -133,7 +153,6 @@ const AdminUsers = () => {
       console.error('Error deleting admin user:', error)
     }
   }
-  console.log(user.id)
 
   const handleEditButton = (userData: AdminUser) => {
     setUser({
@@ -241,7 +260,7 @@ const AdminUsers = () => {
           </Box>
         </Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer>
+          <TableContainer sx={{ maxHeight: 570 }}>
             {isLoading ? (
               <Box
                 sx={{
@@ -321,6 +340,55 @@ const AdminUsers = () => {
               </Table>
             )}
           </TableContainer>
+          <Stack
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              marginRight: 3,
+              gap: 4,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 14 }}>Rows Per Page : </span>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 50 }}>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  displayEmpty
+                  value={rowsPerPage}
+                  onChange={(event: { target: { value: any } }) =>
+                    setRowsPerPage(Number(event.target.value))
+                  }
+                  sx={{ maxWidthidth: 90 }}
+                >
+                  {[10, 50, 100, 500].map((rows) => (
+                    <MenuItem key={rows} value={rows}>
+                      {rows}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <IconButton
+                onClick={(event) =>
+                  handleChangePage(event, Math.max(currentPage - 2, 0))
+                }
+                disabled={currentPage === 1}
+              >
+                <ArrowBackIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+              </IconButton>
+              <IconButton
+                onClick={(event) => handleChangePage(event, currentPage)}
+                disabled={adminUsers.length < rowsPerPage}
+              >
+                <ArrowForwardIosIcon sx={{ fontSize: 17, fontWeight: 900 }} />
+                <span style={{ fontSize: 16 }}>{currentPage}</span>
+              </IconButton>
+            </Box>
+          </Stack>
         </Paper>
         <Dialog
           open={showModal}
