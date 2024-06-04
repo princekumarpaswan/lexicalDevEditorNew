@@ -219,6 +219,9 @@ const ContentSubTopicEditorPage = () => {
           editorData,
         )
         console.log(response)
+         if (response) {
+          navigate('/tutorial-content')
+        }
         setSubtopicStatus('READY_TO_PUBLISH')
       } else if (subtopicId) {
         const response = await updateSubtopicStatus(
@@ -246,6 +249,9 @@ const ContentSubTopicEditorPage = () => {
           editorData,
         )
         console.log(response)
+        if (response) {
+          navigate('/tutorial-content')
+        }
         setSubtopicStatus('CHANGES_NEEDED')
       } else if (subtopicId) {
         const response = await updateSubtopicStatus(

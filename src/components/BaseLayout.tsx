@@ -22,6 +22,8 @@ import { Button, Chip, Container } from '@mui/material'
 import ToggleTheme from './ToggleTheme/ToggleTheme'
 import { useNavigate } from 'react-router-dom'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
+import lightLogo from '../../public/images/euronlogo.png';
+import darkLogo from '../../public/images/Euron-darkmode-logo.png';
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { AuthContext } from '../context/AuthContext/AuthContext'
 import { useState, useContext } from 'react'
@@ -159,6 +161,11 @@ export const BaseLayout: React.FC<{
     setOpen(false)
   }
   const navigate = useNavigate()
+   const imageSource = theme?.palette.mode === 'light' ? lightLogo : darkLogo;
+  const imageStyles: React.CSSProperties = {
+    width: theme?.palette.mode === 'light' ? 135 : 135,
+    height: theme?.palette.mode === 'light' ? 65 : 30,
+  };
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -207,18 +214,7 @@ export const BaseLayout: React.FC<{
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           <div style={{ display: 'flex' }}>
-            <img
-              src={
-                theme.palette.mode === 'light'
-                  ? '../../images/euronlogo.png'
-                  : '../../images/Euron-darkmode-logo.png'
-              }
-              style={{
-                width: theme.palette.mode === 'light' ? 135 : 135,
-                height: theme.palette.mode === 'light' ? 65 : 30,
-              }}
-              alt="Logo"
-            />
+            <img src={imageSource} alt="Logo" style={imageStyles} />;
             <IconButton onClick={handleDrawerClose}>
               {theme.direction === 'rtl' ? (
                 <ChevronRightIcon />
