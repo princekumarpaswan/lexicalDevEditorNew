@@ -212,7 +212,15 @@ const ContentSubTopicEditorPage = () => {
 
     try {
       const subtopicId = localStorage.getItem('subTopicID') ?? ''
-      if (subtopicId) {
+      if (subtopicId && editorData && editorData.length > 1) {
+        const response = await updateSubtopicStatus(
+          subtopicId,
+          'READY_TO_PUBLISH',
+          editorData,
+        )
+        console.log(response)
+        setSubtopicStatus('READY_TO_PUBLISH')
+      } else if (subtopicId) {
         const response = await updateSubtopicStatus(
           subtopicId,
           'READY_TO_PUBLISH',
@@ -227,11 +235,19 @@ const ContentSubTopicEditorPage = () => {
     }
   }
   const handleChangesNeededClick = async () => {
-    console.log('Chnages needed clicked')
+    console.log('Changes needed clicked')
 
     try {
       const subtopicId = localStorage.getItem('subTopicID') ?? ''
-      if (subtopicId) {
+      if (subtopicId && editorData && editorData.length > 1) {
+        const response = await updateSubtopicStatus(
+          subtopicId,
+          'CHANGES_NEEDED',
+          editorData,
+        )
+        console.log(response)
+        setSubtopicStatus('CHANGES_NEEDED')
+      } else if (subtopicId) {
         const response = await updateSubtopicStatus(
           subtopicId,
           'CHANGES_NEEDED',
@@ -245,6 +261,15 @@ const ContentSubTopicEditorPage = () => {
       console.error('Error updating subtopic status:', error)
     }
   }
+
+  useEffect(() => {
+    if (role === 'CONTENT_REVIEWER') {
+      setSnackbarOpen(true)
+      setErrorMsg(
+        "You are not allowed to edit the Content, please don't do edit !!",
+      )
+    }
+  }, [editorData])
 
   return (
     <BaseLayout title="Content Editor">
@@ -421,7 +446,8 @@ const ContentSubTopicEditorPage = () => {
             (subtopicStatus === 'CONTENT_ASSIGNED' ||
               subtopicStatus === 'CHANGES_NEEDED') && (
               <Button
-                disabled={ editorData && editorData?.length > 1 ? false : true } onClick={handleClick}
+                disabled={editorData && editorData?.length > 1 ? false : true}
+                onClick={handleClick}
                 variant="contained"
                 sx={{ width: 200 }}
               >

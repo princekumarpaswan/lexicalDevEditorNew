@@ -272,12 +272,13 @@ export const getTopicsAndSubTopicsFileUploadAI = async (id: string) => {
 export const updateSubtopicStatus = async (
   id: string,
   newSubTopicStatus: string,
+  newContent?: string
 ) => {
   try {
     const accessToken = getAccessToken()
     const response = await axios.patch(
       `${BASE_URL}/subtopics/update/status/${id}`,
-      { newSubTopicStatus },
+      { newSubTopicStatus, newContent },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -371,27 +372,6 @@ export const getWritterContent = async (id: string | null | undefined) => {
 }
 
 // API for Assign Content Reviewer
-// export const assignContentReviewer = async (reviewerId: string) => {
-//   try {
-//     const accessToken = getAccessToken()
-//     const config = {
-//       headers: {
-//         Authorization: `Bearer ${accessToken}`,
-//       },
-//     }
-//     const payload = {
-//       reviewerId: reviewerId,
-//     }
-//     const response = await axios.patch(
-//       `${BASE_URL}/subtopics/assign/reviewer/${reviewerId}`,
-//       payload,
-//       config,
-//     )
-//     return response.data
-//   } catch (error) {
-//     throw error
-//   }
-// }
 export const assignReviewer = async (
   subtopicId: string,
   reviewerId: string,

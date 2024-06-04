@@ -1,5 +1,5 @@
 import InsertLinkOutlinedIcon from '@mui/icons-material/InsertLinkOutlined'
-import FormatText from 'mdi-material-ui/FormatText'
+// import FormatText from 'mdi-material-ui/FormatText'
 import ImageIcon from '@mui/icons-material/Image'
 
 export const eventTypes = {
@@ -24,19 +24,19 @@ export const eventTypes = {
 }
 
 const pluginsList = [
-  {
-    id: 1,
-    Icon: FormatText,
-    event: eventTypes.paragraph,
-  },
+  // {
+  //   id: 1,
+  //   Icon: FormatText,
+  //   event: eventTypes.paragraph,
+  // },
 
   {
-    id: 13,
+    id: 1,
     Icon: ImageIcon,
     event: eventTypes.insertImage,
   },
   {
-    id: 14,
+    id: 2,
     Icon: InsertLinkOutlinedIcon,
     event: eventTypes.formatInsertLink,
   },

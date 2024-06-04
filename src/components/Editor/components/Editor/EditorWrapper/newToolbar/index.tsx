@@ -68,6 +68,7 @@ import BackupTableIcon from '@mui/icons-material/BackupTable'
 import IsoIcon from '@mui/icons-material/Iso'
 import YouTubeIcon from '@mui/icons-material/YouTube'
 import FormatShapesIcon from '@mui/icons-material/FormatShapes'
+import { AuthContext } from '../../../../../../context/AuthContext/AuthContext'
 
 const LowPriority = 3
 
@@ -76,6 +77,9 @@ function Divider() {
 }
 
 export default function ToolbarPlugin() {
+  const { state } = useContext(AuthContext)
+  const role = state.user?.role
+
   const [editor] = useLexicalComposerContext()
   const toolbarRef = useRef(null)
   const [canUndo, setCanUndo] = useState(false)
@@ -192,7 +196,7 @@ export default function ToolbarPlugin() {
       >
         <IconButton
           style={{ width: 30, borderRadius: 6, marginLeft: 9 }}
-          disabled={!canUndo}
+          disabled={!canUndo || role === 'CONTENT_REVIEWER'}
           onClick={() => {
             editor.dispatchCommand(UNDO_COMMAND, undefined)
           }}
@@ -202,7 +206,7 @@ export default function ToolbarPlugin() {
         </IconButton>
         <IconButton
           style={{ width: 30, borderRadius: 6, padding: 8 }}
-          disabled={!canRedo}
+          disabled={!canRedo || role === 'CONTENT_REVIEWER'}
           onClick={() => {
             editor.dispatchCommand(REDO_COMMAND, undefined)
           }}
@@ -337,7 +341,7 @@ export default function ToolbarPlugin() {
             </MenuItem>
           </Select>
         </FormControl> */}
-        <FormControl size="small">
+        <FormControl size="small" disabled={role === 'CONTENT_REVIEWER'}>
           <Select
             id="demo-simple-select"
             value={age}
@@ -469,6 +473,7 @@ export default function ToolbarPlugin() {
           <IconButton
             style={{ width: '60px', borderRadius: 10 }}
             key={plugin.id}
+            disabled={role === 'CONTENT_REVIEWER'}
           >
             <plugin.Icon onClick={() => onClick(plugin.event)} />
           </IconButton>
@@ -478,6 +483,7 @@ export default function ToolbarPlugin() {
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
           }}
+          disabled={role === 'CONTENT_REVIEWER'}
         >
           <FormatStrikethroughIcon />
         </IconButton>
@@ -486,6 +492,7 @@ export default function ToolbarPlugin() {
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')
           }}
+          disabled={role === 'CONTENT_REVIEWER'}
         >
           <CodeIcon />
         </IconButton>
@@ -493,6 +500,7 @@ export default function ToolbarPlugin() {
         <FormControl
           sx={{ minWidth: '120px', borderRadius: '5px', width: 'auto' }}
           size="small"
+          disabled={role === 'CONTENT_REVIEWER'}
         >
           <Select
             labelId="demo-simple-select"
@@ -583,7 +591,11 @@ export default function ToolbarPlugin() {
         </FormControl>
         <Divider />
 
-        <FormControl sx={{ minWidth: 170 }} size="small">
+        <FormControl
+          sx={{ minWidth: 170 }}
+          size="small"
+          disabled={role === 'CONTENT_REVIEWER'}
+        >
           <Select
             value={insert}
             onChange={handleAlignInsert}
