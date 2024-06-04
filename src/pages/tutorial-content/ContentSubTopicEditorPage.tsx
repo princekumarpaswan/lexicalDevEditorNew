@@ -29,6 +29,7 @@ import { AuthContext } from '../../context/AuthContext/AuthContext'
 import BorderColorIcon from '@mui/icons-material/BorderColor'
 import SnackbarComponent from '../../components/SnackBar'
 
+
 interface Admin {
   id: string
   fullName: string
@@ -62,6 +63,7 @@ const ContentSubTopicEditorPage = () => {
   const [subtopicStatus, setSubtopicStatus] = useState<string>(
     localStorage.getItem('subtopicStatus') || '',
   )
+  const navigation = useNavigate()
   const [reviewerName, setReviewerName] = useState<string>('')
   const [tutorialName, setTutorialName] = useState<string>('')
 
@@ -219,6 +221,9 @@ const ContentSubTopicEditorPage = () => {
           editorData,
         )
         console.log(response)
+         if (response) {
+          navigation('/tutorial-content')
+        }
         setSubtopicStatus('READY_TO_PUBLISH')
       } else if (subtopicId) {
         const response = await updateSubtopicStatus(
@@ -246,6 +251,9 @@ const ContentSubTopicEditorPage = () => {
           editorData,
         )
         console.log(response)
+        if (response) {
+          navigation('/tutorial-content')
+        }
         setSubtopicStatus('CHANGES_NEEDED')
       } else if (subtopicId) {
         const response = await updateSubtopicStatus(
