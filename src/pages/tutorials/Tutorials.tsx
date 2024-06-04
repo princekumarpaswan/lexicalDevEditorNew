@@ -546,14 +546,19 @@ function Tutorials() {
 
       <Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: 570 }}>
+          <TableContainer
+            sx={{
+              maxHeight: `calc(100vh - 240px)`,
+              overflowY: 'auto',
+            }}
+          >
             {isLoading ? (
               <Box
                 sx={{
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  height: 570,
+                  height: 770,
                 }}
               >
                 <CircularProgress />
@@ -613,7 +618,7 @@ function Tutorials() {
                               }
                             />
                           </p>
-                         </TableCell>
+                        </TableCell>
                         <TableCell align="center">
                           <BorderColorIcon
                             onClick={() => handleEditClick(tutorial.ID)}

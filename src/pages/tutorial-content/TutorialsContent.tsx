@@ -694,14 +694,16 @@ function TutorialContent() {
       </Box>
       <Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: 580 }}>
+          <TableContainer
+            sx={{ maxHeight: `calc(100vh - 240px)`, overflowY: 'auto' }}
+          >
             {isLoading ? (
               <Box
                 sx={{
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  height: 570,
+                  height: 770,
                 }}
               >
                 <CircularProgress />

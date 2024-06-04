@@ -145,7 +145,6 @@ function Categories() {
     setCurrentPage(newPage + 1)
   }
 
-  
   const handleAddCategory = async () => {
     try {
       const response = await createCategory(categoryToAdd.categoryName)
@@ -253,7 +252,9 @@ function Categories() {
       </Box>
       <Box>
         <Paper sx={{ width: '100%', overflow: 'hidden', marginTop: 2 }}>
-          <TableContainer sx={{ maxHeight: 600 }}>
+          <TableContainer
+            sx={{ maxHeight: `calc(100vh - 240px)`, overflowY: 'auto' }}
+          >
             {isLoading ? (
               <Box
                 sx={{
