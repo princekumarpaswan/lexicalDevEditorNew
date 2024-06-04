@@ -48,6 +48,7 @@ import {
 } from 'lexical'
 import {
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -76,6 +77,7 @@ import {
   getCommentFromApi,
   submitCommentApi,
 } from '../../../../../../api/tutorialContentAPI'
+import { AuthContext } from '../../../../../../context/AuthContext/AuthContext'
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -748,10 +750,8 @@ function CommentsPanel({
 }
 
 function useCollabAuthorName(): string {
-  const collabContext = useCollaborationContext()
-  const { yjsDocMap, name } = collabContext
-  // const { email, role } = JSON.parse(userData)
-  return yjsDocMap.has('comments') ? name : `playground`
+  const { state } = useContext(AuthContext)
+  return `${state.user?.email} - ${state.user?.role}`
 }
 
 export default function CommentPlugin({

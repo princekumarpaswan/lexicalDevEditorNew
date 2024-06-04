@@ -162,7 +162,6 @@ const ContentSubTopicEditorPage = () => {
       try {
         setIsLoading(true)
         const data = await getWritterContent(url.id)
-        console.log('API Response:', data)
         if (data?.data) {
           setEditorData(data.data)
 
@@ -377,7 +376,7 @@ const ContentSubTopicEditorPage = () => {
         )}
 
         <Box sx={{ display: 'flex', gap: 5, justifyContent: 'flex-end' }}>
-          <Button onClick={handleClick} variant="contained" sx={{ width: 200 }}>
+          <Button disabled={ editorData && editorData?.length > 1 ? false : true } onClick={handleClick} variant="contained" sx={{ width: 200 }}>
             Submit Content
           </Button>
         </Box>
