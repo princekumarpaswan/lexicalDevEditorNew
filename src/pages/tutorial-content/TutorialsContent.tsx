@@ -40,7 +40,6 @@ import { CircularProgress } from '@mui/material'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useDebounce } from '../../hooks/useDebounce'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { ThemeContext } from '../../ThemeContext'
 import { IThemeMode } from '../../ThemeContext/types'
 
@@ -422,15 +421,6 @@ function TutorialContent() {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {role === 'ADMIN' && (
-              <IconButton
-                onClick={() => navigate(-1)}
-                color="inherit"
-                size="large"
-              >
-                <ArrowBackIcon />
-              </IconButton>
-            )}
             <Typography variant="h5" component="h5">
               Tutorial Content
             </Typography>

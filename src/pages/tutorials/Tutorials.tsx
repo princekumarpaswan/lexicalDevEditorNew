@@ -41,7 +41,6 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useDebounce } from '../../hooks/useDebounce'
 import SnackbarComponent from '../../components/SnackBar'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 interface ColumnData {
   id: string
@@ -351,13 +350,6 @@ function Tutorials() {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton
-              onClick={() => navigate(-1)}
-              color="inherit"
-              size="large"
-            >
-              <ArrowBackIcon />
-            </IconButton>
             <Typography variant="h5" component="h5">
               Tutorials
             </Typography>

@@ -168,6 +168,15 @@ function AssignTutorialContent() {
     setSnackbarOpen(true)
     setSnackbarMessage('Content Assigned Successfully')
     setIsLoading(false)
+    // navigate('/tutorial-content')
+    setSelectedAdmin('')
+    setSelectedValue(null)
+    setSelectedSubTopic('')
+    setOptions([])
+    setTutorialDetail(undefined)
+    setSearchQuery('')
+    setAdminInputValue('')
+    setAdminOptions([])
   }
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -232,7 +241,7 @@ function AssignTutorialContent() {
         >
           <IconButton onClick={() => navigate(-1)} color="inherit" size="large">
             <ArrowBackIcon />
-          </IconButton> 
+          </IconButton>
           <Typography variant="h5" component="h5">
             Assign Tutorial Content
           </Typography>
@@ -243,12 +252,14 @@ function AssignTutorialContent() {
             freeSolo
             id="search-Tutorial"
             options={options}
+            value={selectedValue}
             onChange={(_e, value) => handleSelectedValue(value)}
             renderInput={(params) => (
               <TextField
                 onChange={(e) => handleSearch(e.target.value)}
                 {...params}
                 label="Search Tutorial Name"
+                value={searchQuery}
               />
             )}
           />

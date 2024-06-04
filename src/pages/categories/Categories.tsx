@@ -36,8 +36,6 @@ import {
 } from '../../api/categoryAPI'
 import { useDebounce } from '../../hooks/useDebounce'
 import SnackbarComponent from '../../components/SnackBar'
-import { useNavigate } from 'react-router-dom'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 
@@ -100,7 +98,6 @@ function Categories() {
   const [errorMsg, setErrorMsg] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const navigate = useNavigate()
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -216,14 +213,6 @@ function Categories() {
               gap: 2,
             }}
           >
-            <IconButton
-              onClick={() => navigate(-1)}
-              color="inherit"
-              size="large"
-            >
-              <ArrowBackIcon />
-            </IconButton>
-
             <Typography variant="h5" component="h5">
               Categories
             </Typography>

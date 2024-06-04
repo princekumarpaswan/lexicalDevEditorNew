@@ -18,12 +18,12 @@ import ListItemText from '@mui/material/ListItemText'
 import SchoolIcon from '@mui/icons-material/School'
 import SourceIcon from '@mui/icons-material/Source'
 import GroupIcon from '@mui/icons-material/Group'
-import { Button, Chip, Container } from '@mui/material'
+import { Button, Container } from '@mui/material'
 import ToggleTheme from './ToggleTheme/ToggleTheme'
 import { useNavigate } from 'react-router-dom'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
-import lightLogo from '../../public/images/euronlogo.png';
-import darkLogo from '../../public/images/Euron-darkmode-logo.png';
+import lightLogo from '../../public/images/euronlogolight.svg'
+import darkLogo from '../../public/images/euronlogodark.svg'
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { AuthContext } from '../context/AuthContext/AuthContext'
 import { useState, useContext } from 'react'
@@ -50,7 +50,7 @@ const sidebarElements: SidebarElement[] = [
     id: 3,
     title: 'Categories',
     icon: <SchoolIcon />,
-    href: '/Categories',
+    href: '/categories',
   },
   {
     id: 4,
@@ -161,11 +161,10 @@ export const BaseLayout: React.FC<{
     setOpen(false)
   }
   const navigate = useNavigate()
-   const imageSource = theme?.palette.mode === 'light' ? lightLogo : darkLogo;
+  const imageSource = theme?.palette.mode === 'light' ? lightLogo : darkLogo
   const imageStyles: React.CSSProperties = {
-    width: theme?.palette.mode === 'light' ? 135 : 135,
-    height: theme?.palette.mode === 'light' ? 65 : 30,
-  };
+    width: theme?.palette.mode === 'light' ? '100%' : '100%',
+  }
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -213,8 +212,16 @@ export const BaseLayout: React.FC<{
       </AppBar>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
-          <div style={{ display: 'flex' }}>
-            <img src={imageSource} alt="Logo" style={imageStyles} />;
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Box>
+              <img src={imageSource} alt="Logo" style={imageStyles} />
+            </Box>
             <IconButton onClick={handleDrawerClose}>
               {theme.direction === 'rtl' ? (
                 <ChevronRightIcon />
@@ -222,7 +229,7 @@ export const BaseLayout: React.FC<{
                 <ChevronLeftIcon />
               )}
             </IconButton>
-          </div>
+          </Box>
         </DrawerHeader>
         <Divider />
         <Box
@@ -285,16 +292,15 @@ export const BaseLayout: React.FC<{
               }}
             >
               {open && (
-                <Chip
-                  color="error"
-                  label={'LOGOUT'}
-                  variant="outlined"
+                <Button
                   onClick={() => {
                     // LocalStorage.clear()
                     handleLogout()
                   }}
-                  style={{ fontWeight: 500, fontSize: 15 }}
-                />
+                  style={{ fontWeight: 500, fontSize: 15, color: 'red' }}
+                >
+                  LOGOUT
+                </Button>
               )}
               <Button style={{ fontWeight: 800, color: 'red' }}>
                 {open == false && <ExitToAppIcon />}

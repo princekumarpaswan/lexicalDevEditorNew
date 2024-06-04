@@ -5,6 +5,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  IconButton,
   // IconButton,
   TextField,
   // Theme,
@@ -20,7 +21,7 @@ import {
 } from '../../context/TutorialContext/TutorialContext'
 import { getAllCategories, createTutorial } from '../../api/tutorialAPI'
 import SnackbarComponent from '../../components/SnackBar'
-// import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 // const ITEM_HEIGHT = 48
 // const ITEM_PADDING_TOP = 8
@@ -186,9 +187,25 @@ function AddTutorials() {
               justifyContent: 'space-between',
             }}
           >
-            <Typography variant="h5" component="h5" pb={1}>
-              Add Tutorial
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                marginBottom: 6,
+              }}
+            >
+              <IconButton
+                onClick={() => navigate(-1)}
+                color="inherit"
+                size="large"
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              <Typography variant="h5" component="h5">
+                Add Tutorial
+              </Typography>
+            </Box>
           </Box>
 
           <TextField

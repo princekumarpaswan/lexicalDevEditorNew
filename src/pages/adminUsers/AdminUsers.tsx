@@ -35,8 +35,6 @@ import {
 } from '../../api/adminAPI'
 import { deleteAdminUser } from '../../api/adminAPI'
 import SnackbarComponent from '../../components/SnackBar'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { useNavigate } from 'react-router-dom'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 
@@ -98,7 +96,6 @@ const AdminUsers = () => {
   const [errorMsg, setErrorMsg] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const navigate = useNavigate()
   useEffect(() => {
     const fetchAdminUsers = async () => {
       try {
@@ -233,13 +230,6 @@ const AdminUsers = () => {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton
-              onClick={() => navigate(-1)}
-              color="inherit"
-              size="large"
-            >
-              <ArrowBackIcon />
-            </IconButton>
             <Typography variant="h5" component="h5">
               Admin Users
             </Typography>
