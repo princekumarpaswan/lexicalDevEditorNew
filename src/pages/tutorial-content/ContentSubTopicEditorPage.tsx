@@ -163,7 +163,6 @@ const ContentSubTopicEditorPage = () => {
       try {
         setIsLoading(true)
         const data = await getWritterContent(url.id)
-        console.log('API Response:', data)
         if (data?.data) {
           setEditorData(data.data)
 
@@ -422,7 +421,7 @@ const ContentSubTopicEditorPage = () => {
             (subtopicStatus === 'CONTENT_ASSIGNED' ||
               subtopicStatus === 'CHANGES_NEEDED') && (
               <Button
-                onClick={handleClick}
+                disabled={ editorData && editorData?.length > 1 ? false : true } onClick={handleClick}
                 variant="contained"
                 sx={{ width: 200 }}
               >
