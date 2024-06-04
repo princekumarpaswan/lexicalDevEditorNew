@@ -4,6 +4,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  Chip,
   CircularProgress,
   FormControl,
   Grid,
@@ -596,20 +597,21 @@ function Tutorials() {
                           align="center"
                           sx={{ display: 'flex', justifyContent: 'center' }}
                         >
-                          <p
-                            style={{
-                              backgroundColor:
+                          <p>
+                            <Chip
+                              label={tutorial.status}
+                              style={{
+                                fontWeight: 'bold',
+                                padding: '6px 12px',
+                                borderRadius: '20px',
+                                width: '180px',
+                              }}
+                              color={
                                 tutorial.status === 'LISTED'
-                                  ? 'darkgreen'
-                                  : 'darkred',
-                              color: 'white',
-                              fontWeight: 'bold',
-                              padding: 3,
-                              borderRadius: 20,
-                              width: 100,
-                            }}
-                          >
-                            {tutorial.status}
+                                  ? 'success'
+                                  : 'error'
+                              }
+                            />
                           </p>
                         </TableCell>
                         <TableCell align="center">

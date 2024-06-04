@@ -624,7 +624,7 @@ function TutorialContent() {
                           <MenuItem value="CONTENT_ASSIGNED">
                             Content Assigned
                           </MenuItem>
-                          <MenuItem value="TO_ASSIGN">To Assign</MenuItem>
+                          <MenuItem value="TO_ASSIGN">Not Assigned</MenuItem>
                           <MenuItem value="REVIEW_ASSIGNED">
                             Review Assigned
                           </MenuItem>
@@ -723,93 +723,7 @@ function TutorialContent() {
                     ))}
                   </TableRow>
                 </TableHead>
-                {/* <TableBody>
-                  {tutorialContentData.length > 0 &&
-                    tutorialContentData.map((row: tutorial, index: number) => (
-                      <TableRow
-                        hover
-                        role="checkbox"
-                        tabIndex={-1}
-                        key={row.id}
-                      >
-                        <TableCell align="left">
-                          {(page - 1) * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell align="left">
-                          <Link
-                            to={`/tutorial-content/subtopic-write-content/${row.subTopicName.split(' ').join('-')}/${row.id}`}
-                          >
-                            {row.subTopicName}
-                          </Link>
-                        </TableCell>
-                        <TableCell align="center">
-                          {row.topicInfo.topicName}
-                        </TableCell>
-                        <TableCell align="center">
-                          {row.tutorialInfo.tutorialName}
-                        </TableCell>
-                        <TableCell align="center">
-                          {row.writerInfo
-                            ? row.writerInfo.fullName
-                            : 'Not Assigned'}
-                        </TableCell>
-                        <TableCell align="center">
-                          {row.reviewerInfo
-                            ? row.reviewerInfo.fullName
-                            : 'Not Assigned'}
-                        </TableCell>
-                        <TableCell align="center">
-                          <Chip
-                            label={
-                              row.status === 'TO_ASSIGN'
-                                ? 'Not Assigned'
-                                : row.status === 'CONTENT_ASSIGNED'
-                                  ? 'Content Assigned'
-                                  : row.status === 'CONTENT_DONE'
-                                    ? 'Content Done'
-                                    : row.status === 'REVIEW_ASSIGNED'
-                                      ? 'Review Assigned'
-                                      : row.status === 'CHANGES_NEEDED'
-                                        ? 'Changes Needed'
-                                        : row.status === 'READY_TO_PUBLISH'
-                                          ? 'Ready To Publish'
-                                          : row.status === 'PUBLISHED'
-                                            ? 'Published'
-                                            : row.status === 'UNPUBLISHED'
-                                              ? 'Unpublished'
-                                              : row.status
-                            }
-                            color={
-                              row.status === 'CONTENT_ASSIGNED'
-                                ? 'default'
-                                : row.status === 'CONTENT_DONE'
-                                  ? 'primary'
-                                  : row.status === 'REVIEW_ASSIGNED'
-                                    ? 'default'
-                                    : row.status === 'CHANGES_NEEDED'
-                                      ? 'warning'
-                                      : row.status === 'READY_TO_PUBLISH'
-                                        ? 'info'
-                                        : row.status === 'PUBLISHED'
-                                          ? 'success'
-                                          : row.status === 'UNPUBLISHED'
-                                            ? 'error'
-                                            : 'default'
-                            }
-                            style={{
-                              fontWeight: 'bold',
-                              padding: '6px 12px',
-                              borderRadius: '20px',
-                              width: '180px',
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell align="center">
-                          {<Switch {...label} />}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody> */}
+
                 <TableBody>
                   {updatedSubtopics.length > 0 ||
                   tutorialContentData.length > 0 ? (
@@ -918,7 +832,7 @@ function TutorialContent() {
                             <Switch
                               {...label}
                               checked={row.status === 'PUBLISHED'}
-                              disabled 
+                              disabled
                             />
                           )}
                         </TableCell>
