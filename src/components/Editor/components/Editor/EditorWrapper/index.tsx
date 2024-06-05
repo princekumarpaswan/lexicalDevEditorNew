@@ -40,11 +40,21 @@ import { EquationNode } from '../nodes/EquationNode'
 import { MarkNode } from '@lexical/mark'
 import { ThemeContext } from '../../../../../ThemeContext'
 import { IThemeMode } from '../../../../../ThemeContext/types'
+import { AuthContext } from '../../../../../context/AuthContext/AuthContext'
 type EditorWrapperProps = {
   onEditorChange: (editorStateJSONString: string) => void
   initialContent?: any
+  status?: any
+  subTopicStatus?: any
 }
-function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
+function EditorWrapper({
+  onEditorChange,
+  initialContent,
+  status,
+  subTopicStatus,
+}: EditorWrapperProps) {
+  const { state } = useContext(AuthContext)
+  const role = state.user?.role
   const initialConfig = {
     namespace: 'Editor',
     theme: PlaygroundEditorTheme,
@@ -87,11 +97,31 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
   //     ? 'Enter some rich text...'
   //     : 'Enter some plain text...'
 
-  const themeContext = useContext(ThemeContext)
+  // role === 'CONTENT_REVIEWER'
+  //             ? true
+  //             : initialContent.status == 'CHANGES_NEEDED'
+  //               ? true
+  //               : false,
 
+  const themeContext = useContext(ThemeContext)
+  // const [editable, setEditable] = useState(true)
   if (!themeContext) {
     throw new Error('YourComponent must be used within a ThemeContextProvider')
   }
+
+  // useEffect(() => {
+  //   // console.log('initial content')
+  //   // const status = initialContent
+  //   // const data = JSON.parse(JSON.stringify(status))
+
+  // const status = localStorage.getItem('subtopicStatus')
+
+  //   if (role === 'CONTENT_REVIEWER') {
+  //     setEditable(false)
+  //   } else if (status === 'CONTENT_DONE') {
+  //     setEditable(false)
+  //   }
+  // }, [])
 
   const { themeMode } = themeContext
 
@@ -100,8 +130,21 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
   }
   return (
     <>
-    
-      <LexicalComposer initialConfig={initialConfig}>
+      <LexicalComposer
+        initialConfig={{
+          ...initialConfig,
+          editable:
+            role === 'CONTENT_REVIEWER'
+              ? false
+              : status === 'CONTENT_DONE'
+                ? false
+                : status === 'NOT_PUBLISHED'
+                  ? false
+                  : status === 'REVIEW_ASSIGNED'
+                    ? false
+                    : true,
+        }}
+      >
         <TableContext>
           <Box
             sx={{
@@ -111,7 +154,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
               borderColor: 'lightgray',
             }}
           >
-            <ToolbarPlugin />
+            <ToolbarPlugin subTopicStatus={subTopicStatus} />
             <Box
               sx={{
                 ...toolbarStyle,
@@ -127,7 +170,7 @@ function EditorWrapper({ onEditorChange, initialContent }: EditorWrapperProps) {
                 placeholder={<Box sx={placeHolderSx}>Enter your text here</Box>}
                 ErrorBoundary={LexicalErrorBoundary}
               />
-              <CommentPlugin />
+              <CommentPlugin subTopicStatus={subTopicStatus} />
               <HistoryPlugin />
               <ImagesPlugin captionsEnabled={false} />
               <ExcalidrawPlugin />

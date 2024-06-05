@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { mergeRegister } from '@lexical/utils'
@@ -58,7 +59,7 @@ function Divider() {
   return <div className="divider" />
 }
 
-export default function ToolbarPlugin() {
+export default function ToolbarPlugin(subTopicStatus: any) {
   const { state } = useContext(AuthContext)
   const role = state.user?.role
 
@@ -178,7 +179,11 @@ export default function ToolbarPlugin() {
       >
         <IconButton
           style={{ width: 30, borderRadius: 6, marginLeft: 9 }}
-          disabled={!canUndo || role === 'CONTENT_REVIEWER'}
+          disabled={
+            !canUndo ||
+            role === 'CONTENT_REVIEWER' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+          }
           onClick={() => {
             editor.dispatchCommand(UNDO_COMMAND, undefined)
           }}
@@ -188,7 +193,11 @@ export default function ToolbarPlugin() {
         </IconButton>
         <IconButton
           style={{ width: 30, borderRadius: 6, padding: 8 }}
-          disabled={!canRedo || role === 'CONTENT_REVIEWER'}
+          disabled={
+            !canRedo ||
+            role === 'CONTENT_REVIEWER' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+          }
           onClick={() => {
             editor.dispatchCommand(REDO_COMMAND, undefined)
           }}
@@ -323,7 +332,13 @@ export default function ToolbarPlugin() {
             </MenuItem>
           </Select>
         </FormControl> */}
-        <FormControl size="small" disabled={role === 'CONTENT_REVIEWER'}>
+        <FormControl
+          size="small"
+          disabled={
+            role === 'CONTENT_REVIEWER' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+          }
+        >
           <Select
             id="demo-simple-select"
             value={age}
@@ -455,7 +470,10 @@ export default function ToolbarPlugin() {
           <IconButton
             style={{ width: '60px', borderRadius: 10 }}
             key={plugin.id}
-            disabled={role === 'CONTENT_REVIEWER'}
+            disabled={
+              role === 'CONTENT_REVIEWER' ||
+              subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+            }
           >
             <plugin.Icon onClick={() => onClick(plugin.event)} />
           </IconButton>
@@ -465,7 +483,10 @@ export default function ToolbarPlugin() {
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
           }}
-          disabled={role === 'CONTENT_REVIEWER'}
+          disabled={
+            role === 'CONTENT_REVIEWER' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+          }
         >
           <FormatStrikethroughIcon />
         </IconButton>
@@ -474,7 +495,10 @@ export default function ToolbarPlugin() {
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')
           }}
-          disabled={role === 'CONTENT_REVIEWER'}
+          disabled={
+            role === 'CONTENT_REVIEWER' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+          }
         >
           <CodeIcon />
         </IconButton>
@@ -482,7 +506,10 @@ export default function ToolbarPlugin() {
         <FormControl
           sx={{ minWidth: '120px', borderRadius: '5px', width: 'auto' }}
           size="small"
-          disabled={role === 'CONTENT_REVIEWER'}
+          disabled={
+            role === 'CONTENT_REVIEWER' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+          }
         >
           <Select
             labelId="demo-simple-select"
@@ -576,7 +603,9 @@ export default function ToolbarPlugin() {
         <FormControl
           sx={{ minWidth: 170 }}
           size="small"
-          disabled={role === 'CONTENT_REVIEWER'}
+          disabled={
+            role === 'CONTENT_REVIEWER' || subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+          }
         >
           <Select
             value={insert}

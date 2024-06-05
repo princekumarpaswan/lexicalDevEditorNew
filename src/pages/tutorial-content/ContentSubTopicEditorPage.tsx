@@ -40,6 +40,35 @@ const ContentSubTopicEditorPage = () => {
   const { state } = useContext(AuthContext)
   const role = state.user?.role
 
+  const base = JSON.stringify({
+    root: {
+      children: [
+        {
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          type: 'paragraph',
+          version: 1,
+          textFormat: 0,
+        },
+        {
+          children: [],
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          type: 'paragraph',
+          version: 1,
+          textFormat: 0,
+        },
+      ],
+      direction: 'ltr',
+      format: '',
+      indent: 0,
+      type: 'root',
+      version: 1,
+    },
+  })
+
   const navigate = useNavigate()
   const url = useParams()
   useEffect(() => {
@@ -47,7 +76,7 @@ const ContentSubTopicEditorPage = () => {
       localStorage.setItem('subTopicID', url?.id)
     }
   }, [url])
-  const [editorData, setEditorData] = useState<string | undefined>()
+  const [editorData, setEditorData] = useState<string | undefined>(base)
   const [openAssignReviewerModal, setOpenAssignReviewerModal] = useState(false)
 
   const [allAdminData, setAllAdminData] = useState<Admin[]>([])
@@ -59,9 +88,10 @@ const ContentSubTopicEditorPage = () => {
     label: string
     id: string
   } | null>(null)
-  const [subtopicStatus, setSubtopicStatus] = useState<string>(
-    localStorage.getItem('subtopicStatus') || '',
-  )
+  const [subtopicStatus, setSubtopicStatus] = useState<string>('')
+  // const [subtopicStatus, setSubtopicStatus] = useState<string>(
+  //   localStorage.getItem('subtopicStatus') || '',
+  // )
   const [reviewerName, setReviewerName] = useState<string>('')
   const [tutorialName, setTutorialName] = useState<string>('')
 
@@ -69,7 +99,8 @@ const ContentSubTopicEditorPage = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [triggerEffect, setTriggerEffect] = useState(false)
+  const [apiStatus, setApiStatus] = useState('')
+  // const [triggerEffect, setTriggerEffect] = useState(false)
 
   const formatRole = (role: string) => {
     return role
@@ -129,12 +160,12 @@ const ContentSubTopicEditorPage = () => {
 
         setSubtopicStatus('Review Assigned')
 
-        localStorage.setItem('subtopicStatus', 'Review Assigned')
+        // localStorage.setItem('subtopicStatus', 'Review Assigned')
 
         setIsLoading(false)
         setSnackbarOpen(true)
         setSnackbarMessage('Reviewer Assigned Successfully')
-        setTriggerEffect((prev) => !prev) // Toggle the triggerEffect state
+        // setTriggerEffect((prev) => !prev) // Toggle the triggerEffect state
       } else if (!selectedReviewer) {
         console.error('No reviewer selected')
         setIsLoading(false)
@@ -165,6 +196,13 @@ const ContentSubTopicEditorPage = () => {
         const data = await getWritterContent(url.id)
         if (data?.data) {
           setEditorData(data.data)
+          if (data.data.content === '[object Object]') {
+            setEditorData(base)
+          } else {
+            setEditorData(data.data)
+            console.log(data.data.status)
+            setApiStatus(data.data.status)
+          }
 
           const tutorialName = data?.data?.tutorialInfo?.tutorialName
           setTutorialName(tutorialName)
@@ -183,7 +221,7 @@ const ContentSubTopicEditorPage = () => {
       }
     }
     callData()
-  }, [url.id, triggerEffect])
+  }, [url.id])
 
   useEffect(() => {
     const storedStatus = localStorage.getItem('subtopicStatus') || ''
@@ -193,14 +231,16 @@ const ContentSubTopicEditorPage = () => {
   const handleClick = async () => {
     try {
       setIsLoading(true)
-      await writeContent(url.id, editorData)
+      const response = await writeContent(url.id, editorData)
       setSnackbarOpen(true)
       setSnackbarMessage('Content Done Successfully')
       setIsLoading(false)
-
       setSubtopicStatus('CONTENT_DONE')
-      localStorage.setItem('subtopicStatus', 'CONTENT_DONE')
-      setTriggerEffect((prev) => !prev)
+      // localStorage.setItem('subtopicStatus', 'CONTENT_DONE')
+      // setTriggerEffect((prev) => !prev)
+      if (response) {
+        navigate('/tutorial-content')
+      }
     } catch (error) {
       setSnackbarOpen(true)
       setErrorMsg('Error Submitting Content')
@@ -218,8 +258,10 @@ const ContentSubTopicEditorPage = () => {
           'READY_TO_PUBLISH',
           editorData,
         )
+        console.log(editorData)
+
         console.log(response)
-         if (response) {
+        if (response) {
           navigate('/tutorial-content')
         }
         setSubtopicStatus('READY_TO_PUBLISH')
@@ -228,6 +270,9 @@ const ContentSubTopicEditorPage = () => {
           subtopicId,
           'READY_TO_PUBLISH',
         )
+        if (response) {
+          navigate('/tutorial-content')
+        }
         console.log(response)
         setSubtopicStatus('READY_TO_PUBLISH')
       } else {
@@ -258,6 +303,9 @@ const ContentSubTopicEditorPage = () => {
           subtopicId,
           'CHANGES_NEEDED',
         )
+        if (response) {
+          navigate('/tutorial-content')
+        }
         console.log(response)
         setSubtopicStatus('CHANGES_NEEDED')
       } else {
@@ -270,10 +318,10 @@ const ContentSubTopicEditorPage = () => {
 
   useEffect(() => {
     if (role === 'CONTENT_REVIEWER') {
-      setSnackbarOpen(true)
-      setErrorMsg(
-        "You are not allowed to edit the Content, please don't do edit !!",
-      )
+      // setSnackbarOpen(true)
+      // setErrorMsg(
+      //   "You are not allowed to edit the Content, please don't do edit !!",
+      // )
     }
   }, [editorData])
 
@@ -340,14 +388,16 @@ const ContentSubTopicEditorPage = () => {
               </Box>
             </Box>
             <Box sx={{ display: 'flex', gap: 3 }}>
-              {role === 'ADMIN' && subtopicStatus === 'CONTENT_DONE' && !reviewerName && (
-                <Button
-                  variant="contained"
-                  onClick={handleClickOpenAssignReviewerModal}
-                >
-                  Assign Content Reviewer
-                </Button>
-              )}
+              {role === 'ADMIN' &&
+                subtopicStatus === 'CONTENT_DONE' &&
+                !reviewerName && (
+                  <Button
+                    variant="contained"
+                    onClick={handleClickOpenAssignReviewerModal}
+                  >
+                    Assign Content Reviewer
+                  </Button>
+                )}
               {role === 'ADMIN' &&
                 (subtopicStatus === 'REVIEW_ASSIGNED' || reviewerName) && (
                   <Box
@@ -442,6 +492,8 @@ const ContentSubTopicEditorPage = () => {
                 <EditorWrapper
                   onEditorChange={(e) => setEditorData(e)}
                   initialContent={editorData}
+                  status={apiStatus}
+                  subTopicStatus={subtopicStatus}
                 />
               </>
             )}
@@ -469,6 +521,7 @@ const ContentSubTopicEditorPage = () => {
               subtopicStatus === 'TO_ASSIGN') && (
               <Button
                 onClick={handleClick}
+                disabled={editorData && editorData?.length > 1 ? false : true}
                 variant="contained"
                 sx={{ width: 200 }}
               >
@@ -477,7 +530,8 @@ const ContentSubTopicEditorPage = () => {
             )}
           {role === 'ADMIN' &&
             (subtopicStatus === 'CONTENT_DONE' ||
-              subtopicStatus === 'REVIEW_ASSIGNED') && (
+              subtopicStatus === 'REVIEW_ASSIGNED' ||
+              subtopicStatus === 'NOT_PUBLISHED') && (
               <>
                 <Button
                   variant="contained"
@@ -499,7 +553,8 @@ const ContentSubTopicEditorPage = () => {
           {/* CONTENT_REVIEWER */}
           {role === 'CONTENT_REVIEWER' &&
             (subtopicStatus === 'CONTENT_DONE' ||
-              subtopicStatus === 'REVIEW_ASSIGNED') && (
+              subtopicStatus === 'REVIEW_ASSIGNED' ||
+              subtopicStatus === 'NOT_PUBLISHED') && (
               <>
                 <Button
                   onClick={handleChangesNeededClick}

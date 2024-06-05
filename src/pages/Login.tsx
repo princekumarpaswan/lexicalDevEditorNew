@@ -99,7 +99,7 @@ export default function Login() {
           </Avatar>
           <img
             style={{ maxWidth: 200, padding: '5px 0px 20px 17px' }}
-            src="/images/euronlogo.png"
+            src="/images/euronlogolight.svg"
           />
           <Typography component="h1" variant="h5" sx={{ marginTop: 3 }}>
             Sign in to Euron{' '}

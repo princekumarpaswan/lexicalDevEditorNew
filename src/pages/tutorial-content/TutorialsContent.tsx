@@ -347,20 +347,30 @@ function TutorialContent() {
     setShowFilterBox(showFilterBox ? null : event.currentTarget)
   }
 
-  const fetchTutorialContent = async (
-    status?: string,
-    reviewerId?: string,
-    writerId?: string,
-  ) => {
+  const fetchTutorialContent = async () => {
     try {
       setLoading(true)
-      const filteredSubtopicsResponse = await FilterSubtopics(
-        status,
-        reviewerId,
-        writerId,
-      )
+      const params: { [key: string]: string | undefined } = {}
+
+      const selectedWriterId = contentWriters.find(
+        (writer) => writer.fullName === writerInputValue,
+      )?.id
+      const selectedReviewerId = contentReviewers.find(
+        (reviewer) => reviewer.fullName === reviewerInputValue,
+      )?.id
+
+      if (selectedStatus) {
+        params.status = selectedStatus
+      }
+      if (selectedReviewerId) {
+        params.reviewerId = selectedReviewerId
+      }
+      if (selectedWriterId) {
+        params.writerId = selectedWriterId
+      }
+
+      const filteredSubtopicsResponse = await FilterSubtopics(params)
       const filteredSubtopics: SubTopic[] = filteredSubtopicsResponse.data
-      // Update the tutorialContentData state with the filtered subtopics
       steTutorialContentData(filteredSubtopics)
       setLoading(false)
     } catch (error) {
@@ -369,14 +379,7 @@ function TutorialContent() {
   }
 
   const handleFilterFetch = async () => {
-    const selectedWriterId = contentWriters.find(
-      (writer) => writer.fullName === writerInputValue,
-    )?.id
-    const selectedReviewerId = contentReviewers.find(
-      (reviewer) => reviewer.fullName === reviewerInputValue,
-    )?.id
-
-    fetchTutorialContent(selectedStatus, selectedReviewerId, selectedWriterId)
+    fetchTutorialContent()
     setShowFilterBox(null)
   }
 

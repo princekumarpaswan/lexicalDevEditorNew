@@ -78,6 +78,7 @@ import {
   submitCommentApi,
 } from '../../../../../../api/tutorialContentAPI'
 import { AuthContext } from '../../../../../../context/AuthContext/AuthContext'
+import SnackbarComponent from '../../../../../SnackBar'
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -756,8 +757,10 @@ function useCollabAuthorName(): string {
 
 export default function CommentPlugin({
   providerFactory,
+  subTopicStatus,
 }: {
   providerFactory?: (id: string, yjsDocMap: Map<string, Doc>) => Provider
+  subTopicStatus?: any
 }): JSX.Element {
   const collabContext = useCollaborationContext()
   const [editor] = useLexicalComposerContext()
@@ -773,6 +776,9 @@ export default function CommentPlugin({
   const [apiComments, setApiComment] = useState([])
   const [apiThread, setApiThread] = useState<Thread[]>([])
   const { yjsDocMap } = collabContext
+
+  // const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
     if (providerFactory) {
@@ -889,18 +895,25 @@ export default function CommentPlugin({
       thread?: Thread,
       selection?: RangeSelection | null,
     ) => {
-      commentStore.addComment(commentOrThread, thread)
-      if (isInlineComment) {
-        editor.update(() => {
-          if ($isRangeSelection(selection)) {
-            const isBackward = selection.isBackward()
-            const id = commentOrThread.id
+      if (subTopicStatus != 'PUBLISHED') {
+        commentStore.addComment(commentOrThread, thread)
+        if (isInlineComment) {
+          editor.update(() => {
+            if ($isRangeSelection(selection)) {
+              const isBackward = selection.isBackward()
+              const id = commentOrThread.id
 
-            // Wrap content in a MarkNode
-            $wrapSelectionInMarkNode(selection, isBackward, id)
-          }
-        })
-        setShowCommentInput(false)
+              // Wrap content in a MarkNode
+              $wrapSelectionInMarkNode(selection, isBackward, id)
+            }
+          })
+          setShowCommentInput(false)
+        }
+      }
+      if (subTopicStatus === 'PUBLISHED') {
+        setErrorMsg(
+          'You cannot comment because this tutorial is already Published',
+        )
       }
     },
     [commentStore, editor],
@@ -1086,6 +1099,12 @@ export default function CommentPlugin({
           />,
           document.body,
         )}
+      <SnackbarComponent
+        severity="error"
+        message={errorMsg}
+        open={!!errorMsg}
+        closeSnackbar={() => setErrorMsg('')}
+      />
     </>
   )
 }

@@ -98,22 +98,16 @@ export const assignContentWritter = async (
 }
 
 // api for Filtering The Subtopics
-export const FilterSubtopics = async (
-  status: any,
-  reviewerId: any,
-  writerId: any,
-) => {
+export const FilterSubtopics = async (params: {
+  [key: string]: string | undefined
+}) => {
   try {
     const accessToken = getAccessToken()
     const config = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-      params: {
-        status,
-        reviewerId,
-        writerId,
-      },
+      params,
     }
     const response = await axios.get(`${BASE_URL}/subtopics/filter`, config)
     return response.data
