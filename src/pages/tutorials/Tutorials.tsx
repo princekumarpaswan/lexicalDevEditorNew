@@ -16,6 +16,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -95,6 +96,7 @@ interface TutorialData {
 
 function Tutorials() {
   const navigate = useNavigate()
+  const theme = useTheme()
 
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
@@ -614,7 +616,10 @@ function Tutorials() {
                         <TableCell align="center">
                           <BorderColorIcon
                             onClick={() => handleEditClick(tutorial.ID)}
-                            sx={{ cursor: 'pointer' }}
+                            sx={{
+                              cursor: 'pointer',
+                              color: theme.palette.primary.main,
+                            }}
                           />
                         </TableCell>
                         <TableCell align="center">

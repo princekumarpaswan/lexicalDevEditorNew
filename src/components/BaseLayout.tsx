@@ -297,12 +297,22 @@ export const BaseLayout: React.FC<{
                     // LocalStorage.clear()
                     handleLogout()
                   }}
-                  style={{ fontWeight: 500, fontSize: 15, color: 'red' }}
+                  style={{
+                    fontWeight: 500,
+                    fontSize: 15,
+                    color: theme.palette.error.main,
+                  }}
                 >
                   LOGOUT
                 </Button>
               )}
-              <Button style={{ fontWeight: 800, color: 'red' }}>
+              <Button
+                onClick={() => {
+                  // LocalStorage.clear()
+                  handleLogout()
+                }}
+                style={{ fontWeight: 800, color: theme.palette.error.main }}
+              >
                 {open == false && <ExitToAppIcon />}
               </Button>
             </ListItemButton>

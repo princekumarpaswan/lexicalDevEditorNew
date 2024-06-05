@@ -16,6 +16,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material'
 import { SetStateAction, useContext, useEffect, useState } from 'react'
 import Paper from '@mui/material/Paper'
@@ -41,7 +42,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useDebounce } from '../../hooks/useDebounce'
 import { ThemeContext } from '../../ThemeContext'
-import { IThemeMode } from '../../ThemeContext/types'
+// import { IThemeMode } from '../../ThemeContext/types'
 
 interface ColumnData {
   id: string
@@ -148,6 +149,7 @@ const Columndata: ColumnData[] = [
 ]
 
 function TutorialContent() {
+  const theme = useTheme()
   const navigate = useNavigate()
   const { state } = useContext(AuthContext)
   const role = state.user?.role
@@ -158,11 +160,11 @@ function TutorialContent() {
     throw new Error('YourComponent must be used within a ThemeContextProvider')
   }
 
-  const { themeMode } = themeContext
+  // const { themeMode } = themeContext
 
-  const linkStyle = {
-    color: themeMode === IThemeMode.DARK ? 'lightblue' : 'darkblue',
-  }
+  // const linkStyle = {
+  //   color: themeMode === IThemeMode.DARK ? 'lightblue' : 'darkblue',
+  // }
 
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -737,7 +739,7 @@ function TutorialContent() {
                             to={`/tutorial-content/subtopic-write-content/${row.subTopicName
                               .split(' ')
                               .join('-')}/${row.id}`}
-                            style={linkStyle}
+                            style={{ color: theme.palette.primary.dark }}
                           >
                             {row.subTopicName}
                           </Link>
