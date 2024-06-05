@@ -340,7 +340,7 @@ const ContentSubTopicEditorPage = () => {
               </Box>
             </Box>
             <Box sx={{ display: 'flex', gap: 3 }}>
-              {role === 'ADMIN' && subtopicStatus === 'CONTENT_DONE' && (
+              {role === 'ADMIN' && subtopicStatus === 'CONTENT_DONE' && !reviewerName && (
                 <Button
                   variant="contained"
                   onClick={handleClickOpenAssignReviewerModal}
@@ -348,26 +348,27 @@ const ContentSubTopicEditorPage = () => {
                   Assign Content Reviewer
                 </Button>
               )}
-              {role === 'ADMIN' && subtopicStatus === 'REVIEW_ASSIGNED' && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    border: 0.5,
-                    padding: 1,
-                    borderRadius: 3,
-                    borderColor: 'lightgray',
-                  }}
-                >
-                  <Typography sx={{ fontWeight: 550 }}>
-                    Reviewer: {reviewerName}
-                  </Typography>
-                  <IconButton onClick={handleClickOpenAssignReviewerModal}>
-                    <BorderColorIcon />
-                  </IconButton>
-                </Box>
-              )}
+              {role === 'ADMIN' &&
+                (subtopicStatus === 'REVIEW_ASSIGNED' || reviewerName) && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      border: 0.5,
+                      padding: 1,
+                      borderRadius: 3,
+                      borderColor: 'lightgray',
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: 550 }}>
+                      Reviewer: {reviewerName}
+                    </Typography>
+                    <IconButton onClick={handleClickOpenAssignReviewerModal}>
+                      <BorderColorIcon />
+                    </IconButton>
+                  </Box>
+                )}
               {(role === 'CONTENT_WRITER' || role === 'ADMIN') && (
                 <Button variant="contained">Generate Content Using AI</Button>
               )}
