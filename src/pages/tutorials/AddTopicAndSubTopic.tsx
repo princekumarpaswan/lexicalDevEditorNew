@@ -12,6 +12,7 @@ import {
   Input,
   CircularProgress,
   Divider,
+  useTheme,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
@@ -25,6 +26,7 @@ import {
 } from '../../api/tutorialContentAPI'
 import SnackbarComponent from '../../components/SnackBar'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 
 export interface SubTopic {
   subTopicName: string
@@ -38,6 +40,7 @@ export interface Topic {
 }
 
 const AddTopicAndSubTopic: React.FC = () => {
+  const theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const tutorialId = location.state?.tutorialId
@@ -310,7 +313,8 @@ const AddTopicAndSubTopic: React.FC = () => {
       if (topicToDelete.subTopics.length === 0) {
         updatedTopics.splice(topicIndex, 1)
       } else {
-        alert('Please delete all sub-topics before deleting the topic.')
+        setSnackbarOpen(true)
+        setErrorMsg('Please delete All Subtopics before deleting a topic')
       }
 
       return updatedTopics
@@ -528,36 +532,57 @@ const AddTopicAndSubTopic: React.FC = () => {
                   <Typography variant="h5" component="h5" pb={1}>
                     Topic {topicIndex + 1}
                   </Typography>
-                  {topicIndex !== 0 && (
+                  {topics.length > 1 && (
                     <IconButton
                       aria-label="delete"
                       onClick={() => handleDeleteTopic(topicIndex)}
                     >
-                      <Button variant="contained">Delete Topic</Button>
+                      <DeleteIcon sx={{ color: theme.palette.error.light }} />
                     </IconButton>
                   )}
                 </Box>
-                <TextField
-                  label="Topic Name"
-                  value={topic.topicName}
-                  onChange={(e) =>
-                    handleTopicChange(topicIndex, 'topicName', e.target.value)
-                  }
-                  fullWidth
-                />
-                <TextField
-                  label="Topic Description"
-                  sx={{ marginTop: 1.5 }}
-                  value={topic.topicDescription}
-                  onChange={(e) =>
-                    handleTopicChange(
-                      topicIndex,
-                      'topicDescription',
-                      e.target.value,
-                    )
-                  }
-                  fullWidth
-                />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Box sx={{ width: '100%' }}>
+                    <TextField
+                      label="Topic Name"
+                      value={topic.topicName}
+                      onChange={(e) =>
+                        handleTopicChange(
+                          topicIndex,
+                          'topicName',
+                          e.target.value,
+                        )
+                      }
+                      fullWidth
+                    />
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: 0.5,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <TextField
+                        label="Topic Description"
+                        sx={{ marginTop: 1.5, width: '90%' }}
+                        value={topic.topicDescription}
+                        onChange={(e) =>
+                          handleTopicChange(
+                            topicIndex,
+                            'topicDescription',
+                            e.target.value,
+                          )
+                        }
+                        fullWidth
+                        multiline
+                      />
+                      <IconButton sx={{ color: theme.palette.info.main }}>
+                        <AutoFixHighIcon fontSize="large" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </Box>
+
                 {topic.subTopics.map((subTopic, subTopicIndex) => (
                   <Box
                     key={subTopicIndex}
@@ -568,49 +593,70 @@ const AddTopicAndSubTopic: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 4,
+                      marginTop: 3,
                     }}
                   >
                     <Typography variant="subtitle1" component="h6" pb={1}>
                       {subTopicIndex + 1}-
                     </Typography>
                     <Box sx={{ width: '100%' }}>
-                      <TextField
-                        label="Sub-Topic Name"
-                        value={subTopic.subTopicName}
-                        onChange={(e) =>
-                          handleSubTopicChange(
-                            topicIndex,
-                            subTopicIndex,
-                            'subTopicName',
-                            e.target.value,
-                          )
-                        }
-                        fullWidth
-                      />
-                      <TextField
-                        label="Sub-Topic Description"
-                        multiline
-                        sx={{ marginTop: 0.4 }}
-                        value={subTopic.subTopicDescription}
-                        onChange={(e) =>
-                          handleSubTopicChange(
-                            topicIndex,
-                            subTopicIndex,
-                            'subTopicDescription',
-                            e.target.value,
-                          )
-                        }
-                        fullWidth
-                      />
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                        }}
+                      >
+                        <TextField
+                          label="Sub-Topic Name"
+                          value={subTopic.subTopicName}
+                          onChange={(e) =>
+                            handleSubTopicChange(
+                              topicIndex,
+                              subTopicIndex,
+                              'subTopicName',
+                              e.target.value,
+                            )
+                          }
+                          fullWidth
+                        />
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() =>
+                            handleDeleteSubTopic(topicIndex, subTopicIndex)
+                          }
+                        >
+                          <DeleteIcon
+                            sx={{ color: theme.palette.error.light }}
+                          />
+                        </IconButton>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: 0.5,
+                          alignItems: 'center',
+                        }}
+                      >
+                        <TextField
+                          label="Sub-Topic Description"
+                          multiline
+                          sx={{ marginTop: 1, width: '85%' }}
+                          value={subTopic.subTopicDescription}
+                          onChange={(e) =>
+                            handleSubTopicChange(
+                              topicIndex,
+                              subTopicIndex,
+                              'subTopicDescription',
+                              e.target.value,
+                            )
+                          }
+                        />
+                        <IconButton sx={{ color: theme.palette.info.main }}>
+                          <AutoFixHighIcon fontSize="large" />
+                        </IconButton>
+                      </Box>
                     </Box>
-                    <IconButton
-                      aria-label="delete"
-                      onClick={() =>
-                        handleDeleteSubTopic(topicIndex, subTopicIndex)
-                      }
-                    >
-                      <DeleteIcon sx={{ color: 'red' }} />
-                    </IconButton>
                   </Box>
                 ))}
                 <Button

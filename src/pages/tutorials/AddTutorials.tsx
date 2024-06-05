@@ -5,6 +5,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   IconButton,
   // IconButton,
   TextField,
@@ -69,6 +70,7 @@ function AddTutorials() {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -89,6 +91,7 @@ function AddTutorials() {
   }, [])
 
   const handleSaveTutorial = async () => {
+    setIsLoading(true)
     try {
       // Find the first selected category ID
       const firstSelectedCategoryId = categories.find(
@@ -111,6 +114,7 @@ function AddTutorials() {
       const newTutorialName = newTutorial.data.tutorialName
       setTutorialId(newTutorialId)
       setTutorialName(newTutorialName)
+
       setSnackbarOpen(true)
       setSnackbarMessage('Tutorial Added Successfuly')
       console.log('Tutorial ID set in context:', newTutorialId)
@@ -277,7 +281,11 @@ function AddTutorials() {
             }}
             onClick={handleSaveTutorial}
           >
-            Save Tutorial
+            {isLoading ? (
+              <CircularProgress size={24} sx={{ color: '#fff' }} />
+            ) : (
+              'Save Tutorial'
+            )}
           </Button>
         </Box>
       </BaseLayout>

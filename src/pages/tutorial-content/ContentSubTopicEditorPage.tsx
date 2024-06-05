@@ -70,6 +70,7 @@ const ContentSubTopicEditorPage = () => {
   })
 
   const navigate = useNavigate()
+
   const url = useParams()
   useEffect(() => {
     if (url.id) {
@@ -157,8 +158,7 @@ const ContentSubTopicEditorPage = () => {
         console.log('Reviewer assigned successfully:', response)
         setSelectedReviewer(null)
         setReviewerName(selectedReviewer.label)
-
-        setSubtopicStatus('Review Assigned')
+        setSubtopicStatus('REVIEW_ASSIGNED')
 
         // localStorage.setItem('subtopicStatus', 'Review Assigned')
 
@@ -221,7 +221,7 @@ const ContentSubTopicEditorPage = () => {
       }
     }
     callData()
-  }, [url.id])
+  }, [url.id, reviewerName])
 
   useEffect(() => {
     const storedStatus = localStorage.getItem('subtopicStatus') || ''

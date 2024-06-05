@@ -50,6 +50,7 @@ function AssignTutorialContent() {
   const [results, setResults] = useState<Tutorial[]>([])
   const [allAdminData, setAllAdminData] = useState<Admin[]>([])
   const [options, setOptions] = useState<{ label: string; id: string }[]>([])
+  const [reloadKey, setReloadKey] = useState(0)
   const [subTopicId, setSubTopicId] = useState<string>('')
   const [selectedAdmin, setSelectedAdmin] = useState<string | undefined>('')
   const [selectedValue, setSelectedValue] = useState<{
@@ -168,7 +169,7 @@ function AssignTutorialContent() {
     setSnackbarOpen(true)
     setSnackbarMessage('Content Assigned Successfully')
     setIsLoading(false)
-    // navigate('/tutorial-content')
+    setReloadKey((prevKey) => prevKey + 1)
     setSelectedAdmin('')
     setSelectedValue(null)
     setSelectedSubTopic('')
@@ -178,6 +179,7 @@ function AssignTutorialContent() {
     setAdminInputValue('')
     setAdminOptions([])
   }
+  useEffect(() => {}, [reloadKey])
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault()
@@ -220,7 +222,7 @@ function AssignTutorialContent() {
   }
 
   return (
-    <BaseLayout title="Assign Tutorial Content">
+    <BaseLayout title="Assign Tutorial Content" key={reloadKey}>
       <Box
         component="form"
         onSubmit={handleSubmit}

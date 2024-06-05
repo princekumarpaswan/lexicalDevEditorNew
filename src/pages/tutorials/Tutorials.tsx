@@ -636,7 +636,7 @@ function Tutorials() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={6} align="center">
-                        No Content Match the Filter you have applied
+                        No Data Found
                       </TableCell>
                     </TableRow>
                   )}
