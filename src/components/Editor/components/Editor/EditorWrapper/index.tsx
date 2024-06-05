@@ -127,7 +127,7 @@ function EditorWrapper({ onEditorChange, initialContent, status }: EditorWrapper
       <LexicalComposer
         initialConfig={{
           ...initialConfig,
-          editable: role === 'CONTENT_REVIEWER' ? false : status === 'CONTENT_DONE' ? false : true,
+          editable: role === 'CONTENT_REVIEWER' ? false : status === 'CONTENT_DONE' ? false : status === 'NOT_PUBLISHED' ? false : true,
         }}
       >
         <TableContext>

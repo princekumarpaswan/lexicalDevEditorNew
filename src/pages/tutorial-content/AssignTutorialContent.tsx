@@ -163,18 +163,43 @@ function AssignTutorialContent() {
 
   const callWritterApi = async (id: string) => {
     setIsLoading(true)
-    await assignContentWritter(subTopicId, id)
+    const response = await assignContentWritter(subTopicId, id)
 
     setSnackbarOpen(true)
     setSnackbarMessage('Content Assigned Successfully')
     setIsLoading(false)
+    return response
   }
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  // useEffect(() => {
+  
+
+
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
     if (selectedAdmin && selectedSubTopic && selectedValue?.label) {
-      callWritterApi(selectedAdmin)
+      const response = await callWritterApi(selectedAdmin)
+      if (response) {
+        resetForm()
+      }
+      // resetForm()
     }
+  }
+
+  const resetForm = () => {
+    setResults([])
+    setAllAdminData([])
+    setOptions([])
+    setSubTopicId('')
+    setSelectedAdmin('')
+    setSelectedValue(null)
+    setTutorialDetail(undefined)
+    setSelectedSubTopic('')
+    setErrorMsg('') // Uncomment to reset the error message
+    setAdminInputValue('')
+    setSearchQuery('')
+    console.log('called reset')
   }
 
   const [adminOptions, setAdminOptions] = useState<
@@ -232,7 +257,7 @@ function AssignTutorialContent() {
         >
           <IconButton onClick={() => navigate(-1)} color="inherit" size="large">
             <ArrowBackIcon />
-          </IconButton> 
+          </IconButton>
           <Typography variant="h5" component="h5">
             Assign Tutorial Content
           </Typography>
@@ -316,7 +341,8 @@ function AssignTutorialContent() {
         </FormControl>
 
         <Button
-          onClick={(e) => handleSubmit(e)}
+          // onClick={(e) => handleSubmit(e)}
+          type="submit"
           variant="contained"
           sx={{ mt: 2 }}
         >

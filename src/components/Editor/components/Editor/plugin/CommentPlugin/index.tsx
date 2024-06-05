@@ -521,7 +521,7 @@ function CommentsPanelListComment({
     <li className="CommentPlugin_CommentsPanel_List_Comment">
       <div className="CommentPlugin_CommentsPanel_List_Details">
         <span className="CommentPlugin_CommentsPanel_List_Comment_Author">
-          {comment.author}
+          {`${comment.author.split('@')[0]}`}
         </span>
         <span className="CommentPlugin_CommentsPanel_List_Comment_Time">
           · {seconds > -10 ? 'Just now' : rtf.format(minutes, 'minute')}
@@ -773,6 +773,7 @@ export default function CommentPlugin({
   const [apiComments, setApiComment] = useState([])
   const [apiThread, setApiThread] = useState<Thread[]>([])
   const { yjsDocMap } = collabContext
+// console.log(comments);
 
   useEffect(() => {
     if (providerFactory) {
