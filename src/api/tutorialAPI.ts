@@ -444,3 +444,24 @@ export const createTopicInfo = async (
     throw error
   }
 }
+
+// API for generating the Description if topic and Subtopic
+export const generateDescription = async (name: string) => {
+  try {
+    const accessToken = getAccessToken()
+
+    const response = await axios.post(
+      `${BASE_URL}/tutorials/generate/description`,
+      { name },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error generating description:', error)
+    throw error
+  }
+}

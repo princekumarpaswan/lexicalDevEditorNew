@@ -17,7 +17,10 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
 // import { TutorialContext } from '../../context/TutorialContext/TutorialContext'
-import { createTopicsAndSubTopics } from '../../api/tutorialAPI'
+import {
+  createTopicsAndSubTopics,
+  generateDescription,
+} from '../../api/tutorialAPI'
 import {
   createTopicsAndSubTopicsAI,
   createTopicsAndSubTopicsFileUploadAI,
@@ -356,6 +359,40 @@ const AddTopicAndSubTopic: React.FC = () => {
     }
   }
 
+  const handleGenerateDescription = async (
+    topicIndex: number,
+    subTopicIndex: number | null,
+  ) => {
+    try {
+      const name =
+        subTopicIndex !== null
+          ? topics[topicIndex].subTopics[subTopicIndex].subTopicName
+          : topics[topicIndex].topicName
+
+      const description = await generateDescription(name)
+
+      setTopics((prevTopics) => {
+        const updatedTopics = [...prevTopics]
+
+        if (subTopicIndex !== null) {
+          updatedTopics[topicIndex].subTopics[subTopicIndex] = {
+            ...updatedTopics[topicIndex].subTopics[subTopicIndex],
+            subTopicDescription: description,
+          }
+        } else {
+          updatedTopics[topicIndex] = {
+            ...updatedTopics[topicIndex],
+            topicDescription: description,
+          }
+        }
+
+        return updatedTopics
+      })
+    } catch (error) {
+      console.error('Error generating description:', error)
+    }
+  }
+
   return (
     <BaseLayout title="Add Topics and Sub-Topics">
       <Box
@@ -576,7 +613,12 @@ const AddTopicAndSubTopic: React.FC = () => {
                         fullWidth
                         multiline
                       />
-                      <IconButton sx={{ color: theme.palette.info.main }}>
+                      <IconButton
+                        sx={{ color: theme.palette.info.main }}
+                        onClick={() =>
+                          handleGenerateDescription(topicIndex, null)
+                        }
+                      >
                         <AutoFixHighIcon fontSize="large" />
                       </IconButton>
                     </Box>
@@ -652,7 +694,12 @@ const AddTopicAndSubTopic: React.FC = () => {
                             )
                           }
                         />
-                        <IconButton sx={{ color: theme.palette.info.main }}>
+                        <IconButton
+                          sx={{ color: theme.palette.info.main }}
+                          onClick={() =>
+                            handleGenerateDescription(topicIndex, subTopicIndex)
+                          }
+                        >
                           <AutoFixHighIcon fontSize="large" />
                         </IconButton>
                       </Box>
