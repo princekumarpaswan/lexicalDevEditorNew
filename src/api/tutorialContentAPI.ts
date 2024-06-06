@@ -394,3 +394,43 @@ export const assignReviewer = async (
     throw error
   }
 }
+
+
+export const getAiID = async (sutopic: string | null) => {
+ try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    }
+
+    const response = await axios.post(
+      `${BASE_URL}/subtopics/ai/create`,
+      { subTopicName: sutopic },
+      config,
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error creating topics and subtopics:', error)
+    throw error
+  }
+}
+
+
+export const aiPolling = async (id: string | null | undefined) => {
+  try {
+    const accessToken = getAccessToken()
+    const config = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+    const response = await axios.get(`${BASE_URL}/subtopics/ai/data/${id}`, config)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching topics and subtopics:', error)
+    throw error
+  }
+}

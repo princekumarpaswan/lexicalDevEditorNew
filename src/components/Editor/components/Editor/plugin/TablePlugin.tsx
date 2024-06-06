@@ -152,6 +152,7 @@ export function TablePlugin({
       // eslint-disable-next-line no-console
       console.log( 'TablePlugin: TableNode is not registered on editor');
     }
+    
 
     cellContext.set(cellEditorConfig, children);
 
