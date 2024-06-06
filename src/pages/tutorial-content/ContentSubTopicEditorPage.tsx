@@ -18,7 +18,9 @@ import EditorWrapper from '../../components/Editor/components/Editor/EditorWrapp
 import { useNavigate, useParams } from 'react-router-dom'
 import { useContext, useEffect, useState } from 'react'
 import {
+  aiPolling,
   assignReviewer,
+  getAiID,
   getWritterContent,
   updateSubtopicStatus,
   writeContent,
@@ -28,6 +30,7 @@ import { getAdminBYRoll } from '../../api/tutorialContentAPI'
 import { AuthContext } from '../../context/AuthContext/AuthContext'
 import BorderColorIcon from '@mui/icons-material/BorderColor'
 import SnackbarComponent from '../../components/SnackBar'
+import ContentContext from '../../context/contentText'
 
 interface Admin {
   id: string
@@ -68,16 +71,22 @@ const ContentSubTopicEditorPage = () => {
       version: 1,
     },
   })
-
+  const {content , setContent} = useContext(ContentContext)
   const navigate = useNavigate()
   const url = useParams()
+
+  const [editorData, setEditorData] = useState<string | undefined>('')
+  const [openAssignReviewerModal, setOpenAssignReviewerModal] = useState(false)
+  const [subTopicName, setSubTopicName] = useState<string | undefined>('')
+
   useEffect(() => {
     if (url.id) {
       localStorage.setItem('subTopicID', url?.id)
+      //  console.log(url.suntopicname);
+      const name = url.suntopicname?.split('-').join(' ')
+      setSubTopicName(name)
     }
   }, [url])
-  const [editorData, setEditorData] = useState<string | undefined>(base)
-  const [openAssignReviewerModal, setOpenAssignReviewerModal] = useState(false)
 
   const [allAdminData, setAllAdminData] = useState<Admin[]>([])
   const [reviewerOptions, setReviewerOptions] = useState<
@@ -98,8 +107,11 @@ const ContentSubTopicEditorPage = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [apiStatus , setApiStatus] = useState('')
-  // const [triggerEffect, setTriggerEffect] = useState(false)
+  const [apiStatus, setApiStatus] = useState('')
+  const [aiData, setAIData] = useState()
+  const [aiTrue,setAiTrue] = useState(false)
+  const [newData ,setNewData] = useState({})
+  const pollForAIContentTime = 10000
 
   const formatRole = (role: string) => {
     return role
@@ -194,14 +206,15 @@ const ContentSubTopicEditorPage = () => {
         setIsLoading(true)
         const data = await getWritterContent(url.id)
         if (data?.data) {
+          setContent(data.data)
           setEditorData(data.data)
           if (data.data.content === '[object Object]') {
             setEditorData(base)
           } else {
             setEditorData(data.data)
-            console.log(data.data.status);
+             setContent(data.data)
+            console.log(data.data.status)
             setApiStatus(data.data.status)
-            
           }
 
           const tutorialName = data?.data?.tutorialInfo?.tutorialName
@@ -231,7 +244,7 @@ const ContentSubTopicEditorPage = () => {
   const handleClick = async () => {
     try {
       setIsLoading(true)
-     const response =  await writeContent(url.id, editorData)
+      const response = await writeContent(url.id, editorData)
       setSnackbarOpen(true)
       setSnackbarMessage('Content Done Successfully')
       setIsLoading(false)
@@ -239,8 +252,8 @@ const ContentSubTopicEditorPage = () => {
       localStorage.setItem('subtopicStatus', 'CONTENT_DONE')
       // setTriggerEffect((prev) => !prev)
       if (response) {
-          navigate('/tutorial-content')
-        }
+        navigate('/tutorial-content')
+      }
     } catch (error) {
       setSnackbarOpen(true)
       setErrorMsg('Error Submitting Content')
@@ -258,8 +271,8 @@ const ContentSubTopicEditorPage = () => {
           'READY_TO_PUBLISH',
           editorData,
         )
-        console.log(editorData);
-        
+        console.log(editorData)
+
         console.log(response)
         if (response) {
           navigate('/tutorial-content')
@@ -300,7 +313,7 @@ const ContentSubTopicEditorPage = () => {
           subtopicId,
           'CHANGES_NEEDED',
         )
-         if (response) {
+        if (response) {
           navigate('/tutorial-content')
         }
         console.log(response)
@@ -321,6 +334,104 @@ const ContentSubTopicEditorPage = () => {
       )
     }
   }, [editorData])
+
+  const handleGenerateContentAI = async () => {
+    try {
+      if (url && subTopicName) {
+        const response = await getAiID(subTopicName)
+        if (response?.data?.id) {
+          const id = response?.data?.id
+          pollForAIContent(id)
+        }
+      }
+    } catch (error) {
+      console.error('Error generating AI content:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Error Generating AI Content')
+      setIsLoading(false)
+    }
+  }
+
+  const pollForAIContent = async (taskId: string) => {
+    const checkStatus = async () => {
+      try {
+        const response = await aiPolling(taskId)
+        const status = response.data.status
+        console.log('AI Content Generation Status:', status)
+        if (status !== 'pending') {
+          setAIData(response?.data)
+          setAiTrue(true)
+          // setEditorData(response?.data)
+          setSnackbarOpen(true)
+          setSnackbarMessage('AI Content Generated Successfully')
+          setIsLoading(false)
+        } else if (status === 'FAILED') {
+          setSnackbarOpen(true)
+          setErrorMsg('AI Content Generation Failed')
+          setIsLoading(false)
+        } else {
+          setTimeout(checkStatus, pollForAIContentTime)
+        }
+      } catch (error) {
+        console.error('Error polling for AI content:', error)
+        setSnackbarOpen(true)
+        setErrorMsg('Error Polling for AI Content')
+        setIsLoading(false)
+      }
+    }
+    checkStatus()
+  }
+
+
+  useEffect(() => {
+ if(aiData){
+   const base = {
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "detail": 0,
+            "format": 0,
+            "mode": "normal",
+            "style": "",
+            "text": `${aiData?.contentAI}`,
+            "type": "text",
+            "version": 1
+          }
+        ],
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "type": "paragraph",
+        "version": 1,
+        "textFormat": 0
+      }
+    ],
+    "direction": "ltr",
+    "format": "",
+    "indent": 0,
+    "type": "root",
+    "version": 1
+  }
+ }
+//  let data = content.content
+ const  data  = {content: JSON.stringify(base)}
+
+  console.log(data);
+  
+  // setContent(data)
+  setNewData(data)
+  setAiTrue(true)
+  // console.log('insid ai if');
+  // console.log(content);
+  // console.log(content);
+ } 
+ 
+  },[aiData])
+  //  console.log('opem');
+  // console.log(content);
+
 
   return (
     <BaseLayout title="Content Editor">
@@ -414,7 +525,12 @@ const ContentSubTopicEditorPage = () => {
                 </Box>
               )}
               {(role === 'CONTENT_WRITER' || role === 'ADMIN') && (
-                <Button variant="contained">Generate Content Using AI</Button>
+                <Button
+                  variant="contained"
+                  onClick={() => handleGenerateContentAI()}
+                >
+                  Generate Content Using AI
+                </Button>
               )}
             </Box>
           </Box>
@@ -481,15 +597,28 @@ const ContentSubTopicEditorPage = () => {
           </Box>
         ) : (
           <Box>
-            {editorData && (
+
+            {content && !aiTrue && (
               <>
                 <EditorWrapper
                   onEditorChange={(e) => setEditorData(e)}
-                  initialContent={editorData}
+                  initialContent={content}
                   status={apiStatus}
                 />
               </>
             )}
+            {
+              aiTrue && newData?.content &&(
+                  <>
+                <EditorWrapper
+                  onEditorChange={(e) => setEditorData(e)}
+                  initialContent={newData}
+                  status={apiStatus}
+                />
+              </>
+              )
+            }
+
           </Box>
         )}
         <Box sx={{ display: 'flex', gap: 5, justifyContent: 'flex-end' }}>

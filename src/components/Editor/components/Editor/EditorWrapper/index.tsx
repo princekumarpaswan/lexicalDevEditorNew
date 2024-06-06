@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect } from 'react'
 import './styles.css'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
@@ -41,19 +41,27 @@ import { MarkNode } from '@lexical/mark'
 import { ThemeContext } from '../../../../../ThemeContext'
 import { IThemeMode } from '../../../../../ThemeContext/types'
 import { AuthContext } from '../../../../../context/AuthContext/AuthContext'
+import ContentContext from '../../../../../context/contentText'
 type EditorWrapperProps = {
   onEditorChange: (editorStateJSONString: string) => void
   initialContent?: any
-  status?:any
+  status?: any
 }
-function EditorWrapper({ onEditorChange, initialContent, status }: EditorWrapperProps) {
+function EditorWrapper({
+  onEditorChange,
+  status,
+  initialContent
+}: EditorWrapperProps) {
+  
+
+  const { content, setContent } = useContext(ContentContext)
   const { state } = useContext(AuthContext)
   const role = state.user?.role
   const initialConfig = {
-    namespace: 'Editor',
+    namespace: 'Editor ',
     theme: PlaygroundEditorTheme,
     onError: (error: unknown) => console.log(error),
-    editorState: initialContent && initialContent?.content,
+    editorState: initialContent && initialContent.content,
     nodes: [
       HeadingNode,
       ListNode,
@@ -75,47 +83,22 @@ function EditorWrapper({ onEditorChange, initialContent, status }: EditorWrapper
       MarkNode,
     ],
   }
+  useEffect(() => {
+    setContent(initialContent)
+  },[content, initialContent, setContent])
+
   const {
     settings: {
-      // isCollab,
-      // isRichText,
       showTableOfContents,
       tableCellMerge,
       tableCellBackgroundColor,
     },
   } = useSettings()
 
-  // const text = isCollab
-  //   ? 'Enter some collaborative rich text...'
-  //   : isRichText
-  //     ? 'Enter some rich text...'
-  //     : 'Enter some plain text...'
-
-  // role === 'CONTENT_REVIEWER'
-  //             ? true
-  //             : initialContent.status == 'CHANGES_NEEDED'
-  //               ? true
-  //               : false,
-
   const themeContext = useContext(ThemeContext)
-  const [editable, setEditable] = useState(true)
   if (!themeContext) {
     throw new Error('YourComponent must be used within a ThemeContextProvider')
   }
-
-  // useEffect(() => {
-  //   // console.log('initial content')
-  //   // const status = initialContent
-  //   // const data = JSON.parse(JSON.stringify(status))
-
-    // const status = localStorage.getItem('subtopicStatus')
-
-  //   if (role === 'CONTENT_REVIEWER') {
-  //     setEditable(false)
-  //   } else if (status === 'CONTENT_DONE') {
-  //     setEditable(false)
-  //   }
-  // }, [])
 
   const { themeMode } = themeContext
 
@@ -127,7 +110,14 @@ function EditorWrapper({ onEditorChange, initialContent, status }: EditorWrapper
       <LexicalComposer
         initialConfig={{
           ...initialConfig,
-          editable: role === 'CONTENT_REVIEWER' ? false : status === 'CONTENT_DONE' ? false : status === 'NOT_PUBLISHED' ? false : true,
+          editable:
+            role === 'CONTENT_REVIEWER'
+              ? false
+              : status === 'CONTENT_DONE'
+                ? false
+                : status === 'NOT_PUBLISHED'
+                  ? false
+                  : true,
         }}
       >
         <TableContext>
