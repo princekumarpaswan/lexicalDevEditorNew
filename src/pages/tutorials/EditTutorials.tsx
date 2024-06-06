@@ -20,9 +20,11 @@ import {
   DialogActions,
   CircularProgress,
   IconButton,
+  Modal,
+  Input,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getAllCategories } from '../../api/categoryAPI'
 import theme from '../../components/Editor/theme'
 import {
@@ -36,9 +38,19 @@ import {
   updateTopicInfo,
   updateTutorialInfo,
 } from '../../api/tutorialAPI'
-import { useNavigate, useParams } from 'react-router-dom'
+import {
+  // useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 import SnackbarComponent from '../../components/SnackBar'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import {
+  createTopicsAndSubTopicsAI,
+  createTopicsAndSubTopicsFileUploadAI,
+  getTopicsAndSubTopicsAI,
+  uploadFile,
+} from '../../api/tutorialContentAPI'
 // import { accessToken } from '../../constants/ApiConstant'
 
 const getAccessToken = (): string => {
@@ -112,6 +124,7 @@ function EditTutorials() {
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [tutorialTitle, setTutorialTitle] = useState('')
+  const [tutorialName, setTutorialName] = useState('')
   const [tutorialDescription, setTutorialDescription] = useState('')
   const [fetchTrigger, setFetchTrigger] = useState(0)
 
@@ -125,8 +138,173 @@ function EditTutorials() {
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [isLoading, setLoading] = useState(true)
+  const [openModal, setOpenModal] = useState(false)
 
   const [openDeleteTutorialModal, setOpenDeleteTutorialModal] = useState(false)
+  const [textInput, setTextInput] = useState('')
+  const [fileInput, setFileInput] = useState<File | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  // const location = useLocation()
+  // const tutorialName = location.state?.newTutorialName
+
+  const handleOpenModal = () => {
+    setOpenModal(true)
+  }
+  const handleCloseModal = () => {
+    setOpenModal(false)
+  }
+
+  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTextInput(e.target.value)
+    setTextInput(e.target.value)
+    setFileInput(null)
+  }
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    fileInputRef.current = e.target
+    if (file) {
+      // Check file extension
+      const allowedExtensions = ['.pdf']
+      const fileExtension = file.name.split('.').pop()?.toLowerCase()
+      if (!allowedExtensions.includes(`.${fileExtension}`)) {
+        setFileError('Please select a .pdf file.')
+        return
+      }
+
+      // Check file size
+      const maxSize = 5 * 1024 * 1024 // 5 MB
+      if (file.size > maxSize) {
+        setFileError('File size exceeds 5 MB limit.')
+        return
+      }
+      setFileError(null)
+    }
+    if (file) {
+      setFileInput(file)
+      setTextInput('')
+    }
+  }
+
+  const handleGenerate = async () => {
+    setOpenModal(false)
+    setLoading(true)
+
+    try {
+      if (textInput.trim()) {
+        // Generate topics and subtopics using text input (technologies)
+        const payload = {
+          tutorialName,
+          technologies: textInput.split(',').map((tech) => tech.trim()),
+        }
+        try {
+          const response = await createTopicsAndSubTopicsAI(payload)
+          const { id } = response.data
+          pollForData(id)
+        } catch (error) {
+          console.error(
+            'Error creating topics and subtopics with text input:',
+            error,
+          )
+          setLoading(false)
+          setSnackbarOpen(true)
+          setErrorMsg(
+            'Error generating Topics and Sub-Topics, Please try again',
+          )
+        }
+      } else {
+        // Generate topics and subtopics using file input
+        const fileInput = (
+          document.querySelector('input[type="file"]') as HTMLInputElement
+        )?.files?.[0]
+        if (!fileInput) {
+          console.error('No file selected.')
+          setLoading(false)
+          return
+        }
+
+        try {
+          const fileUploadResponse = await uploadFile(fileInput)
+          const fileUploadResponseData = fileUploadResponse.data
+          console.log('File upload response:', fileUploadResponseData)
+
+          const createResponse = await createTopicsAndSubTopicsFileUploadAI(
+            fileUploadResponseData,
+          )
+          const { id } = createResponse.data
+          console.log('Generated ID:', id)
+
+          pollForData(id)
+        } catch (error) {
+          console.error(
+            'Error creating topics and subtopics with file input:',
+            error,
+          )
+          setLoading(false)
+          setSnackbarOpen(true)
+          setErrorMsg(
+            'Error generating Topics and Sub-Topics, Please try again',
+          )
+        }
+      }
+    } catch (error) {
+      console.error('Error creating topics and subtopics:', error)
+      setLoading(false)
+    }
+  }
+
+  const pollForData = async (id: string) => {
+    try {
+      const response = await getTopicsAndSubTopicsAI(id)
+      if (response.success) {
+        console.log('Response:', response)
+        console.log('Response data:', response.data)
+        if (response.success && Array.isArray(response.data)) {
+          const mappedTopics = response.data.map(
+            ({ topicId, topicName, topicDescription, subTopics }: any) => ({
+              topicId,
+              topicName,
+              topicDescription,
+              subTopics: subTopics?.map(
+                ({ subTopicId, subTopicName, subTopicDescription }: any) => ({
+                  subTopicId,
+                  subTopicName,
+                  subTopicDescription,
+                }),
+              ),
+            }),
+          )
+          setTopics(mappedTopics)
+          setLoading(false)
+          setSnackbarOpen(true)
+          setSnackbarMessage('Topics and Subtopics Generated Successfully')
+        } else {
+          setTimeout(() => pollForData(id), 30000)
+        }
+      }
+    } catch (error) {
+      setLoading(false)
+      console.error('Error Generating topics and subtopics:', error)
+      setSnackbarOpen(true)
+      setErrorMsg('Error generating Topics and Sub-Topics, Please try again')
+    }
+  }
+
+  const handleClearTextInput = () => {
+    setTextInput('')
+  }
+  const handleClearFileInput = () => {
+    setFileInput(null)
+    setFileError(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+  const handleResetFeildsInGenerateUsingAiModal = () => {
+    handleClearTextInput()
+    handleClearFileInput()
+  }
 
   const handleDeleteTutorial = async () => {
     try {
@@ -184,6 +362,7 @@ function EditTutorials() {
         const { data } = response
         setLoading(false)
         setTutorialTitle(data.tutorialName)
+        setTutorialName(data.tutorialName)
         setTutorialDescription(data.tutorialDescription)
         setSelectedCategories([data.categoryInfo.categoryName])
 
@@ -581,7 +760,13 @@ function EditTutorials() {
         }}
         autoComplete="off"
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
@@ -734,9 +919,121 @@ function EditTutorials() {
               </Box>
             </Box>
             <Divider />
-            <Typography variant="h5" component="h5" pb={1}>
-              Edit Topic and Sub-topic information
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: 3,
+                marginBottom: 3,
+              }}
+            >
+              <Typography variant="h5" component="h5" pb={1}>
+                Edit Topic and Sub-topic information
+              </Typography>
+              {/* <Button variant="contained" onClick={handleOpenModal}>
+                Generate Using AI
+              </Button> */}
+            </Box>
+            <Modal
+              open={openModal}
+              onClose={handleCloseModal}
+              aria-labelledby="modal-title"
+              aria-describedby="modal-description"
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  bgcolor: 'background.paper',
+                  boxShadow: 24,
+                  p: 4,
+                }}
+              >
+                <Typography
+                  id="modal-title"
+                  variant="h6"
+                  component="h2"
+                  onClick={handleOpenModal}
+                >
+                  Generate using AI
+                </Typography>
+
+                {/* Text input */}
+                <TextField
+                  label="Tutorial Name"
+                  disabled
+                  fullWidth
+                  value={tutorialName}
+                  onChange={handleTextInputChange}
+                  sx={{ marginBottom: 2 }}
+                />
+                <TextField
+                  label="Enter Technologies You Want To Include"
+                  fullWidth
+                  value={textInput}
+                  onChange={handleTextInputChange}
+                  sx={{ marginBottom: 2 }}
+                  disabled={!!fileInput}
+                />
+                <Typography sx={{ textAlign: 'center' }}> Or</Typography>
+                <Divider />
+                <Typography id="modal-title" fontSize={11} color={'red'}>
+                  Note : you can either write a prompt or choose a file to
+                  Generate the Topics and Sub-topics
+                </Typography>
+                <Input
+                  fullWidth
+                  sx={{
+                    marginTop: 5,
+                    backgroundColor: '#1565c0',
+                    color: 'white',
+                    padding: 1,
+                    borderRadius: 1,
+                  }}
+                  type="file"
+                  disabled={!!textInput}
+                  onChange={handleFileInputChange}
+                  inputProps={{
+                    accept: '.pdf',
+                  }}
+                />
+
+                <Typography sx={{ fontSize: 13, mt: 1 }}>
+                  {`Uplod the Content Index File - ( .pdf only )`}
+                </Typography>
+                {fileError && (
+                  <Typography sx={{ fontSize: 13, color: 'red', mt: 1 }}>
+                    {fileError}
+                  </Typography>
+                )}
+                {/* Buttons */}
+                <Box
+                  sx={{
+                    mt: 2,
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    marginTop: 2,
+                  }}
+                >
+                  <Button onClick={handleCloseModal} sx={{ mr: 2 }}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleResetFeildsInGenerateUsingAiModal}
+                    sx={{ mr: 2 }}
+                  >
+                    Reset
+                  </Button>
+                  <Button variant="contained" onClick={handleGenerate}>
+                    Generate
+                  </Button>
+                </Box>
+              </Box>
+            </Modal>
 
             {topics &&
               topics.length > 0 &&
