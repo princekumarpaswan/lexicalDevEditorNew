@@ -102,9 +102,7 @@ export default function Login() {
             src="/images/euronlogolight.svg"
           />
           <Typography component="h1" variant="h5" sx={{ marginTop: 3 }}>
-            Sign in to Euron{' '}
-            <span style={{ color: 'darkblue' }}>Tutorial </span>
-            Admin
+            Sign in to Euron Tutorial Admin
           </Typography>
           <Box
             component="form"
