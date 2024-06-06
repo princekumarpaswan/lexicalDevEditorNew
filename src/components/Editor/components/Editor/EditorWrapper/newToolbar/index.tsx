@@ -182,7 +182,12 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           disabled={
             !canUndo ||
             role === 'CONTENT_REVIEWER' ||
-            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'PUBLISHED'
           }
           onClick={() => {
             editor.dispatchCommand(UNDO_COMMAND, undefined)
@@ -197,7 +202,11 @@ export default function ToolbarPlugin(subTopicStatus: any) {
             !canRedo ||
             role === 'CONTENT_REVIEWER' ||
             subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'PUBLISHED'
           }
           onClick={() => {
             editor.dispatchCommand(REDO_COMMAND, undefined)
@@ -338,7 +347,11 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           disabled={
             role === 'CONTENT_REVIEWER' ||
             subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'PUBLISHED'
           }
         >
           <Select
@@ -475,7 +488,11 @@ export default function ToolbarPlugin(subTopicStatus: any) {
             disabled={
               role === 'CONTENT_REVIEWER' ||
               subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-              subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
+              subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+              subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+              subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+              subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+              subTopicStatus?.subTopicStatus === 'PUBLISHED'
             }
           >
             <plugin.Icon onClick={() => onClick(plugin.event)} />
@@ -489,7 +506,11 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           disabled={
             role === 'CONTENT_REVIEWER' ||
             subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'PUBLISHED'
           }
         >
           <FormatStrikethroughIcon />
@@ -502,7 +523,11 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           disabled={
             role === 'CONTENT_REVIEWER' ||
             subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'PUBLISHED'
           }
         >
           <CodeIcon />
@@ -514,7 +539,11 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           disabled={
             role === 'CONTENT_REVIEWER' ||
             subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'PUBLISHED'
           }
         >
           <Select
@@ -612,7 +641,11 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           disabled={
             role === 'CONTENT_REVIEWER' ||
             subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'PUBLISHED'
           }
         >
           <Select

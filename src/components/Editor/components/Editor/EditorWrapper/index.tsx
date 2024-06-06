@@ -142,7 +142,11 @@ function EditorWrapper({
                   ? false
                   : status === 'REVIEW_ASSIGNED'
                     ? false
-                    : true,
+                    : status === 'READY_TO_PUBLISH'
+                      ? false
+                      : status === 'PUBLISHED'
+                        ? false
+                        : true,
         }}
       >
         <TableContext>
