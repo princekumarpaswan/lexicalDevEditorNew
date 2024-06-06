@@ -33,6 +33,7 @@ import {
   deleteSubTopicInfo,
   deleteTopicInfo,
   deleteTutorialInfo,
+  generateDescription,
   getTutorialDetails,
   updateSubTopicInfo,
   updateTopicInfo,
@@ -51,6 +52,7 @@ import {
   getTopicsAndSubTopicsAI,
   uploadFile,
 } from '../../api/tutorialContentAPI'
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 // import { accessToken } from '../../constants/ApiConstant'
 
 const getAccessToken = (): string => {
@@ -145,8 +147,79 @@ function EditTutorials() {
   const [fileInput, setFileInput] = useState<File | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [topicDescriptionLoading, setTopicDescriptionLoading] = useState<
+    boolean[]
+  >([])
+  const [subTopicDescriptionLoading, setSubTopicDescriptionLoading] = useState<
+    boolean[][]
+  >(topics.map(() => []))
   // const location = useLocation()
   // const tutorialName = location.state?.newTutorialName
+
+  const handleGenerateDescription = async (
+    topicIndex: number,
+    subTopicIndex: number | null,
+  ) => {
+    try {
+      if (subTopicIndex !== null) {
+        setSubTopicDescriptionLoading((prevLoading) => {
+          const newLoading = [...prevLoading]
+          newLoading[topicIndex] = prevLoading[topicIndex]
+            ? [...prevLoading[topicIndex]]
+            : []
+          newLoading[topicIndex][subTopicIndex] = true
+          return newLoading
+        })
+      } else {
+        setTopicDescriptionLoading((prevLoading) => {
+          const newLoading = [...prevLoading]
+          newLoading[topicIndex] = true
+          return newLoading
+        })
+      }
+
+      const name =
+        subTopicIndex !== null
+          ? topics[topicIndex].subTopics[subTopicIndex].subTopicName
+          : topics[topicIndex].topicName
+
+      const response = await generateDescription(name)
+      const description = response.data.description
+      setSnackbarOpen(true)
+      setSnackbarMessage('Description Generated Successfully')
+
+      setTopics((prevTopics) => {
+        const updatedTopics = [...prevTopics]
+
+        if (subTopicIndex !== null) {
+          updatedTopics[topicIndex].subTopics[subTopicIndex] = {
+            ...updatedTopics[topicIndex].subTopics[subTopicIndex],
+            subTopicDescription: description,
+          }
+          setSubTopicDescriptionLoading((prevLoading) => {
+            const newLoading = [...prevLoading]
+            newLoading[topicIndex] = [...prevLoading[topicIndex]]
+            newLoading[topicIndex][subTopicIndex] = false
+            return newLoading
+          })
+        } else {
+          updatedTopics[topicIndex] = {
+            ...updatedTopics[topicIndex],
+            topicDescription: description,
+          }
+          setTopicDescriptionLoading((prevLoading) => {
+            const newLoading = [...prevLoading]
+            newLoading[topicIndex] = false
+            return newLoading
+          })
+        }
+
+        return updatedTopics
+      })
+    } catch (error) {
+      console.error('Error generating description:', error)
+    }
+  }
 
   const handleOpenModal = () => {
     setOpenModal(true)
@@ -1069,24 +1142,55 @@ function EditTutorials() {
                       />
                     )}
                   </Box>
-                  <TextField
-                    label="Topic Name"
-                    value={topic.topicName || ''}
-                    onChange={(e) =>
-                      handleTopicNameChange(topicIndex, e.target.value)
-                    }
-                    fullWidth
-                    sx={{ marginTop: 2 }}
-                  />
-                  <TextField
-                    label="Topic Description"
-                    sx={{ marginTop: 1.5 }}
-                    value={topic.topicDescription || ''}
-                    onChange={(e) =>
-                      handleTopicDescriptionChange(topicIndex, e.target.value)
-                    }
-                    fullWidth
-                  />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Box sx={{ width: '100%' }}>
+                      <TextField
+                        label="Topic Name"
+                        value={topic.topicName || ''}
+                        onChange={(e) =>
+                          handleTopicNameChange(topicIndex, e.target.value)
+                        }
+                        fullWidth
+                        sx={{ marginTop: 2 }}
+                      />
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: 0.5,
+                          alignItems: 'center',
+                        }}
+                      >
+                        <TextField
+                          label="Topic Description"
+                          sx={{ marginTop: 1.5, width: '90%' }}
+                          value={topic.topicDescription || ''}
+                          onChange={(e) =>
+                            handleTopicDescriptionChange(
+                              topicIndex,
+                              e.target.value,
+                            )
+                          }
+                          fullWidth
+                          multiline
+                          InputProps={{
+                            endAdornment: topicDescriptionLoading[
+                              topicIndex
+                            ] ? (
+                              <CircularProgress size={24} />
+                            ) : null,
+                          }}
+                        />
+                        <IconButton
+                          sx={{ color: theme.palette.info.main }}
+                          onClick={() =>
+                            handleGenerateDescription(topicIndex, null)
+                          }
+                        >
+                          <AutoFixHighIcon fontSize="large" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                  </Box>
                   <Box
                     sx={{
                       display: 'flex',
@@ -1127,41 +1231,80 @@ function EditTutorials() {
                             {subTopicIndex + 1}-
                           </Typography>
                           <Box sx={{ width: '100%' }}>
-                            <TextField
-                              label="Sub-Topic Name"
-                              value={subTopic.subTopicName}
-                              onChange={(e) =>
-                                handleSubTopicNameChange(
-                                  topicIndex,
-                                  subTopicIndex,
-                                  e.target.value,
-                                )
-                              }
-                              fullWidth
-                            />
-                            <TextField
-                              label="Sub-Topic Description"
-                              multiline
-                              sx={{ marginTop: 0.8 }}
-                              value={subTopic.subTopicDescription}
-                              onChange={(e) =>
-                                handleSubTopicDescriptionChange(
-                                  topicIndex,
-                                  subTopicIndex,
-                                  e.target.value,
-                                )
-                              }
-                              fullWidth
-                            />
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                              }}
+                            >
+                              <TextField
+                                label="Sub-Topic Name"
+                                value={subTopic.subTopicName}
+                                onChange={(e) =>
+                                  handleSubTopicNameChange(
+                                    topicIndex,
+                                    subTopicIndex,
+                                    e.target.value,
+                                  )
+                                }
+                                fullWidth
+                              />
+                              <IconButton
+                                aria-label="delete"
+                                onClick={() =>
+                                  handleDeleteSubTopic(
+                                    topicIndex,
+                                    subTopicIndex,
+                                  )
+                                }
+                              >
+                                <DeleteIcon
+                                  sx={{ color: theme.palette.error.light }}
+                                />
+                              </IconButton>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: 0.5,
+                                alignItems: 'center',
+                              }}
+                            >
+                              <TextField
+                                label="Sub-Topic Description"
+                                multiline
+                                sx={{ marginTop: 0.8, width: '85%' }}
+                                value={subTopic.subTopicDescription}
+                                onChange={(e) =>
+                                  handleSubTopicDescriptionChange(
+                                    topicIndex,
+                                    subTopicIndex,
+                                    e.target.value,
+                                  )
+                                }
+                                fullWidth
+                                InputProps={{
+                                  endAdornment: subTopicDescriptionLoading[
+                                    topicIndex
+                                  ]?.[subTopicIndex] ? (
+                                    <CircularProgress size={24} />
+                                  ) : null,
+                                }}
+                              />
+                              <IconButton
+                                sx={{ color: theme.palette.info.main }}
+                                onClick={() =>
+                                  handleGenerateDescription(
+                                    topicIndex,
+                                    subTopicIndex,
+                                  )
+                                }
+                              >
+                                <AutoFixHighIcon fontSize="large" />
+                              </IconButton>
+                            </Box>
                           </Box>
-
-                          <DeleteIcon
-                            aria-label="delete"
-                            onClick={() =>
-                              handleDeleteSubTopic(topicIndex, subTopicIndex)
-                            }
-                            sx={{ color: 'red', cursor: 'pointer' }}
-                          />
                         </Box>
 
                         <Box

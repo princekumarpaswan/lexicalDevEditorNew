@@ -66,6 +66,12 @@ const AddTopicAndSubTopic: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [topicDescriptionLoading, setTopicDescriptionLoading] = useState<
+    boolean[]
+  >([])
+  const [subTopicDescriptionLoading, setSubTopicDescriptionLoading] = useState<
+    boolean[][]
+  >(topics.map(() => []))
 
   // const handleGenerate = async () => {
   //   setOpenModal(false)
@@ -165,13 +171,10 @@ const AddTopicAndSubTopic: React.FC = () => {
               topicId,
               topicName,
               topicDescription,
-              subTopics: subTopics.map(
-                ({ subTopicId, subTopicName, subTopicDescription }: any) => ({
-                  subTopicId,
-                  subTopicName,
-                  subTopicDescription,
-                }),
-              ),
+              subTopics: subTopics.map((subTopicName: string) => ({
+                subTopicName,
+                subTopicDescription: '',
+              })),
             }),
           )
           setTopics(mappedTopics)
@@ -341,10 +344,7 @@ const AddTopicAndSubTopic: React.FC = () => {
       topics: topics.map(({ topicName, topicDescription, subTopics }) => ({
         topicName,
         topicDescription,
-        subTopics: subTopics.map(({ subTopicName, subTopicDescription }) => ({
-          subTopicName,
-          subTopicDescription,
-        })),
+        subTopics,
       })),
     }
     console.log(tutorialData)
@@ -364,12 +364,32 @@ const AddTopicAndSubTopic: React.FC = () => {
     subTopicIndex: number | null,
   ) => {
     try {
+      if (subTopicIndex !== null) {
+        setSubTopicDescriptionLoading((prevLoading) => {
+          const newLoading = [...prevLoading]
+          newLoading[topicIndex] = prevLoading[topicIndex]
+            ? [...prevLoading[topicIndex]]
+            : []
+          newLoading[topicIndex][subTopicIndex] = true
+          return newLoading
+        })
+      } else {
+        setTopicDescriptionLoading((prevLoading) => {
+          const newLoading = [...prevLoading]
+          newLoading[topicIndex] = true
+          return newLoading
+        })
+      }
+
       const name =
         subTopicIndex !== null
           ? topics[topicIndex].subTopics[subTopicIndex].subTopicName
           : topics[topicIndex].topicName
 
-      const description = await generateDescription(name)
+      const response = await generateDescription(name)
+      const description = response.data.description
+      setSnackbarOpen(true)
+      setSnackbarMessage("Description Generated Successfully")
 
       setTopics((prevTopics) => {
         const updatedTopics = [...prevTopics]
@@ -379,11 +399,22 @@ const AddTopicAndSubTopic: React.FC = () => {
             ...updatedTopics[topicIndex].subTopics[subTopicIndex],
             subTopicDescription: description,
           }
+          setSubTopicDescriptionLoading((prevLoading) => {
+            const newLoading = [...prevLoading]
+            newLoading[topicIndex] = [...prevLoading[topicIndex]]
+            newLoading[topicIndex][subTopicIndex] = false
+            return newLoading
+          })
         } else {
           updatedTopics[topicIndex] = {
             ...updatedTopics[topicIndex],
             topicDescription: description,
           }
+          setTopicDescriptionLoading((prevLoading) => {
+            const newLoading = [...prevLoading]
+            newLoading[topicIndex] = false
+            return newLoading
+          })
         }
 
         return updatedTopics
@@ -612,6 +643,11 @@ const AddTopicAndSubTopic: React.FC = () => {
                         }
                         fullWidth
                         multiline
+                        InputProps={{
+                          endAdornment: topicDescriptionLoading[topicIndex] ? (
+                            <CircularProgress size={24} />
+                          ) : null,
+                        }}
                       />
                       <IconButton
                         sx={{ color: theme.palette.info.main }}
@@ -693,6 +729,13 @@ const AddTopicAndSubTopic: React.FC = () => {
                               e.target.value,
                             )
                           }
+                          InputProps={{
+                            endAdornment: subTopicDescriptionLoading[
+                              topicIndex
+                            ]?.[subTopicIndex] ? (
+                              <CircularProgress size={24} />
+                            ) : null,
+                          }}
                         />
                         <IconButton
                           sx={{ color: theme.palette.info.main }}

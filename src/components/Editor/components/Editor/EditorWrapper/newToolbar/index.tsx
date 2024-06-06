@@ -196,7 +196,8 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           disabled={
             !canRedo ||
             role === 'CONTENT_REVIEWER' ||
-            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
           }
           onClick={() => {
             editor.dispatchCommand(REDO_COMMAND, undefined)
@@ -336,7 +337,8 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           size="small"
           disabled={
             role === 'CONTENT_REVIEWER' ||
-            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
           }
         >
           <Select
@@ -472,7 +474,8 @@ export default function ToolbarPlugin(subTopicStatus: any) {
             key={plugin.id}
             disabled={
               role === 'CONTENT_REVIEWER' ||
-              subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+              subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+              subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
             }
           >
             <plugin.Icon onClick={() => onClick(plugin.event)} />
@@ -485,7 +488,8 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           }}
           disabled={
             role === 'CONTENT_REVIEWER' ||
-            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
           }
         >
           <FormatStrikethroughIcon />
@@ -497,7 +501,8 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           }}
           disabled={
             role === 'CONTENT_REVIEWER' ||
-            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
           }
         >
           <CodeIcon />
@@ -508,7 +513,8 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           size="small"
           disabled={
             role === 'CONTENT_REVIEWER' ||
-            subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
           }
         >
           <Select
@@ -604,7 +610,9 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           sx={{ minWidth: 170 }}
           size="small"
           disabled={
-            role === 'CONTENT_REVIEWER' || subTopicStatus?.subTopicStatus === 'CONTENT_DONE'
+            role === 'CONTENT_REVIEWER' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED'
           }
         >
           <Select
