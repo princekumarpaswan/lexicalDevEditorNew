@@ -136,8 +136,8 @@ export const searchTutorials = async (
 //
 //
 interface FilterParams {
-  categoryId?: string
-  status?: string
+  categoryId?: any
+  status?: any
   page?: number
   limit?: number
 }

@@ -155,17 +155,28 @@ function Tutorials() {
 
   //   fetchTutorials()
   // }, [page, rowsPerPage, searchQuery])
+  const [isFilterApplied, setIsFilterApplied] = useState(false)
   useEffect(() => {
     const fetchTutorials = async () => {
       try {
         setLoading(true)
-        const response = debouncedSearchQuery
-          ? await searchTutorials(
-              debouncedSearchQuery,
-              currentPage,
-              rowsPerPage,
-            )
-          : await listAllTutorials(currentPage, rowsPerPage)
+        let response
+        if (isFilterApplied) {
+          response = await filterTutorials({
+            categoryId: filterCategoryId,
+            status: filterStatus,
+            page: currentPage,
+            limit: rowsPerPage,
+          })
+        } else if (debouncedSearchQuery) {
+          response = await searchTutorials(
+            debouncedSearchQuery,
+            currentPage,
+            rowsPerPage,
+          )
+        } else {
+          response = await listAllTutorials(currentPage, rowsPerPage)
+        }
 
         if (response.success) {
           const data = response.data.map(
@@ -195,7 +206,7 @@ function Tutorials() {
     }
 
     fetchTutorials()
-  }, [rowsPerPage, debouncedSearchQuery, currentPage])
+  }, [debouncedSearchQuery, currentPage, rowsPerPage, isFilterApplied])
 
   interface Category {
     id: string
@@ -222,46 +233,14 @@ function Tutorials() {
   const handleFilterFetch = async () => {
     try {
       setLoading(true)
-      const filterParams = {
-        categoryId: filterCategoryId || undefined,
-        status: filterStatus || undefined,
-      }
+      setIsFilterApplied(true)
+      const response = await filterTutorials({
+        categoryId: filterCategoryId,
+        status: filterStatus,
+        page: currentPage,
+        limit: rowsPerPage,
+      })
 
-      const response = await filterTutorials(filterParams)
-      const tutorials = response.data || []
-
-      const data = tutorials.map(
-        (tutorial: {
-          tutorialName: string
-          id: any
-          categoryName: string
-          status: string
-        }) => ({
-          tutorialName: tutorial.tutorialName,
-          SNo: 0,
-          ID: tutorial.id,
-          categoryName: tutorial.categoryName,
-          status: tutorial.status,
-        }),
-      )
-
-      setTutorials(data)
-      setShowFilterBox(null)
-      setLoading(false)
-    } catch (error) {
-      console.error('Failed to filter tutorials', error)
-    }
-  }
-
-  const handleFilterReset = async () => {
-    try {
-      setFilterCategoryId(null)
-      setFilterStatus(null)
-      setShowFilterBox(null)
-      setCategoryInputValue('')
-
-      // Fetch all tutorials
-      const response = await listAllTutorials(1, rowsPerPage)
       if (response.success) {
         const data = response.data.map(
           (tutorial: {
@@ -269,6 +248,7 @@ function Tutorials() {
             id: any
             categoryName: any
             status: any
+            index: number
           }) => ({
             tutorialName: tutorial.tutorialName,
             SNo: 0,
@@ -277,21 +257,33 @@ function Tutorials() {
             status: tutorial.status,
           }),
         )
-
         setTutorials(data)
+        setShowFilterBox(null)
       } else {
-        console.error('Failed to fetch tutorials')
+        console.error('Failed to fetch filtered tutorials')
       }
+      setLoading(false)
     } catch (error) {
-      console.error('Failed to fetch tutorials', error)
+      console.error('Failed to fetch filtered tutorials', error)
+      setLoading(false)
     }
   }
 
-  const handleFilterCancel = () => {
+  const handleFilterReset = async () => {
     setFilterCategoryId(null)
-    setCategoryInputValue('')
     setFilterStatus(null)
+    setCategoryInputValue('')
+    setCurrentPage(1)
+    setRowsPerPage(10)
+    setIsFilterApplied(false)
     setShowFilterBox(null)
+  }
+
+  const handleFilterCancel = () => {
+    setShowFilterBox(null)
+    setFilterCategoryId(null)
+    setFilterStatus(null)
+    setCategoryInputValue('')
   }
 
   const handleSwitchChange = async (
@@ -331,11 +323,48 @@ function Tutorials() {
     console.log(tutorialId)
   }
 
-  const handleChangePage = (
+  const handleChangePage = async (
     _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    setCurrentPage(newPage + 1)
+    try {
+      setLoading(true)
+      const response =
+        filterCategoryId || filterStatus
+          ? await filterTutorials({
+              categoryId: filterCategoryId,
+              status: filterStatus,
+              page: newPage + 1, // Change here: page is newPage + 1
+              limit: rowsPerPage,
+            })
+          : await listAllTutorials(newPage + 1, rowsPerPage)
+
+      if (response.success) {
+        const data = response.data.map(
+          (tutorial: {
+            tutorialName: any
+            id: any
+            categoryName: any
+            status: any
+            index: number
+          }) => ({
+            tutorialName: tutorial.tutorialName,
+            SNo: 0,
+            ID: tutorial.id,
+            categoryName: tutorial.categoryName,
+            status: tutorial.status,
+          }),
+        )
+        setTutorials(data)
+        setCurrentPage(newPage + 1) // Change here: update currentPage after the API call
+      } else {
+        console.error('Failed to fetch tutorials')
+      }
+      setLoading(false)
+    } catch (error) {
+      console.error('Failed to fetch tutorials', error)
+      setLoading(false)
+    }
   }
 
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
