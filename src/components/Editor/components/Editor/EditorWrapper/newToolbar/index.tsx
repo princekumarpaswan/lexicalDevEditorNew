@@ -54,9 +54,9 @@ import YouTubeIcon from '@mui/icons-material/YouTube'
 import FormatShapesIcon from '@mui/icons-material/FormatShapes'
 import { AuthContext } from '../../../../../../context/AuthContext/AuthContext'
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode'
-import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
+import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule'
 import { INSERT_COLLAPSIBLE_COMMAND } from '../../plugin/CollapsiblePlugin'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
 const LowPriority = 3
 
@@ -641,7 +641,7 @@ export default function ToolbarPlugin(subTopicStatus: any) {
         <Divider />
 
         <FormControl
-          sx={{ minWidth: 170,width: "220px" }}
+          sx={{ minWidth: 170, width: '220px' }}
           size="small"
           disabled={
             role === 'CONTENT_REVIEWER' ||
@@ -738,36 +738,48 @@ export default function ToolbarPlugin(subTopicStatus: any) {
               </MenuItem>
             ))}
 
-             <MenuItem
+            <MenuItem
               onClick={() => {
                 activeEditor.dispatchCommand(
                   INSERT_HORIZONTAL_RULE_COMMAND,
-                  undefined, 
-                );
+                  undefined,
+                )
               }}
               className="item"
             >
               {/* <img src={diagram2} alt="Excalidraw" className="icon diagram-2" /> */}
-             <div style={{gap: "10px", display: "flex", justifyContent: "start", alignItems: "center"}} >
-               <HorizontalRuleIcon/>
-              <text className="text">Horizontal Rule</text>
-             </div>
-            </MenuItem>
-
-            <MenuItem
-            onClick={() => {
-                editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined);
-              }}
-              className="item"
-            >
-              {/* <img src={diagram2} alt="Excalidraw" className="icon diagram-2" /> */}
-               <div style={{gap: "10px", display: "flex", justifyContent: "start", alignItems: "center"}} >
-              <PlayArrowIcon/>
-              <Typography className="text">Collapsible container</Typography>
+              <div
+                style={{
+                  gap: '10px',
+                  display: 'flex',
+                  justifyContent: 'start',
+                  alignItems: 'center',
+                }}
+              >
+                <HorizontalRuleIcon />
+                <text className="text">Horizontal Rule</text>
               </div>
             </MenuItem>
 
-
+            <MenuItem
+              onClick={() => {
+                editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined)
+              }}
+              className="item"
+            >
+              {/* <img src={diagram2} alt="Excalidraw" className="icon diagram-2" /> */}
+              <div
+                style={{
+                  gap: '10px',
+                  display: 'flex',
+                  justifyContent: 'start',
+                  alignItems: 'center',
+                }}
+              >
+                <PlayArrowIcon />
+                <Typography className="text">Collapsible container</Typography>
+              </div>
+            </MenuItem>
           </Select>
         </FormControl>
 
