@@ -4,6 +4,7 @@
   border: 1px solid #eee;
   border-radius: 10px;
   margin-bottom: 8px;
+  color: #000;
 }
 
 .Collapsible__title {
@@ -13,6 +14,7 @@
   font-weight: bold;
   list-style: none;
   outline: none;
+  color: #000;
 }
 
 .Collapsible__title::marker,

@@ -27,7 +27,7 @@ const theme = createTheme({
     },
     secondary: {
       main: '#fa7930ff',
-      contrastText: 'white',
+      contrastText: 'black',
     },
     background: {
       default: '#f8f8f8',
@@ -42,6 +42,7 @@ const theme = createTheme({
     h3: {
       [mediaQueryTheme.breakpoints.down('sm')]: {
         fontSize: '2rem',
+        color: 'red'
       },
     },
     h4: {

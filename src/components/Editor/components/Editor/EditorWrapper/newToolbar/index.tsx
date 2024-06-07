@@ -20,6 +20,7 @@ import FormatStrikethroughIcon from '@mui/icons-material/FormatStrikethrough'
 import {
   FormControl,
   IconButton,
+  InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -57,6 +58,9 @@ import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontal
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule'
 import { INSERT_COLLAPSIBLE_COMMAND } from '../../plugin/CollapsiblePlugin'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import SubscriptIcon from '@mui/icons-material/Subscript'
+import SuperscriptIcon from '@mui/icons-material/Superscript'
+import ImageIcon from '@mui/icons-material/Image'
 
 const LowPriority = 3
 
@@ -144,7 +148,6 @@ export default function ToolbarPlugin(subTopicStatus: any) {
   const handleChange = (event: SelectChangeEvent) => {
     setAge(event.target.value as string)
   }
-
   const handleAlignText = (event: SelectChangeEvent) => {
     setAlign(event.target.value as string)
   }
@@ -779,6 +782,90 @@ export default function ToolbarPlugin(subTopicStatus: any) {
                 <PlayArrowIcon />
                 <Typography className="text">Collapsible container</Typography>
               </div>
+            </MenuItem>
+
+            <MenuItem onClick={() => onClick('insertImage')} className="item">
+              {/* <img src={diagram2} alt="Excalidraw" className="icon diagram-2" /> */}
+              <div
+                style={{
+                  gap: '10px',
+                  display: 'flex',
+                  justifyContent: 'start',
+                  alignItems: 'center',
+                }}
+              >
+                <ImageIcon />
+                <Typography className="text">Image</Typography>
+              </div>
+            </MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl
+          sx={{ width:"70px"}}
+          size="small"
+          disabled={
+            role === 'CONTENT_REVIEWER' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+            subTopicStatus?.subTopicStatus === 'PUBLISHED'
+          }
+          fullWidth
+        >
+          <InputLabel id="demo-simple-select-label">Select</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={age}
+            label="Age"
+            onChange={handleChange}
+          >
+            <MenuItem value={10}>
+              <IconButton
+                style={{ width: '60px', borderRadius: 10 }}
+                onClick={() => {
+                  activeEditor.dispatchCommand(
+                    FORMAT_TEXT_COMMAND,
+                    'superscript',
+                  )
+                }}
+                disabled={
+                  role === 'CONTENT_REVIEWER' ||
+                  subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+                  subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+                  subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+                  subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+                  subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+                  subTopicStatus?.subTopicStatus === 'PUBLISHED'
+                }
+              >
+                <SubscriptIcon />
+              </IconButton>
+            </MenuItem>
+            <MenuItem value={20}>
+              <IconButton
+                style={{ width: '60px', borderRadius: 10 }}
+                onClick={() => {
+                  activeEditor.dispatchCommand(
+                    FORMAT_TEXT_COMMAND,
+                    'superscript',
+                  )
+                }}
+                disabled={
+                  role === 'CONTENT_REVIEWER' ||
+                  subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+                  subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+                  subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
+                  subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
+                  subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
+                  subTopicStatus?.subTopicStatus === 'PUBLISHED'
+                }
+              >
+                <SuperscriptIcon />
+              </IconButton>
             </MenuItem>
           </Select>
         </FormControl>

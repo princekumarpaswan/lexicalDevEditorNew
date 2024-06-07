@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
 import { useContext, useEffect } from 'react'
 import './styles.css'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
@@ -67,7 +66,7 @@ function EditorWrapper({
   const initialConfig = {
     namespace: 'Editor ',
     theme: PlaygroundEditorTheme,
-    onError: (error: unknown) => console.log(error),
+    onError: (error: unknown) => error,
     editorState: initialContent && initialContent.content,
     nodes: [
       HeadingNode,
