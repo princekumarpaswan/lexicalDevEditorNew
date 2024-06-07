@@ -506,23 +506,7 @@ export default function ToolbarPlugin(subTopicStatus: any) {
             <plugin.Icon onClick={() => onClick(plugin.event)} />
           </IconButton>
         ))}
-        <IconButton
-          style={{ width: '60px', borderRadius: 10 }}
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
-          }}
-          disabled={
-            role === 'CONTENT_REVIEWER' ||
-            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
-            subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
-            subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-            subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
-            subTopicStatus?.subTopicStatus === 'PUBLISHED'
-          }
-        >
-          <FormatStrikethroughIcon />
-        </IconButton>
+
         <IconButton
           style={{ width: '60px', borderRadius: 10 }}
           onClick={() => {
@@ -815,7 +799,7 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           }
           fullWidth
         >
-          <InputLabel id="demo-simple-select-label">Aa</InputLabel>
+          <InputLabel id="demo-simple-select-label">Formatting</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
@@ -861,6 +845,30 @@ export default function ToolbarPlugin(subTopicStatus: any) {
               >
                 <SubscriptIcon />
                 <Typography className="text">Subscript</Typography>
+              </div>
+            </MenuItem>
+
+            <MenuItem
+              value="3"
+              onClick={() => {
+                activeEditor.dispatchCommand(
+                  FORMAT_TEXT_COMMAND,
+                  'strikethrough',
+                )
+              }}
+              className="item"
+            >
+              {/* <img src={diagram2} alt="Excalidraw" className="icon diagram-2" /> */}
+              <div
+                style={{
+                  gap: '10px',
+                  display: 'flex',
+                  justifyContent: 'start',
+                  alignItems: 'center',
+                }}
+              >
+                <FormatStrikethroughIcon />
+                <Typography className="text">strikethrough</Typography>
               </div>
             </MenuItem>
           </Select>
