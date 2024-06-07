@@ -26,6 +26,7 @@ import { TablePlugin } from '@lexical/react/LexicalTablePlugin'
 import EquationsPlugin from '../plugin/EquationsPlugin'
 import CommentPlugin from '../plugin/CommentPlugin'
 import { AutoLinkNode, LinkNode } from '@lexical/link'
+import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin'
 import { HeadingNode } from '@lexical/rich-text'
 import { CodeHighlightNode, CodeNode } from '@lexical/code'
 import { TableNode, TableCellNode, TableRowNode } from '@lexical/table'
@@ -42,6 +43,12 @@ import { ThemeContext } from '../../../../../ThemeContext'
 import { IThemeMode } from '../../../../../ThemeContext/types'
 import { AuthContext } from '../../../../../context/AuthContext/AuthContext'
 import ContentContext from '../../../../../context/contentText'
+import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import { CollapsibleContainerNode } from '../plugin/CollapsiblePlugin/CollapsibleContainerNode'
+import CollapsiblePlugin from '../plugin/CollapsiblePlugin'
+import { CollapsibleContentNode } from '../plugin/CollapsiblePlugin/CollapsibleContentNode'
+import { CollapsibleTitleNode } from '../plugin/CollapsiblePlugin/CollapsibleTitleNode'
+
 type EditorWrapperProps = {
   onEditorChange: (editorStateJSONString: string) => void
   initialContent?: any
@@ -81,6 +88,10 @@ function EditorWrapper({
       TableNode,
       TableRowNode,
       MarkNode,
+      HorizontalRuleNode,
+      CollapsibleContainerNode,
+      CollapsibleContentNode,
+      CollapsibleTitleNode,
     ],
   }
   useEffect(() => {
@@ -162,6 +173,8 @@ function EditorWrapper({
                 hasCellBackgroundColor={tableCellBackgroundColor}
               />
               <TableCellResizer />
+              <CollapsiblePlugin />
+              <HorizontalRulePlugin />
               <EquationsPlugin />
               {showTableOfContents && <TableOfContentsPlugin />}
             </Box>
