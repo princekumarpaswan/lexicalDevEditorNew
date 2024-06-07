@@ -802,7 +802,7 @@ export default function ToolbarPlugin(subTopicStatus: any) {
         </FormControl>
 
         <FormControl
-          sx={{ width:"70px"}}
+          sx={{ width: '170px' }}
           size="small"
           disabled={
             role === 'CONTENT_REVIEWER' ||
@@ -815,7 +815,7 @@ export default function ToolbarPlugin(subTopicStatus: any) {
           }
           fullWidth
         >
-          <InputLabel id="demo-simple-select-label">Select</InputLabel>
+          <InputLabel id="demo-simple-select-label">Aa</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
@@ -823,49 +823,45 @@ export default function ToolbarPlugin(subTopicStatus: any) {
             label="Age"
             onChange={handleChange}
           >
-            <MenuItem value={10}>
-              <IconButton
-                style={{ width: '60px', borderRadius: 10 }}
-                onClick={() => {
-                  activeEditor.dispatchCommand(
-                    FORMAT_TEXT_COMMAND,
-                    'superscript',
-                  )
+            <MenuItem
+              value="1"
+              onClick={() => {
+                activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript')
+              }}
+              className="item"
+            >
+              {/* <img src={diagram2} alt="Excalidraw" className="icon diagram-2" /> */}
+              <div
+                style={{
+                  gap: '10px',
+                  display: 'flex',
+                  justifyContent: 'start',
+                  alignItems: 'center',
                 }}
-                disabled={
-                  role === 'CONTENT_REVIEWER' ||
-                  subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-                  subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
-                  subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
-                  subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-                  subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
-                  subTopicStatus?.subTopicStatus === 'PUBLISHED'
-                }
               >
                 <SubscriptIcon />
-              </IconButton>
+                <Typography className="text">Superscript</Typography>
+              </div>
             </MenuItem>
-            <MenuItem value={20}>
-              <IconButton
-                style={{ width: '60px', borderRadius: 10 }}
-                onClick={() => {
-                  activeEditor.dispatchCommand(
-                    FORMAT_TEXT_COMMAND,
-                    'superscript',
-                  )
+            <MenuItem
+              value="2"
+              onClick={() => {
+                activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'subscript')
+              }}
+              className="item"
+            >
+              {/* <img src={diagram2} alt="Excalidraw" className="icon diagram-2" /> */}
+              <div
+                style={{
+                  gap: '10px',
+                  display: 'flex',
+                  justifyContent: 'start',
+                  alignItems: 'center',
                 }}
-                disabled={
-                  role === 'CONTENT_REVIEWER' ||
-                  subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-                  subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
-                  subTopicStatus?.subTopicStatus === 'READY_TO_PUBLISH' ||
-                  subTopicStatus?.subTopicStatus === 'CONTENT_DONE' ||
-                  subTopicStatus?.subTopicStatus === 'REVIEW_ASSIGNED' ||
-                  subTopicStatus?.subTopicStatus === 'PUBLISHED'
-                }
               >
-                <SuperscriptIcon />
-              </IconButton>
+                <SubscriptIcon />
+                <Typography className="text">Subscript</Typography>
+              </div>
             </MenuItem>
           </Select>
         </FormControl>
