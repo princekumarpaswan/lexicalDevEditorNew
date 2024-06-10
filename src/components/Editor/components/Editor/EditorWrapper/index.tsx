@@ -8,6 +8,8 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary'
 import { MuiContentEditable, placeHolderSx } from './styles'
+import { QuoteNode} from '@lexical/rich-text';
+
 import { Box } from '@mui/material'
 import { ListPlugin } from '@lexical/react/LexicalListPlugin'
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin'
@@ -47,6 +49,7 @@ import { CollapsibleContainerNode } from '../plugin/CollapsiblePlugin/Collapsibl
 import CollapsiblePlugin from '../plugin/CollapsiblePlugin'
 import { CollapsibleContentNode } from '../plugin/CollapsiblePlugin/CollapsibleContentNode'
 import { CollapsibleTitleNode } from '../plugin/CollapsiblePlugin/CollapsibleTitleNode'
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin'
 
 type EditorWrapperProps = {
   onEditorChange: (editorStateJSONString: string) => void
@@ -72,7 +75,6 @@ function EditorWrapper({
       HeadingNode,
       ListNode,
       ListItemNode,
-      // QuoteNode,
       CodeNode,
       CodeHighlightNode,
       AutoLinkNode,
@@ -91,6 +93,8 @@ function EditorWrapper({
       CollapsibleContainerNode,
       CollapsibleContentNode,
       CollapsibleTitleNode,
+      MarkNode,
+      QuoteNode
     ],
   }
   useEffect(() => {
@@ -109,7 +113,7 @@ function EditorWrapper({
   const { themeMode } = themeContext
 
   const toolbarStyle = {
-    backgroundColor: themeMode === IThemeMode.DARK ? 'ligthgray' : 'white',
+    backgroundColor: themeMode === IThemeMode.DARK ? 'lightgray' : 'white',
   }
   return (
     <>
@@ -165,6 +169,7 @@ function EditorWrapper({
               <ListPlugin />
               <LinkPlugin />
               <AutoEmbedPlugin />
+              <MarkdownShortcutPlugin />
               <MyOnChangePlugin onChange={onEditorChange} />
               <ClearEditorPlugin />
               <TablePlugin
@@ -184,6 +189,7 @@ function EditorWrapper({
   )
 }
 export default EditorWrapper
+
 interface MyOnChangePluginProps {
   onChange: (editorStateJSONString: string) => void
 }
