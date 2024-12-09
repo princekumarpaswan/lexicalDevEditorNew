@@ -12,6 +12,7 @@ const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
   return state.accessToken ? children : <Navigate to="/login" />
 }
 
+
 const App = () => {
   return (
     <BrowserRouter>
