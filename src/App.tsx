@@ -5,7 +5,6 @@ import { AuthContext, AuthProvider } from './context/AuthContext/AuthContext'
 import Login from './pages/Login'
 import { ContentProvider } from '../src/context/contentText';
 
-
 const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
   const { state } = useContext(AuthContext)
 
